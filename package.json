@@ -1,0 +1,16 @@
+{
+  "name": "infostander",
+  "description": "Infostander proxy to handle communication between symfony and the front-end",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express" : "3.4.x",
+    "socket.io" : "1.0.x",
+    "hjs" : "0.0.6",
+    "jsonwebtoken" : "0.4.0",
+    "socketio-jwt" : "2.3.1",
+    "nconf" : "0.6.9",
+    "log" : "1.4.0",
+    "optimist" : "0.6.0"
+  }
+}
