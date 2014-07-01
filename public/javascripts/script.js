@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function connect() {
-    socket = io.connect('localhost:3000');
+    socket = io.connect();
     socket.on('error', function (reason) {
       addMessage(reason);
     });
