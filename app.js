@@ -62,6 +62,7 @@ connection.on('connection', function(client) {
   var counter = 0;
 
   client.on('ping', function (data) {
+    console.log('Sending ping (' + counter + '): ' + client.getId());
     counter++;
     client.pong(counter);
   });
