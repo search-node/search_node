@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ sitename }}</title>
+
+    <!-- Load css -->
+    <link rel='stylesheet' href='stylesheets/style.css' />
+
+    <!-- Load socket.io -->
+    <script src="socket.io/socket.io.js"></script>
+
+    <!-- Load custom scripts -->
+    <script src="javascripts/script.js"></script>
+  </head>
+  <body>
+    <!-- Wrap all page content here -->
+    <div id="wrap" class="container">
+      <!-- Test span to print socket info -->
+      <span class="message">
+        <ul>
+        </ul>
+      </span>
+    </div>
+  </body>
+</html>
