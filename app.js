@@ -9,6 +9,7 @@
 var path = require('path');
 var express = require('express');
 var fs = require('fs');
+var elasticsearch = require('elasticsearch');
 
 // Start the app.
 var app = express();
@@ -50,6 +51,12 @@ server.listen(app.get('port'), function (){
   }
 });
 
+var es = elasticsearch.Client({
+  hosts: [
+  'localhost:9200'
+  ]
+});
+
 /************************************
  * Socket events
  *
@@ -59,12 +66,36 @@ server.listen(app.get('port'), function (){
  * happens for now.
  ***************/
 connection.on('connection', function(client) {
-  var counter = 0;
+  client.on('search', function(data) {
+    if (data.search.length === 0) {
+      return
+    }
 
-  client.on('ping', function (data) {
-    console.log('Sending ping (' + counter + '): ' + client.getId());
-    counter++;
-    client.pong(counter);
+    var options = {};
+    options.index = 'indholdskanalen';
+    options.size = 50;
+    options.type = 'Indholdskanalen\\MainBundle\\Entity\\Slide';
+
+    options.body = {};
+    
+    options.body.query = {};
+    options.body.query.flt = {};
+    options.body.query.flt.fields = data.fields;
+    options.body.query.flt.like_text = data.search;
+
+    if (data.sort.length > 0) {
+      options.body.sort = data.sort;
+    }
+
+    es.search(options).then(function (resp) {
+      if (resp.hits.total > 0) {
+        var hits = [];
+        for (var hit in resp.hits.hits) {
+          hits.push(resp.hits.hits[hit]._source);
+        }
+        client.result(hits);
+      }
+    });
   });
 });
 
