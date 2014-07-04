@@ -81,7 +81,7 @@ connection.on('connection', function(client) {
       options.body.query.flt.like_text = data.text;
     }
 
-    if (data.sort.length > 0) {
+    if (data.hasOwnProperty('sort')) {
       options.body.sort = data.sort;
     }
 
