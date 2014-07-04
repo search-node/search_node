@@ -68,25 +68,61 @@ var es = elasticsearch.Client({
 connection.on('connection', function(client) {
   client.on('search', function(data) {
     var options = {};
+    // TODO: This should be made dynamic. Maybe this could be done with Redis?
     options.index = 'indholdskanalen';
+
+    // Default size is 50. This is max too.
     options.size = 50;
-    options.type = data.type
+
+    // We get type from client.
+    if (data.hasOwnProperty('type')) {
+      options.type = data.type
+    }
+    else {
+      // No type defined. Send an error.
+      client.result('No type defined.');
+    }
 
     options.body = {};
     
+    // Setup fuzzy search.
     if (data.text !== '') {
       options.body.query = {};
       options.body.query.flt = {};
-      options.body.query.flt.fields = data.fields;
+
+      // Search on fiels, else every field.
+      if (data.hasOwnProperty'fields')) {
+        options.body.query.flt.fields = data.fields;
+      }
+
       options.body.query.flt.like_text = data.text;
     }
 
+    // Setup sorting.
+    // Example input:
+    // {created: 'asc'}
     if (data.hasOwnProperty('sort')) {
       options.body.sort = data.sort;
     }
 
+    // Setup filter.
+    // Example input:
+    // {status: 1}
+    if (data.hasOwnProperty('filter')) {
+      options.body.query.match = data.filter;
+    }
+
+    // Setup size.
+    if (data.hasOwnProperty('size')) {
+      if (data.size > options.size) {
+        options.size = data.size;
+      }
+    }
+
+    // Execute the search.
     es.search(options).then(function (resp) {
       if (resp.hits.total > 0) {
+        // We got hits, return only _source.
         var hits = [];
         for (var hit in resp.hits.hits) {
           hits.push(resp.hits.hits[hit]._source);
