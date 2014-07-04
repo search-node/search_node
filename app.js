@@ -91,7 +91,7 @@ connection.on('connection', function(client) {
       options.body.query.flt = {};
 
       // Search on fiels, else every field.
-      if (data.hasOwnProperty'fields')) {
+      if (data.hasOwnProperty('fields')) {
         options.body.query.flt.fields = data.fields;
       }
 
