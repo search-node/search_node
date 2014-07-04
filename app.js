@@ -67,21 +67,19 @@ var es = elasticsearch.Client({
  ***************/
 connection.on('connection', function(client) {
   client.on('search', function(data) {
-    if (data.search.length === 0) {
-      return
-    }
-
     var options = {};
     options.index = 'indholdskanalen';
     options.size = 50;
-    options.type = 'Indholdskanalen\\MainBundle\\Entity\\Slide';
+    options.type = data.type
 
     options.body = {};
     
-    options.body.query = {};
-    options.body.query.flt = {};
-    options.body.query.flt.fields = data.fields;
-    options.body.query.flt.like_text = data.search;
+    if (data.text !== '') {
+      options.body.query = {};
+      options.body.query.flt = {};
+      options.body.query.flt.fields = data.fields;
+      options.body.query.flt.like_text = data.text;
+    }
 
     if (data.sort.length > 0) {
       options.body.sort = data.sort;
