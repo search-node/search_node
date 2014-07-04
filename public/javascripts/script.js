@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
   function connect() {
     socket = io.connect();
     socket.on('error', function (reason) {
-      addMessage(reason);
     });
 
     socket.on('connect', function () {
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     socket.on('result', function (data) {
-      console.log(data);
     });
   }
 
