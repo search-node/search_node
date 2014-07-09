@@ -172,7 +172,23 @@ app.post('/api', function(req, res) {
 });
 
 app.delete('/api', function(req, res) {
-  res.send(req.body);
+  if (app.validateCall(req.body)) {
+    // Test if index is created.
+    var indexName = app.indexName(req.body.app_id, req.body.type);
+
+    // Remove content.
+    es.delete({
+      index: indexName,
+      type: req.body.type,
+      id: req.body.id
+    }, function (err, response, status) {
+      console.log(err);
+      if (status === 200) {
+        res.send(req.body);
+      }
+    });
+  }
+  
 });
 
 app.validateCall = function(body) {
