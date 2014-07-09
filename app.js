@@ -65,21 +65,29 @@ var es = elasticsearch.Client({
  ***************/
 connection.on('connection', function(client) {
   client.on('search', function(data) {
+    console.log(data);
     var options = {};
     // TODO: This should be made dynamic. Maybe this could be done with Redis?
-    options.index = 'indholdskanalen';
+    if (data.hasOwnProperty('app_id')) {
+      // We get type from client.
+      if (data.hasOwnProperty('type')) {
+        options.type = data.type
+      }
+      else {
+        // No type defined. Send an error.
+        client.result('No type defined.');
+        return false;
+      }
+
+      options.index = app.indexName(data.app_id, data.type);
+    }
+    else {
+      client.result('No app_id defined.');
+      return false;
+    }
 
     // Default size is 50. This is max too.
     options.size = 50;
-
-    // We get type from client.
-    if (data.hasOwnProperty('type')) {
-      options.type = data.type
-    }
-    else {
-      // No type defined. Send an error.
-      client.result('No type defined.');
-    }
 
     options.body = {};
     // Setup fuzzy search.
@@ -145,7 +153,7 @@ app.get('/', function (req, res) {
 app.post('/api', function(req, res) {
   if (app.validateCall(req.body)) {
     // Test if index is created.
-    var indexName = app.indexName(req.body.APP_ID, req.body.type);
+    var indexName = app.indexName(req.body.app_id, req.body.type);
 
     es.indices.exists({
       index: indexName
