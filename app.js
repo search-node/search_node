@@ -10,6 +10,7 @@ var path = require('path');
 var express = require('express');
 var fs = require('fs');
 var elasticsearch = require('elasticsearch');
+var sha1 = require('sha1');
 
 // Start the app.
 var app = express();
@@ -32,11 +33,8 @@ connection.connect(server, config.get('debug'), config.get('secret'));
 
 // Set express app configuration.
 app.set('port', config.get('port'));
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hjs');
-app.use(express.favicon());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.bodyParser());
 app.use(app.router);
 
 // Log express requests.
@@ -84,10 +82,11 @@ connection.on('connection', function(client) {
     }
 
     options.body = {};
-    
     // Setup fuzzy search.
     if (data.text !== '') {
-      options.body.query = {};
+      if (!options.body.hasOwnProperty('query')) {
+        options.body.query = {};
+      }
       options.body.query.flt = {};
 
       // Search on fiels, else every field.
@@ -109,6 +108,9 @@ connection.on('connection', function(client) {
     // Example input:
     // {status: 1}
     if (data.hasOwnProperty('filter')) {
+      if (!options.body.hasOwnProperty('query')) {
+        options.body.query = {};
+      }
       options.body.query.match = data.filter;
     }
 
@@ -136,5 +138,91 @@ connection.on('connection', function(client) {
 /************************************
  * Application routes
  ********************/
-var routes = require('./routes');
-app.get('/', routes.index);
+app.get('/', function (req, res) {
+  res.send('Please use /api');
+});
+
+app.post('/api', function(req, res) {
+  if (app.validateCall(req.body)) {
+    // Test if index is created.
+    var indexName = app.indexName(req.body.APP_ID, req.body.type);
+
+    es.indices.exists({
+      index: indexName
+    }, function (err, response, status) {
+      if (status === 404) {
+        // Index not found. Lets create it.
+        app.buildNewIndex(indexName, req.body.type, req.body.data);
+      }
+      else {
+        // Index and mapping should be added. Just add our data.
+        app.addContent(indexName, req.body.type, req.body.data);
+      }
+    });
+  }
+  res.send('OK 200');
+});
+
+app.delete('/api', function(req, res) {
+  res.send(req.body);
+});
+
+app.validateCall = function(body) {
+  if ( (body.app_id !== undefined) && 
+    (body.app_secret !== undefined) &&
+    (body.type !== undefined) ) {
+    return true;
+  }
+}
+
+app.indexName = function(id, type) {
+  return sha1(id + ':' + type);
+}
+
+app.buildNewIndex = function(name, type, body) {
+  es.indices.create({
+    index: name,
+  }, function (err, response, status) {
+    if (status === 200) {
+      app.buildMapping(name, type, body);
+    }
+  });
+}
+
+app.buildMapping = function (name, type, body) {
+  // Index created. Now add mapper.
+  es.indices.putMapping({
+    index: name,
+    type: '_default_',
+    body: {
+      _default_: {
+        date_detection: false,
+        dynamic_templates: [{
+          dates: {
+            match: '.*Date|date|created|changed',
+            match_pattern: 'regex',
+            mapping: {
+              type: 'date'
+            }
+          }
+        }]
+      } 
+    }
+  }, function (err, response, status) {
+    if (status === 200) {
+      // Mapping added. Now add data.
+      app.addContent(name, type, body);
+    }
+  });
+}
+
+app.addContent = function(name, type, body) {
+  es.create({
+    index: name,
+    type: type,
+    body: body
+  }, function (err, response, status) {
+    if (status === 201) {
+    }
+  });
+}
