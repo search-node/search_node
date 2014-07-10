@@ -90,19 +90,41 @@ connection.on('connection', function(client) {
     options.size = 50;
 
     options.body = {};
-    // Setup fuzzy search.
-    if (data.text !== '') {
-      if (!options.body.hasOwnProperty('query')) {
-        options.body.query = {};
-      }
-      options.body.query.flt = {};
 
+    // Setup fuzzy search.
+    var fuzzy;
+    if (data.text !== '') {
+      fuzzy = { 'flt' : {} };
       // Search on fiels, else every field.
       if (data.hasOwnProperty('fields')) {
-        options.body.query.flt.fields = data.fields;
+        fuzzy.flt.fields = [ data.fields ];
       }
 
-      options.body.query.flt.like_text = data.text;
+      fuzzy.flt.like_text = data.text;
+    }
+
+    // Setup filter.
+    if (data.hasOwnProperty('filter')) {
+      options.body.query = {
+        "filtered": {
+          "filter": {
+            "bool": {
+              "must": { "term": data.filter }
+            }
+          }
+        }
+      };
+
+      if (fuzzy !== undefined) {
+        options.body.query.filtered.query = fuzzy;
+      }
+
+    }
+    else {
+      // Not filtered search, so just send fuzzy.
+      if (fuzzy !== undefined) {
+        options.body.query = fuzzy;
+      }
     }
 
     // Setup sorting.
@@ -110,16 +132,6 @@ connection.on('connection', function(client) {
     // {created: 'asc'}
     if (data.hasOwnProperty('sort')) {
       options.body.sort = data.sort;
-    }
-
-    // Setup filter.
-    // Example input:
-    // {status: 1}
-    if (data.hasOwnProperty('filter')) {
-      if (!options.body.hasOwnProperty('query')) {
-        options.body.query = {};
-      }
-      options.body.query.match = data.filter;
     }
 
     // Setup size.
@@ -188,11 +200,11 @@ app.delete('/api', function(req, res) {
       }
     });
   }
-  
+
 });
 
 app.validateCall = function(body) {
-  if ( (body.app_id !== undefined) && 
+  if ( (body.app_id !== undefined) &&
     (body.app_secret !== undefined) &&
     (body.type !== undefined) ) {
     return true;
@@ -230,7 +242,7 @@ app.buildMapping = function (name, type, body) {
             }
           }
         }]
-      } 
+      }
     }
   }, function (err, response, status) {
     if (status === 200) {
