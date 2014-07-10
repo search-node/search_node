@@ -131,14 +131,14 @@ connection.on('connection', function(client) {
 
     // Execute the search.
     es.search(options).then(function (resp) {
+      var hits = [];
       if (resp.hits.total > 0) {
         // We got hits, return only _source.
-        var hits = [];
         for (var hit in resp.hits.hits) {
           hits.push(resp.hits.hits[hit]._source);
         }
-        client.result(hits);
       }
+      client.result(hits);
     });
   });
 });
