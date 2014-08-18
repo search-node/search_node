@@ -5,3 +5,4 @@ ssl/ind*
 *.log
 .DS_Store
 *.pid
+.idea
