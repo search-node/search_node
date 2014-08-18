@@ -189,14 +189,18 @@ app.delete('/api', function(req, res) {
     var indexName = app.indexName(req.body.app_id, req.body.type);
 
     // Remove content.
-    es.delete({
+    es.deleteByQuery({
       index: indexName,
-      type: req.body.type,
-      id: req.body.id
+      body: {
+        query: {
+          term: { id: req.body.data.id }
+        }
+      }
     }, function (err, response, status) {
       console.log(err);
       if (status === 200) {
         res.send(req.body);
+
       }
     });
   }
