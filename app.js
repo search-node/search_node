@@ -91,6 +91,7 @@ connection.on('connection', function(client) {
 
     options.body = {};
 
+
     // Setup fuzzy search.
     var fuzzy;
     if (data.text !== '') {
@@ -101,6 +102,17 @@ connection.on('connection', function(client) {
       }
 
       fuzzy.flt.like_text = data.text;
+    }
+
+    // Setup boolean search
+    var match;
+    if (data.text !== '') {
+      match = { 'multi_match' : {} };
+      if (data.hasOwnProperty('fields')) {
+        match.multi_match.fields = [ data.fields ];
+      }
+
+      match.multi_match.query = data.text;
     }
 
     // Setup filter.
@@ -115,15 +127,29 @@ connection.on('connection', function(client) {
         }
       };
 
+      /**
+       * @TODO Choose between fuzzy or boolean search, or provide both
+       */
+
+      /*
       if (fuzzy !== undefined) {
         options.body.query.filtered.query = fuzzy;
       }
-
+      */
+      if (match !== undefined) {
+        options.body.query.filtered.query = match;
+      }
     }
     else {
       // Not filtered search, so just send fuzzy.
+      /*
       if (fuzzy !== undefined) {
         options.body.query = fuzzy;
+      }
+      */
+
+      if (match !== undefined) {
+        options.body.query = match;
       }
     }
 
@@ -150,6 +176,10 @@ connection.on('connection', function(client) {
           hits.push(resp.hits.hits[hit]._source);
         }
       }
+      console.log("-- OPTIONS --");
+      console.log(JSON.stringify(options, null, 4));
+      console.log("-- RESP --");
+      console.log(JSON.stringify(resp, null, 4));
       client.result(hits);
     });
   });
@@ -222,39 +252,63 @@ app.indexName = function(id, type) {
 app.buildNewIndex = function(name, type, body) {
   es.indices.create({
     index: name,
-  }, function (err, response, status) {
-    if (status === 200) {
-      app.buildMapping(name, type, body);
-    }
-  });
-}
-
-app.buildMapping = function (name, type, body) {
-  // Index created. Now add mapper.
-  es.indices.putMapping({
-    index: name,
-    type: '_default_',
     body: {
-      _default_: {
-        date_detection: false,
-        dynamic_templates: [{
-          dates: {
-            match: '.*Date|date|created|changed',
-            match_pattern: 'regex',
-            mapping: {
-              type: 'date'
+      "settings" : {
+        "analysis" : {
+          "analyzer" : {
+            "default_search" : {
+              "tokenizer" : "whitespace",
+              "filter" : ["lowercase"]
+            },
+            "default_index" : {
+              "tokenizer" : "alpha_nummeric_only",
+              "filter" : ["lowercase","ngram"]
+            }
+          },
+          "tokenizer" : {
+            "alpha_nummeric_only" : {
+              "pattern" : "[^\\p{L}\\d]+",
+              "type" : "pattern"
+            }
+          },
+          "filter" : {
+            "edge_ngram" : {
+              "max_gram" : 20,
+              "min_gram" : 1,
+              "type" : "edgeNGram"
+            },
+            "ngram" : {
+              "max_gram" : 20,
+              "min_gram" : 1,
+              "type" : "nGram"
             }
           }
-        }]
+        }
+      },
+      "mappings" : {
+        _default_: {
+          date_detection: false,
+          dynamic_templates: [{
+            dates: {
+              match: '.*Date|date|created|changed',
+              match_pattern: 'regex',
+              mapping: {
+                type: 'date'
+              }
+            }
+          }]
+        }
       }
     }
   }, function (err, response, status) {
     if (status === 200) {
-      // Mapping added. Now add data.
+      //app.buildMapping(name, type, body);
       app.addContent(name, type, body);
     }
   });
 }
+
+
 
 app.addContent = function(name, type, body) {
   es.create({
