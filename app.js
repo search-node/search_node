@@ -128,7 +128,7 @@ connection.on('connection', function(client) {
       };
 
       /**
-       * @TODO Choose between fuzzy or boolean search, or provide both
+       * @TODO Choose between fuzzy and boolean search, or provide both
        */
 
       /*
@@ -256,11 +256,11 @@ app.buildNewIndex = function(name, type, body) {
       "settings" : {
         "analysis" : {
           "analyzer" : {
-            "default_search" : {
+            "string_search" : {
               "tokenizer" : "whitespace",
               "filter" : ["lowercase"]
             },
-            "default_index" : {
+            "string_index" : {
               "tokenizer" : "alpha_nummeric_only",
               "filter" : ["lowercase","ngram"]
             }
@@ -294,6 +294,21 @@ app.buildNewIndex = function(name, type, body) {
               match_pattern: 'regex',
               mapping: {
                 type: 'date'
+              }
+            }
+          },{
+            tokens_plus_raw : {
+              match : "*",
+              match_mapping_type : "string",
+              mapping : {
+                type:     "string",
+                analyzer: "string_index",
+                fields: {
+                  raw: {
+                    type:  "string",
+                    index: "not_analyzed"
+                  }
+                }
               }
             }
           }]
