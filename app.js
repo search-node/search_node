@@ -11,6 +11,7 @@ var express = require('express');
 var fs = require('fs');
 var elasticsearch = require('elasticsearch');
 var sha1 = require('sha1');
+var rename = require('rename-keys');
 
 // Start the app.
 var app = express();
@@ -65,7 +66,10 @@ var es = elasticsearch.Client({
  ***************/
 connection.on('connection', function(client) {
   client.on('search', function(data) {
-    console.log(data);
+
+    //console.log("-- DATA --");
+    //console.log(JSON.stringify(data, null, 4));
+
     var options = {};
     // TODO: This should be made dynamic. Maybe this could be done with Redis?
     if (data.hasOwnProperty('app_id')) {
@@ -113,6 +117,7 @@ connection.on('connection', function(client) {
       }
 
       match.multi_match.query = data.text;
+      match.multi_match.analyzer = 'string_search';
     }
 
     // Setup filter.
@@ -156,8 +161,17 @@ connection.on('connection', function(client) {
     // Setup sorting.
     // Example input:
     // {created: 'asc'}
-    if (data.hasOwnProperty('sort')) {
-      options.body.sort = data.sort;
+    // If it's date
+    if (data.hasOwnProperty('sort') ) {
+
+      if(app.isStringSort(data)) {
+        options.body.sort = data.sort;
+
+        rename( options.body.sort, app.addRaw );
+
+      } else {
+        options.body.sort = data.sort;
+      }
     }
 
     // Setup size.
@@ -166,6 +180,9 @@ connection.on('connection', function(client) {
         options.size = data.size;
       }
     }
+
+    //console.log("-- OPTIONS --");
+    //console.log(JSON.stringify(options, null, 4));
 
     // Execute the search.
     es.search(options).then(function (resp) {
@@ -176,10 +193,7 @@ connection.on('connection', function(client) {
           hits.push(resp.hits.hits[hit]._source);
         }
       }
-      console.log("-- OPTIONS --");
-      console.log(JSON.stringify(options, null, 4));
-      console.log("-- RESP --");
-      console.log(JSON.stringify(resp, null, 4));
+
       client.result(hits);
     });
   });
@@ -230,7 +244,9 @@ app.delete('/api', function(req, res) {
       console.log(err);
       if (status === 200) {
         res.send(req.body);
-
+      } else {
+        // @TODO Send proper error to client or handle error somehow
+        res.send(response);
       }
     });
   }
@@ -290,7 +306,7 @@ app.buildNewIndex = function(name, type, body) {
           date_detection: false,
           dynamic_templates: [{
             dates: {
-              match: '.*Date|date|created|changed',
+              match: 'created_at|updated_at',
               match_pattern: 'regex',
               mapping: {
                 type: 'date'
@@ -298,7 +314,9 @@ app.buildNewIndex = function(name, type, body) {
             }
           },{
             tokens_plus_raw : {
-              match : "*",
+              match: '.*',
+              unmatch: 'created_at|updated_at',
+              match_pattern: 'regex',
               match_mapping_type : "string",
               mapping : {
                 type:     "string",
@@ -316,12 +334,32 @@ app.buildNewIndex = function(name, type, body) {
       }
     }
   }, function (err, response, status) {
+    console.log(err);
     if (status === 200) {
       //app.buildMapping(name, type, body);
       app.addContent(name, type, body);
     }
   });
 }
+
+/**
+ * @TODO This needs to match the setup for ES dynamic_templates - how do we best handle that?
+ *
+ * @param data
+ * @returns {boolean}
+ */
+app.isStringSort = function(data) {
+  var result = true;
+
+  if(data.sort.hasOwnProperty('created_at') || data.sort.hasOwnProperty('updated_at')) {
+    result = false;
+  }
+  return result;
+}
+
+app.addRaw = function(str) {
+  return str + '.raw';
+};
 
 
 
@@ -331,6 +369,7 @@ app.addContent = function(name, type, body) {
     type: type,
     body: body
   }, function (err, response, status) {
+    console.log(err);
     if (status === 201) {
     }
   });
