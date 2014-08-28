@@ -4,15 +4,16 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express" : "3.4.x",
-    "socket.io" : "1.0.x",
-    "hjs" : "0.0.6",
-    "jsonwebtoken" : "0.4.0",
-    "socketio-jwt" : "2.3.1",
-    "nconf" : "0.6.9",
-    "log" : "1.4.0",
-    "optimist" : "0.6.0",
-    "elasticsearch" : "2.2.x",
-    "sha1" : "1.1.0"
+    "elasticsearch": "2.2.x",
+    "express": "3.4.x",
+    "hjs": "0.0.6",
+    "jsonwebtoken": "0.4.0",
+    "log": "1.4.0",
+    "nconf": "0.6.9",
+    "optimist": "0.6.0",
+    "rename-keys": "^0.2.0",
+    "sha1": "1.1.0",
+    "socket.io": "1.0.x",
+    "socketio-jwt": "2.3.1"
   }
 }
