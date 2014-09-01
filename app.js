@@ -17,8 +17,10 @@ var rename = require('rename-keys');
 var app = express();
 
 // Load configuration.
+var argv = require('minimist')(process.argv.slice(2));
+var file = argv.config ? argv.config : 'config.json';
 var config = require('nconf');
-config.file({ file: 'config.json' });
+config.file({ "file": file, "search": true });
 
 // Add logger.
 var Log = require('log')
