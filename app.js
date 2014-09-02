@@ -9,6 +9,7 @@
 var path = require('path');
 var express = require('express');
 var fs = require('fs');
+
 var elasticsearch = require('elasticsearch');
 var sha1 = require('sha1');
 var rename = require('rename-keys');
@@ -166,12 +167,13 @@ connection.on('connection', function(client) {
     // If it's date
     if (data.hasOwnProperty('sort') ) {
 
-      if(app.isStringSort(data)) {
+      if (app.isStringSort(data)) {
         options.body.sort = data.sort;
 
-        rename( options.body.sort, app.addRaw );
+        rename(options.body.sort, app.addRaw);
 
-      } else {
+      }
+      else {
         options.body.sort = data.sort;
       }
     }
@@ -226,7 +228,8 @@ app.post('/api', function(req, res) {
       }
     });
   }
-  res.send('OK 200');
+
+  res.send(200);
 });
 
 app.delete('/api', function(req, res) {
@@ -243,22 +246,19 @@ app.delete('/api', function(req, res) {
         }
       }
     }, function (err, response, status) {
-      console.log(err);
       if (status === 200) {
         res.send(req.body);
-      } else {
+      }
+      else {
         // @TODO Send proper error to client or handle error somehow
         res.send(response);
       }
     });
   }
-
 });
 
 app.validateCall = function(body) {
-  if ( (body.app_id !== undefined) &&
-    (body.app_secret !== undefined) &&
-    (body.type !== undefined) ) {
+  if ((body.app_id !== undefined) && (body.app_secret !== undefined) && (body.type !== undefined)) {
     return true;
   }
 }
@@ -356,14 +356,13 @@ app.isStringSort = function(data) {
   if(data.sort.hasOwnProperty('created_at') || data.sort.hasOwnProperty('updated_at')) {
     result = false;
   }
+
   return result;
 }
 
 app.addRaw = function(str) {
   return str + '.raw';
 };
-
-
 
 app.addContent = function(name, type, body) {
   es.create({
