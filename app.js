@@ -47,11 +47,7 @@ server.listen(app.get('port'), function (){
   }
 });
 
-var es = elasticsearch.Client({
-  hosts: [
-  'localhost:9200'
-  ]
-});
+var es = elasticsearch.Client(config.get('search'));
 
 /************************************
  * Socket events
