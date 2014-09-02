@@ -18,14 +18,7 @@ var rename = require('rename-keys');
 var app = express();
 
 // Load configuration.
-var argv = require('minimist')(process.argv.slice(2));
-var file = argv.config ? argv.config : 'config.json';
-var config = require('nconf');
-config.file({ "file": file, "search": true });
-
-// Add logger.
-var Log = require('log')
-var logger = new Log('info', fs.createWriteStream(config.get('log'), {'flags': 'a'}));
+var config = require('./lib/configuration');
 
 // Start the http server.
 var http = require('http');
@@ -37,8 +30,9 @@ connection.connect(server, config.get('debug'), config.get('secret'));
 
 // Set express app configuration.
 app.set('port', config.get('port'));
+app.use(express.favicon());
+app.use(express.urlencoded());
 app.use(express.json());
-app.use(express.bodyParser());
 app.use(app.router);
 
 // Log express requests.
