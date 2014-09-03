@@ -10,15 +10,14 @@ var path = require('path');
 var express = require('express');
 var fs = require('fs');
 
-var elasticsearch = require('elasticsearch');
-var sha1 = require('sha1');
-var rename = require('rename-keys');
-
 // Start the app.
 var app = express();
 
 // Load configuration.
 var config = require('./lib/configuration');
+
+// Get logger.
+var logger = require('./lib/logger');
 
 // Start the http server.
 var http = require('http');
@@ -47,8 +46,6 @@ server.listen(app.get('port'), function (){
   }
 });
 
-var es = elasticsearch.Client(config.get('search'));
-
 /************************************
  * Socket events
  *
@@ -57,139 +54,24 @@ var es = elasticsearch.Client(config.get('search'));
  * swap with another one. But for test it's easier to see what
  * happens for now.
  ***************/
-connection.on('connection', function(client) {
+var Search = require('./lib/search');
+connection.on('connection', function (client) {
   client.on('search', function(data) {
+    var instance = new Search(data.app_id, data.type);
 
-    //console.log("-- DATA --");
-    //console.log(JSON.stringify(data, null, 4));
-
-    var options = {};
-    // TODO: This should be made dynamic. Maybe this could be done with Redis?
-    if (data.hasOwnProperty('app_id')) {
-      // We get type from client.
-      if (data.hasOwnProperty('type')) {
-        options.type = data.type
-      }
-      else {
-        // No type defined. Send an error.
-        client.result('No type defined.');
-        return false;
-      }
-
-      options.index = app.indexName(data.app_id, data.type);
-    }
-    else {
-      client.result('No app_id defined.');
-      return false;
-    }
-
-    // Default size is 50. This is max too.
-    options.size = 50;
-
-    options.body = {};
-
-
-    // Setup fuzzy search.
-    var fuzzy;
-    if (data.text !== '') {
-      fuzzy = { 'flt' : {} };
-      // Search on fiels, else every field.
-      if (data.hasOwnProperty('fields')) {
-        fuzzy.flt.fields = [ data.fields ];
-      }
-
-      fuzzy.flt.like_text = data.text;
-    }
-
-    // Setup boolean search
-    var match;
-    if (data.text !== '') {
-      match = { 'multi_match' : {} };
-      if (data.hasOwnProperty('fields')) {
-        match.multi_match.fields = [ data.fields ];
-      }
-
-      match.multi_match.query = data.text;
-      match.multi_match.analyzer = 'string_search';
-    }
-
-    // Setup filter.
-    if (data.hasOwnProperty('filter')) {
-      options.body.query = {
-        "filtered": {
-          "filter": {
-            "bool": {
-              "must": { "term": data.filter }
-            }
-          }
-        }
-      };
-
-      /**
-       * @TODO Choose between fuzzy and boolean search, or provide both
-       */
-
-      /*
-      if (fuzzy !== undefined) {
-        options.body.query.filtered.query = fuzzy;
-      }
-      */
-      if (match !== undefined) {
-        options.body.query.filtered.query = match;
-      }
-    }
-    else {
-      // Not filtered search, so just send fuzzy.
-      /*
-      if (fuzzy !== undefined) {
-        options.body.query = fuzzy;
-      }
-      */
-
-      if (match !== undefined) {
-        options.body.query = match;
-      }
-    }
-
-    // Setup sorting.
-    // Example input:
-    // {created: 'asc'}
-    // If it's date
-    if (data.hasOwnProperty('sort') ) {
-
-      if (app.isStringSort(data)) {
-        options.body.sort = data.sort;
-
-        rename(options.body.sort, app.addRaw);
-
-      }
-      else {
-        options.body.sort = data.sort;
-      }
-    }
-
-    // Setup size.
-    if (data.hasOwnProperty('size')) {
-      if (data.size > options.size) {
-        options.size = data.size;
-      }
-    }
-
-    //console.log("-- OPTIONS --");
-    //console.log(JSON.stringify(options, null, 4));
-
-    // Execute the search.
-    es.search(options).then(function (resp) {
-      var hits = [];
-      if (resp.hits.total > 0) {
-        // We got hits, return only _source.
-        for (var hit in resp.hits.hits) {
-          hits.push(resp.hits.hits[hit]._source);
-        }
-      }
-
+    // Handle completed query.
+    instance.once('hits', function (hits) {
+      // Send data back.
       client.result(hits);
     });
+
+    // Handle errors in the search.
+    instance.once('error', function (data) {
+      // Log and send error back.
+    });
+
+    // Send the query.
+    instance.query(data);
   });
 });
 
@@ -200,168 +82,81 @@ app.get('/', function (req, res) {
   res.send('Please use /api');
 });
 
+/**
+ * Add content to the search index.
+ *
+ * @TODO: rename app_id to custom_id.
+ */
 app.post('/api', function(req, res) {
-  if (app.validateCall(req.body)) {
-    // Test if index is created.
-    var indexName = app.indexName(req.body.app_id, req.body.type);
+  if (validateCall(req.body)) {
+    // Added the data to the search index (a side effect is that a new
+    // index maybe created.).
+    var instance = new Search(req.body.app_id, req.body.type);
 
-    es.indices.exists({
-      index: indexName
-    }, function (err, response, status) {
-      if (status === 404) {
-        // Index not found. Lets create it.
-        app.buildNewIndex(indexName, req.body.type, req.body.data);
-      }
-      else {
-        // Index and mapping should be added. Just add our data.
-        app.addContent(indexName, req.body.type, req.body.data);
-      }
+    instance.on('created', function (data) {
+      logger.debug('Content added: status ' + data.status + ' : ' + data.index);
+
+      // @TODO: find better error code to send back (201).
+      res.send(200);
     });
-  }
 
-  res.send(200);
+    instance.on('error', function (data) {
+      logger.error('Error in add content: status ' + data.status + ' : ' + data.res);
+
+      // @TODO: find better error code to send back.
+      res.send(500);
+    });
+
+    // Add the content.
+    instance.add(req.body.data);
+  }
+  else {
+    // @TODO: find better error code to send back.
+    res.send(500);
+  }
 });
 
+/**
+ * Remove content from the search index.
+ *
+ * @TODO: rename app_id to custom_id.
+ */
 app.delete('/api', function(req, res) {
-  if (app.validateCall(req.body)) {
-    // Test if index is created.
-    var indexName = app.indexName(req.body.app_id, req.body.type);
+  if (validateCall(req.body)) {
+    var instance = new Search(req.body.app_id, req.body.type);
 
-    // Remove content.
-    es.deleteByQuery({
-      index: indexName,
-      body: {
-        query: {
-          term: { id: req.body.data.id }
-        }
-      }
-    }, function (err, response, status) {
-      if (status === 200) {
-        res.send(req.body);
-      }
-      else {
-        // @TODO Send proper error to client or handle error somehow
-        res.send(response);
-      }
+    // Handle completed
+    instance.once('removed', function (data) {
+      logger.debug('Removed: ' + data.id);
+
+      // Send back the id of the element that have been removed.
+      res.send(data);
     });
+
+    // Handle errors in the request.
+    instance.once('error', function (data) {
+      logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + data.res);
+
+      // @TODO: send error message with the status code.
+      res.send(data.status);
+    });
+
+    // Send the request.
+    instance.remove(req.body.data);
+  }
+  else {
+    // @TODO: find better error code to send back.
+    res.send(500);
   }
 });
 
-app.validateCall = function(body) {
+/**
+ * Validate
+ */
+var validateCall = function validateCall(body) {
   if ((body.app_id !== undefined) && (body.app_secret !== undefined) && (body.type !== undefined)) {
     return true;
   }
-}
 
-app.indexName = function(id, type) {
-  return sha1(id + ':' + type);
-}
-
-app.buildNewIndex = function(name, type, body) {
-  es.indices.create({
-    index: name,
-    body: {
-      "settings" : {
-        "analysis" : {
-          "analyzer" : {
-            "string_search" : {
-              "tokenizer" : "whitespace",
-              "filter" : ["lowercase"]
-            },
-            "string_index" : {
-              "tokenizer" : "alpha_nummeric_only",
-              "filter" : ["lowercase","ngram"]
-            }
-          },
-          "tokenizer" : {
-            "alpha_nummeric_only" : {
-              "pattern" : "[^\\p{L}\\d]+",
-              "type" : "pattern"
-            }
-          },
-          "filter" : {
-            "edge_ngram" : {
-              "max_gram" : 20,
-              "min_gram" : 1,
-              "type" : "edgeNGram"
-            },
-            "ngram" : {
-              "max_gram" : 20,
-              "min_gram" : 1,
-              "type" : "nGram"
-            }
-          }
-        }
-      },
-      "mappings" : {
-        _default_: {
-          date_detection: false,
-          dynamic_templates: [{
-            dates: {
-              match: 'created_at|updated_at',
-              match_pattern: 'regex',
-              mapping: {
-                type: 'date'
-              }
-            }
-          },{
-            tokens_plus_raw : {
-              match: '.*',
-              unmatch: 'created_at|updated_at',
-              match_pattern: 'regex',
-              match_mapping_type : "string",
-              mapping : {
-                type:     "string",
-                analyzer: "string_index",
-                fields: {
-                  raw: {
-                    type:  "string",
-                    index: "not_analyzed"
-                  }
-                }
-              }
-            }
-          }]
-        }
-      }
-    }
-  }, function (err, response, status) {
-    console.log(err);
-    if (status === 200) {
-      //app.buildMapping(name, type, body);
-      app.addContent(name, type, body);
-    }
-  });
-}
-
-/**
- * @TODO This needs to match the setup for ES dynamic_templates - how do we best handle that?
- *
- * @param data
- * @returns {boolean}
- */
-app.isStringSort = function(data) {
-  var result = true;
-
-  if(data.sort.hasOwnProperty('created_at') || data.sort.hasOwnProperty('updated_at')) {
-    result = false;
-  }
-
-  return result;
-}
-
-app.addRaw = function(str) {
-  return str + '.raw';
+  return false;
 };
-
-app.addContent = function(name, type, body) {
-  es.create({
-    index: name,
-    type: type,
-    body: body
-  }, function (err, response, status) {
-    console.log(err);
-    if (status === 201) {
-    }
-  });
-}
