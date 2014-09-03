@@ -151,7 +151,7 @@ app.delete('/api', function(req, res) {
 });
 
 /**
- * Validate
+ * Helper to validate that required parameters exists in API calls.
  */
 var validateCall = function validateCall(body) {
   if ((body.app_id !== undefined) && (body.app_secret !== undefined) && (body.type !== undefined)) {
