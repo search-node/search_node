@@ -93,18 +93,18 @@ app.post('/api', function(req, res) {
     // index maybe created.).
     var instance = new Search(req.body.app_id, req.body.type);
 
-    instance.on('error', function (data) {
-      logger.error('Error in add content: status ' + data.status + ' : ' + data.response);
-
-      // @TODO: find better error code to send back.
-      res.send(500);
-    });
-
     instance.on('created', function (data) {
-      logger.error('Content added: status ' + data.status + ' : ' + data.index);
+      logger.debug('Content added: status ' + data.status + ' : ' + data.index);
 
       // @TODO: find better error code to send back (201).
       res.send(200);
+    });
+
+    instance.on('error', function (data) {
+      logger.error('Error in add content: status ' + data.status + ' : ' + data.res);
+
+      // @TODO: find better error code to send back.
+      res.send(500);
     });
 
     // Add the content.
@@ -127,12 +127,16 @@ app.delete('/api', function(req, res) {
 
     // Handle completed
     instance.once('removed', function (data) {
+      logger.debug('Removed: ' + data.id);
+
       // Send back the id of the element that have been removed.
       res.send(data);
     });
 
     // Handle errors in the request.
     instance.once('error', function (data) {
+      logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + data.res);
+
       // @TODO: send error message with the status code.
       res.send(data.status);
     });
