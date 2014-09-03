@@ -16,6 +16,9 @@ var app = express();
 // Load configuration.
 var config = require('./lib/configuration');
 
+// Get logger.
+var logger = require('./lib/logger');
+
 // Start the http server.
 var http = require('http');
 var server = http.createServer(app);
@@ -54,7 +57,7 @@ server.listen(app.get('port'), function (){
 var Search = require('./lib/search');
 connection.on('connection', function (client) {
   client.on('search', function(data) {
-    var instance = new Search(data.id, data.type);
+    var instance = new Search(data.app_id, data.type);
 
     // Handle completed query.
     instance.once('hits', function (hits) {
@@ -79,12 +82,33 @@ app.get('/', function (req, res) {
   res.send('Please use /api');
 });
 
-
+/**
+ * Add content to the search index.
+ *
+ * @TODO: rename app_id to custom_id.
+ */
 app.post('/api', function(req, res) {
   if (validateCall(req.body)) {
+    // Added the data to the search index (a side effect is that a new
+    // index maybe created.).
     var instance = new Search(req.body.app_id, req.body.type);
+
+    instance.on('error', function (data) {
+      logger.error('Error in add content: status ' + data.status + ' : ' + data.response);
+
+      // @TODO: find better error code to send back.
+      res.send(500);
+    });
+
+    instance.on('created', function (data) {
+      logger.error('Content added: status ' + data.status + ' : ' + data.index);
+
+      // @TODO: find better error code to send back (201).
+      res.send(200);
+    });
+
+    // Add the content.
     instance.add(req.body.data);
-    res.send(200);
   }
   else {
     // @TODO: find better error code to send back.
@@ -92,6 +116,11 @@ app.post('/api', function(req, res) {
   }
 });
 
+/**
+ * Remove content from the search index.
+ *
+ * @TODO: rename app_id to custom_id.
+ */
 app.delete('/api', function(req, res) {
   if (validateCall(req.body)) {
     var instance = new Search(req.body.app_id, req.body.type);
@@ -117,9 +146,13 @@ app.delete('/api', function(req, res) {
   }
 });
 
+/**
+ * Validate
+ */
 var validateCall = function validateCall(body) {
   if ((body.app_id !== undefined) && (body.app_secret !== undefined) && (body.type !== undefined)) {
     return true;
   }
-};
 
+  return false;
+};
