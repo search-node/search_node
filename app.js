@@ -88,8 +88,6 @@ app.get('/', function (req, res) {
  * @TODO: rename customer_id to custom_id.
  */
 app.post('/api', function(req, res) {
-  console.log('POST');
-  console.log(req.body);
   if (validateCall(req.body)) {
     // Added the data to the search index (a side effect is that a new
     // index maybe created.).
@@ -113,6 +111,8 @@ app.post('/api', function(req, res) {
     instance.add(req.body.data);
   }
   else {
+    logger.error('Error: missing parameters in add content');
+
     // @TODO: find better error code to send back.
     res.send(500);
   }
@@ -147,6 +147,8 @@ app.delete('/api', function(req, res) {
     instance.remove(req.body.data);
   }
   else {
+    logger.error('Error: missing parameters in remove content');
+
     // @TODO: find better error code to send back.
     res.send(500);
   }
@@ -156,7 +158,7 @@ app.delete('/api', function(req, res) {
  * Helper to validate that required parameters exists in API calls.
  */
 var validateCall = function validateCall(body) {
-  if ((body.customer_id !== undefined) && (body.app_secret !== undefined) && (body.type !== undefined)) {
+  if ((body.customer_id !== undefined) && (body.type !== undefined)) {
     return true;
   }
 
