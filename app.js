@@ -57,7 +57,7 @@ server.listen(app.get('port'), function (){
 var Search = require('./lib/search');
 connection.on('connection', function (client) {
   client.on('search', function(data) {
-    var instance = new Search(data.app_id, data.type);
+    var instance = new Search(data.customer_id, data.type);
 
     // Handle completed query.
     instance.once('hits', function (hits) {
@@ -85,13 +85,15 @@ app.get('/', function (req, res) {
 /**
  * Add content to the search index.
  *
- * @TODO: rename app_id to custom_id.
+ * @TODO: rename customer_id to custom_id.
  */
 app.post('/api', function(req, res) {
+  console.log('POST');
+  console.log(req.body);
   if (validateCall(req.body)) {
     // Added the data to the search index (a side effect is that a new
     // index maybe created.).
-    var instance = new Search(req.body.app_id, req.body.type);
+    var instance = new Search(req.body.customer_id, req.body.type);
 
     instance.on('created', function (data) {
       logger.debug('Content added: status ' + data.status + ' : ' + data.index);
@@ -119,11 +121,11 @@ app.post('/api', function(req, res) {
 /**
  * Remove content from the search index.
  *
- * @TODO: rename app_id to custom_id.
+ * @TODO: rename customer_id to custom_id.
  */
 app.delete('/api', function(req, res) {
   if (validateCall(req.body)) {
-    var instance = new Search(req.body.app_id, req.body.type);
+    var instance = new Search(req.body.customer_id, req.body.type);
 
     // Handle completed
     instance.once('removed', function (data) {
@@ -154,7 +156,7 @@ app.delete('/api', function(req, res) {
  * Helper to validate that required parameters exists in API calls.
  */
 var validateCall = function validateCall(body) {
-  if ((body.app_id !== undefined) && (body.app_secret !== undefined) && (body.type !== undefined)) {
+  if ((body.customer_id !== undefined) && (body.app_secret !== undefined) && (body.type !== undefined)) {
     return true;
   }
 
