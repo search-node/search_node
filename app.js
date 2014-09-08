@@ -84,14 +84,12 @@ app.get('/', function (req, res) {
 
 /**
  * Add content to the search index.
- *
- * @TODO: rename customer_id to custom_id.
  */
-app.post('/api', function(req, res) {
+app.put('/api', function(req, res) {
   if (validateCall(req.body)) {
     // Added the data to the search index (a side effect is that a new
-    // index maybe created.).
-    var instance = new Search(req.body.customer_id, req.body.type);
+    // index maybe created.). The id may not be given and is hence undefined.
+    var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
 
     instance.on('created', function (data) {
       logger.debug('Content added: status ' + data.status + ' : ' + data.index);
@@ -104,11 +102,43 @@ app.post('/api', function(req, res) {
       logger.error('Error in add content: status ' + data.status + ' : ' + data.res);
 
       // @TODO: find better error code to send back.
-      res.send(500);
+      res.send(data.status);
     });
 
     // Add the content.
     instance.add(req.body.data);
+  }
+  else {
+    logger.error('Error: missing parameters in add content');
+
+    // @TODO: find better error code to send back.
+    res.send(500);
+  }
+});
+
+/**
+ * Update content to the search index.
+ */
+app.post('/api', function(req, res) {
+  if (validateCall(req.body)) {
+    // Update the data in the search index (a side effect is that a new
+    // index maybe created.).
+    var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
+
+    instance.on('updated', function (data) {
+      logger.debug('Content updated: status ' + data.status + ' : ' + data.index);
+      res.send(200);
+    });
+
+    instance.on('error', function (data) {
+      logger.error('Error in add content: status ' + data.status + ' : ' + data.res);
+
+      // @TODO: find better error code to send back.
+      res.send(data.status);
+    });
+
+    // Add the content.
+    instance.update(req.body.data);
   }
   else {
     logger.error('Error: missing parameters in add content');
