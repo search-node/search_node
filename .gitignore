@@ -1,0 +1,8 @@
+node_modules
+config.json
+dump.rdb
+ssl/ind*
+*.log
+.DS_Store
+*.pid
+.idea
