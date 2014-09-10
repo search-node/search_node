@@ -85,7 +85,7 @@ app.get('/', function (req, res) {
 /**
  * Add content to the search index.
  */
-app.put('/api', function(req, res) {
+app.post('/api', function(req, res) {
   if (validateCall(req.body)) {
     // Added the data to the search index (a side effect is that a new
     // index maybe created.). The id may not be given and is hence undefined.
@@ -119,7 +119,7 @@ app.put('/api', function(req, res) {
 /**
  * Update content to the search index.
  */
-app.post('/api', function(req, res) {
+app.put('/api', function(req, res) {
   if (validateCall(req.body)) {
     // Update the data in the search index (a side effect is that a new
     // index maybe created.).
