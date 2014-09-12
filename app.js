@@ -57,6 +57,9 @@ server.listen(app.get('port'), function (){
 var Search = require('./lib/search');
 connection.on('connection', function (client) {
   client.on('search', function(data) {
+
+    // @TODO: Check that customer_id and type exists in the data.
+
     var instance = new Search(data.customer_id, data.type);
 
     // Handle completed query.
@@ -69,6 +72,12 @@ connection.on('connection', function (client) {
     instance.once('error', function (data) {
       // Log and send error back.
     });
+
+    // Remove customer ID and type.
+    // @todo: finder better way to get customer id, store it in socket
+    // connection.
+    delete data.customer_id;
+    delete data.type;
 
     // Send the query.
     instance.query(data);
