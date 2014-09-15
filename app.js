@@ -16,6 +16,9 @@ var app = express();
 // Load configuration.
 var config = require('./lib/configuration');
 
+// Utils/helpers.
+var helpers = require('./lib/helpers');
+
 // Get logger.
 var logger = require('./lib/logger');
 

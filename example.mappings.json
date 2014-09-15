@@ -1,0 +1,9 @@
+{
+  "mappings": {
+    "123456789": {
+      "name": "Indholdskanalen",
+      "raws": [ "title" ],
+      "dates": [ "created_at", "updated_at" ]
+    }
+  }
+}
