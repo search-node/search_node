@@ -57,6 +57,9 @@ server.listen(app.get('port'), function (){
 var Search = require('./lib/search');
 connection.on('connection', function (client) {
   client.on('search', function(data) {
+
+    // @TODO: Check that customer_id and type exists in the data.
+
     var instance = new Search(data.customer_id, data.type);
 
     // Handle completed query.
@@ -69,6 +72,12 @@ connection.on('connection', function (client) {
     instance.once('error', function (data) {
       // Log and send error back.
     });
+
+    // Remove customer ID and type.
+    // @todo: finder better way to get customer id, store it in socket
+    // connection.
+    delete data.customer_id;
+    delete data.type;
 
     // Send the query.
     instance.query(data);
@@ -85,7 +94,7 @@ app.get('/', function (req, res) {
 /**
  * Add content to the search index.
  */
-app.put('/api', function(req, res) {
+app.post('/api', function(req, res) {
   if (validateCall(req.body)) {
     // Added the data to the search index (a side effect is that a new
     // index maybe created.). The id may not be given and is hence undefined.
@@ -119,7 +128,7 @@ app.put('/api', function(req, res) {
 /**
  * Update content to the search index.
  */
-app.post('/api', function(req, res) {
+app.put('/api', function(req, res) {
   if (validateCall(req.body)) {
     // Update the data in the search index (a side effect is that a new
     // index maybe created.).
