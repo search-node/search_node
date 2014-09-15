@@ -1,4 +1,5 @@
 node_modules
+mappings.json
 config.json
 dump.rdb
 ssl/ind*
