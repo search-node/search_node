@@ -3,6 +3,13 @@
     "123456789": {
       "name": "Indholdskanalen",
       "raws": [ "title" ],
+      "language": [
+        {
+          "field": "title",
+          "language": "danish",
+          "type": "string"
+         }
+      ],
       "dates": [ "created_at", "updated_at" ]
     }
   }
