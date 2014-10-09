@@ -1,12 +1,13 @@
 {
   "mappings": {
-    "123456789": {
+    "1234567890": {
       "name": "Indholdskanalen",
-      "raws": [ "title" ],
-      "language": [
+      "char_search": [ "title" ],
+      "sorts": [
         {
           "field": "title",
-          "language": "danish",
+          "language": "da",
+          "country":  "DK",
           "type": "string"
          }
       ],
