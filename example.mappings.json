@@ -1,15 +1,14 @@
 {
   "mappings": {
-    "1234567890": {
+    "abcd123456789": {
       "name": "Indholdskanalen",
-      "char_search": [ "title" ],
-      "sorts": [
+      "fields": [
         {
           "field": "title",
-          "language": "da",
-          "country":  "DK",
-          "type": "string"
-         }
+          "type": "string",
+          "default_analyzer": "string_index",
+          "sort": true
+        }
       ],
       "dates": [ "created_at", "updated_at" ]
     }
