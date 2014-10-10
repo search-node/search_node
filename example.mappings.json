@@ -1,8 +1,15 @@
 {
   "mappings": {
-    "123456789": {
+    "abcd123456789": {
       "name": "Indholdskanalen",
-      "raws": [ "title" ],
+      "fields": [
+        {
+          "field": "title",
+          "type": "string",
+          "default_analyzer": "string_index",
+          "sort": true
+        }
+      ],
       "dates": [ "created_at", "updated_at" ]
     }
   }
