@@ -1,0 +1,19 @@
+{
+  "name": "Logger",
+  "description": "Plugin to logge message to a log file",
+  "version": "0.0.1",
+  "main": "socket.js",
+  "private": true,
+  "dependencies": {
+    "socket.io" : "1.0.x",
+    "jsonwebtoken" : "0.4.0",
+    "socketio-jwt" : "2.3.1"
+  },
+  "plugin": {
+    "provides": [ "socket" ],
+    "consumes": [
+      "logger",
+      "server"
+    ]
+  }
+}
