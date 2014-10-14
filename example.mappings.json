@@ -1,11 +1,13 @@
 {
   "mappings": {
-    "abcd123456789": {
+    "abcd0987654321": {
       "name": "Indholdskanalen",
       "fields": [
         {
           "field": "title",
           "type": "string",
+          "language": "da",
+          "country": "DK",
           "default_analyzer": "string_index",
           "sort": true
         }
