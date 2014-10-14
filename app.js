@@ -21,12 +21,12 @@ var config = [
     "packagePath": "./plugins/socket"
   },
   {
-    "packagePath": "./plugins/api",
-  },
-  {
     "packagePath": "./plugins/search",
     "hosts": configs.search.hosts,
     "mappings": __dirname + '/' + configs.search.mappings
+  },
+  {
+    "packagePath": "./plugins/api"
   },
   {
     "packagePath": "./plugins/search_client"

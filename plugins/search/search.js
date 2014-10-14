@@ -360,7 +360,7 @@ Search.prototype.remove = function remove(data) {
  */
 Search.prototype.query = function query(data) {
   // Log request to the debugger.
-  this.logger.debug('Search: Query request in: ' + self.customer_id + ' with type: ' + self.type);
+  this.logger.info('Search: Query request in: ' + self.customer_id + ' with type: ' + self.type);
 
   // Use mappings to fix sort on strings.
   if (data.hasOwnProperty('sort')) {
