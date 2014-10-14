@@ -4,18 +4,18 @@ var path = require('path');
 var architect = require("architect");
 
 // Load config file.
-var config = require(__dirname + '/config.json');
+var configs = require(__dirname + '/config.json');
 
 // Configure the plugins.
 var config = [
   {
     "packagePath": "./plugins/logger",
-    "filename": config.log.file,
-    "debug": config.log.debug
+    "filename": configs.log.file,
+    "debug": configs.log.debug
   },
   {
     "packagePath": "./plugins/server",
-    "port": config.port,
+    "port": configs.port,
   },
   {
     "packagePath": "./plugins/socket"
@@ -25,7 +25,8 @@ var config = [
   },
   {
     "packagePath": "./plugins/search",
-    "hosts": config.hosts
+    "hosts": configs.search.hosts,
+    "mappings": __dirname + '/' + configs.search.mappings
   }
 ];
 

@@ -13,6 +13,9 @@ var rename = require('rename-keys');
 
 // Holds connection to the search backend.
 var es;
+var mappings;
+
+var logger;
 
 // Link to the object (used in private functions).
 var self;
@@ -143,7 +146,7 @@ var buildNewIndex = function buildNewIndex(index) {
   };
 
   // Get customer mappings.
-  var map = mappings.getCustomerMappings(index);
+  var map = mappings[index];
 
   // Setup dynamic mappings for language and sorting.
   if (map.hasOwnProperty('fields')) {
@@ -238,9 +241,8 @@ var Search = function (customer_id, type, id) {
   this.type = type;
   this.id = id;
 
-  // Load mappings.
-  var mappgins = require(__dirname + '../../mappings.json');
-
+  // Set logger for the object (not part of the parameters).
+  this.logger = logger;
 };
 
 // Extend the object with event emitter.
@@ -402,10 +404,16 @@ Search.prototype.query = function query(data) {
   });
 }
 
-// Export the object.
+// Register the plugin.
 module.exports = function (options, imports, register) {
   // Connect to elasticsearch.
   es = elasticsearch.Client(options.hosts);
+
+  // Load mappings.
+  mappings = require(options.mappings);
+
+  // Add logger.
+  logger = imports.logger;
 
   register(null, {
     'search': Search
