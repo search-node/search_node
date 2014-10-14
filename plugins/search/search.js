@@ -180,6 +180,7 @@ var buildNewIndex = function buildNewIndex(index) {
     "body": body
   }, function (err, response, status) {
     if (status === 200) {
+      logger.info('New index have been created: ' + index);
       self.emit('indexCreated', index);
     }
     else {
