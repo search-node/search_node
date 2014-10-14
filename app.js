@@ -3,16 +3,19 @@
 var path = require('path');
 var architect = require("architect");
 
+// Load config file.
+var config = require(__dirname + '/config.json');
+
 // Configure the plugins.
 var config = [
   {
     "packagePath": "./plugins/logger",
-    "filename": "debug.log",
-    "debug": true
+    "filename": config.log.file,
+    "debug": config.log.debug
   },
   {
     "packagePath": "./plugins/server",
-    "port": "3000",
+    "port": config.port,
   },
   {
     "packagePath": "./plugins/socket"
