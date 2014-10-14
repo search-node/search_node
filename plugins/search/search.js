@@ -364,7 +364,7 @@ Search.prototype.query = function query(data) {
 
   // Use mappings to fix sort on strings.
   if (data.hasOwnProperty('sort')) {
-    var map = mappings.getCustomerMappings(self.customer_id);
+    var map = mappings[self.customer_id];
     for (var i in map.fields) {
       if (data.sort.hasOwnProperty(map.fields[i].field)) {
         // Rename the property by adding .sort to swith sorting to using the fully

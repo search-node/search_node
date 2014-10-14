@@ -27,6 +27,9 @@ var config = [
     "packagePath": "./plugins/search",
     "hosts": configs.search.hosts,
     "mappings": __dirname + '/' + configs.search.mappings
+  },
+  {
+    "packagePath": "./plugins/search_client"
   }
 ];
 
