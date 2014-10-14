@@ -20,6 +20,9 @@ var config = [
   {
     "packagePath": "./plugins/socket"
   },
+  {
+    "packagePath": "./plugins/api"
+  }
 ];
 
 // User the configuration to start the application.
