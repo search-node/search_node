@@ -11,7 +11,7 @@ var sio;
  *
  * @TODO: Move this to an auth plugin.
  */
-var secureConnect = function secureConnectEnable(secret) {
+var secureConnectEnable = function secureConnectEnable(secret) {
   "use strict";
 
   var socketio_jwt = require('socketio-jwt');
@@ -25,7 +25,7 @@ var secureConnect = function secureConnectEnable(secret) {
  * Default constructor.
  *
  * @param server
- *   The http server to attched socket.io.
+ *   The http server to attached socket.io.
  * @param secret
  *   The secret key decode security token.
  */
@@ -48,8 +48,7 @@ SocketIO.prototype.on = function on(eventName, callback) {
   "use strict";
 
   sio.on(eventName, function() {
-    var args = arguments;
-    callback.apply(sio, args);
+    callback.apply(sio, arguments);
   });
 };
 
@@ -61,8 +60,7 @@ SocketIO.prototype.emit = function emit(eventName, data, callback) {
 
   sio.emit(eventName, data, function() {
     if (callback) {
-      var args = arguments;
-      callback.apply(sio, args);
+      callback.apply(sio, arguments);
     }
   });
 };
