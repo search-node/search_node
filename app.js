@@ -21,7 +21,11 @@ var config = [
     "packagePath": "./plugins/socket"
   },
   {
-    "packagePath": "./plugins/api"
+    "packagePath": "./plugins/api",
+  },
+  {
+    "packagePath": "./plugins/search",
+    "hosts": config.hosts
   }
 ];
 

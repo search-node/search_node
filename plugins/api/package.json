@@ -10,7 +10,8 @@
   "plugin": {
     "consumes": [
       "app",
-      "logger"
+      "logger",
+      "search"
     ]
   }
 }

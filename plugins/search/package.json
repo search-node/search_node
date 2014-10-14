@@ -1,0 +1,17 @@
+{
+  "name": "Search",
+  "description": "Provides intergration with Elasticsearch",
+  "version": "0.0.1",
+  "main": "search.js",
+  "private": true,
+  "dependencies": {
+    "elasticsearch": "2.2.x",
+    "rename-keys": "^0.2.0"
+  },
+  "plugin": {
+    "provides": [ "search" ],
+    "consumes": [
+      "logger"
+    ]
+  }
+}
