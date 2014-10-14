@@ -7,6 +7,8 @@
  * Register the plugin with architect.
  */
 module.exports = function (options, imports, register) {
+  "use strict";
+
   // Get socket.
   var sio = imports.socket;
 
@@ -15,9 +17,16 @@ module.exports = function (options, imports, register) {
 
   // New connection is made via sockets.
   sio.on('connection', function (socket) {
+    // Log that connection was made.
+    logger.info('Client have made connection: ' + socket.id);
+
+    /**
+     * Handle search message.
+     */
     socket.on('search', function(data) {
 
       // @TODO: Check that customer_id and type exists in the data.
+      // Create new search instance.
       var instance = new imports.search(data.customer_id, data.type);
 
       // Handle completed query.
@@ -28,7 +37,7 @@ module.exports = function (options, imports, register) {
 
       // Handle errors in the search.
       instance.once('error', function (data) {
-        // Log and send error back.
+        logger.error(data);
       });
 
       // Remove customer ID and type.
@@ -41,4 +50,8 @@ module.exports = function (options, imports, register) {
       instance.query(data);
     });
   });
-}
+
+  // This plugin extends the socket plugin and do not provide new services.
+  register(null, null);
+};
+

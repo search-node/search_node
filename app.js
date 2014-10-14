@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+/**
+ * @file
+ * This is the main application that uses architect to build the application
+ * base on plugins.
+ */
+
 var path = require('path');
 var architect = require("architect");
 

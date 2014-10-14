@@ -23,10 +23,12 @@ var self;
 /**
  * Generate index name.
  *
- * @param id
+ * @param customer_id
  *   Customer id.
  */
 var indexName = function indexName(customer_id) {
+  "use strict";
+
   return customer_id;
 };
 
@@ -39,15 +41,17 @@ var indexName = function indexName(customer_id) {
  *   The index body json object.
  */
 function buildIndexMapping(map, body) {
+  "use strict";
+
   var field = {};
   field["field_" + map.field] = {
     "match": map.field,
     "match_pattern": 'regex',
     "match_mapping_type": map.type,
     "mapping": {
-      "type": map.type,
+      "type": map.type
     }
-  }
+  };
 
   // Add field default analyzer (eg. ngram string indexer).
   if (map.hasOwnProperty('default_analyzer')) {
@@ -72,7 +76,7 @@ function buildIndexMapping(map, body) {
         "type":  map.type,
         "analyzer": analyzer
       }
-    }
+    };
   }
 
   // Add the new field to templates.
@@ -83,6 +87,8 @@ function buildIndexMapping(map, body) {
  * Helper function to create default mappings if they do not exists.
  */
 function addDefaultMapping(body) {
+  "use strict";
+
   // Check if mapping exists.
   if (!body.hasOwnProperty('mappings')) {
     // Add mappings.
@@ -102,6 +108,8 @@ function addDefaultMapping(body) {
  *   Name of the index.
  */
 var buildNewIndex = function buildNewIndex(index) {
+  "use strict";
+
   var body = {
     "settings": {
       "analysis": {
@@ -202,6 +210,8 @@ var buildNewIndex = function buildNewIndex(index) {
  *   The documents unique id.
  */
 var addContent = function addContent(index, type, body, id) {
+  "use strict";
+
   es.create({
     "index": index,
     "type": type,
@@ -218,6 +228,21 @@ var addContent = function addContent(index, type, body, id) {
   });
 };
 
+/**
+ * Append ".sort" to a string.
+ *
+ * Used in the query build to ensure that the sort field is used to sort on
+ * based on the mappings loaded.
+ *
+ * @param property
+ *
+ * @returns {string}
+ */
+var addSort = function addSort(property) {
+  "use strict";
+
+  return property + '.sort';
+};
 
 /*********************
  * The Search object
@@ -234,6 +259,8 @@ var addContent = function addContent(index, type, body, id) {
  *   The documents unique id.
  */
 var Search = function (customer_id, type, id) {
+  "use strict";
+
   // Set "outside" variable to ref to the object.
   self = this;
 
@@ -257,6 +284,8 @@ util.inherits(Search, eventEmitter);
  * @TODO: explain the data format { ???? }.
  */
 Search.prototype.add = function add(body) {
+  "use strict";
+
   // Log request to the debugger.
   this.logger.debug('Search: Add request for: ' + self.customer_id + ' with type: ' + self.type);
 
@@ -284,7 +313,7 @@ Search.prototype.add = function add(body) {
       addContent(index, self.type, body, self.id);
     }
   });
-}
+};
 
 /**
  * Update content to the search backend.
@@ -295,6 +324,8 @@ Search.prototype.add = function add(body) {
  * @TODO: explain the data format.
  */
 Search.prototype.update = function update(doc) {
+  "use strict";
+
   // Log request to the debugger.
   this.logger.debug('Search: Update request for: ' + self.customer_id + ' with type: ' + self.type);
 
@@ -316,7 +347,7 @@ Search.prototype.update = function update(doc) {
       self.emit('error', { 'status': status, 'res' : response});
     }
   });
-}
+};
 
 /**
  * Remove document from the backend.
@@ -326,6 +357,8 @@ Search.prototype.update = function update(doc) {
  * @TODO: explain the data format { ???? }.
  */
 Search.prototype.remove = function remove(data) {
+  "use strict";
+
   // Log request to the debugger.
   this.logger.debug('Search: Remove request from: ' + self.custommer_id + ' with type: ' + self.type);
 
@@ -344,21 +377,23 @@ Search.prototype.remove = function remove(data) {
     }
   }, function (err, response, status) {
     if (status === 200) {
-      self.emit('removed', { 'id' : data.id })
+      self.emit('removed', { 'id' : data.id });
     }
     else {
       self.emit('error', { 'id' : data.id, 'status': status, 'res' : response});
     }
   });
-}
+};
 
 /**
  * Preform search query against the search engine.
  *
  * @param data
- *   The data that should be queryed base on.
+ *   The data that should be queried base on.
  */
 Search.prototype.query = function query(data) {
+  "use strict";
+
   // Log request to the debugger.
   this.logger.info('Search: Query request in: ' + self.customer_id + ' with type: ' + self.type);
 
@@ -367,17 +402,15 @@ Search.prototype.query = function query(data) {
     var map = mappings[self.customer_id];
     for (var i in map.fields) {
       if (data.sort.hasOwnProperty(map.fields[i].field)) {
-        // Rename the property by adding .sort to swith sorting to using the fully
+        // Rename the property by adding .sort to switch sorting to using the fully
         // indexed string for the field.
-        rename(data.sort, function(property) {
-          return property + '.sort';
-        });
+        rename(data.sort, addSort);
       }
     }
   }
 
   // Add the sort search query.
-  var query = {
+  var search_query = {
     "type": self.type,
     "index": indexName(self.customer_id),
     "body": data
@@ -388,7 +421,7 @@ Search.prototype.query = function query(data) {
    */
 
   // Execute the search.
-  es.search(query).then(function (resp) {
+  es.search(search_query).then(function (resp) {
     var hits = [];
     if (resp.hits.total > 0) {
       // We got hits, return only _source.
@@ -403,11 +436,13 @@ Search.prototype.query = function query(data) {
     // Emit hits.
     self.emit('hits', hits);
   });
-}
+};
 
 // Register the plugin.
 module.exports = function (options, imports, register) {
-  // Connect to elasticsearch.
+  "use strict";
+
+  // Connect to Elasticsearch.
   es = elasticsearch.Client(options.hosts);
 
   // Load mappings.
@@ -419,4 +454,4 @@ module.exports = function (options, imports, register) {
   register(null, {
     'search': Search
   });
-}
+};
