@@ -434,7 +434,10 @@ Search.prototype.query = function query(data) {
     }
 
     // Emit hits.
-    self.emit('hits', hits);
+    self.emit('hits', {
+      'hits': resp.hits.total,
+      'results': hits
+    });
   });
 };
 
