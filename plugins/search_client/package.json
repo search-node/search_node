@@ -1,5 +1,5 @@
 {
-  "name": "Search client",
+  "name": "SearchClient",
   "description": "Provides socket communication between client and search",
   "version": "0.0.1",
   "main": "search_client.js",
