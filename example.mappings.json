@@ -1,9 +1,16 @@
 {
-  "mappings": {
-    "123456789": {
-      "name": "Indholdskanalen",
-      "raws": [ "title" ],
-      "dates": [ "created_at", "updated_at" ]
-    }
+   "abcd0987654321": {
+    "name": "Indholdskanalen",
+    "fields": [
+      {
+        "field": "title",
+        "type": "string",
+        "language": "da",
+        "country": "DK",
+        "default_analyzer": "string_index",
+        "sort": true
+      }
+    ],
+    "dates": [ "created_at", "updated_at" ]
   }
 }

@@ -1,0 +1,17 @@
+{
+  "name": "API",
+  "description": "Provides reset API to index data",
+  "version": "0.0.1",
+  "main": "api.js",
+  "private": true,
+  "dependencies": {
+    "log" : "1.4.x"
+  },
+  "plugin": {
+    "consumes": [
+      "app",
+      "logger",
+      "search"
+    ]
+  }
+}

@@ -7,41 +7,99 @@
 var util = require('util');
 var eventEmitter = require('events').EventEmitter;
 
-// Get helper functions (mostly debug).
-var helpers = require('./helpers');
-
 // Modules used to and by the search backend.
 var elasticsearch = require('elasticsearch');
-
-// Load configuration.
-var config = require('./configuration');
-
-// Get logger.
-var logger = require('./logger');
-
-// Mappings.
-var mappings = require('./mappings');
 var rename = require('rename-keys');
 
 // Holds connection to the search backend.
-var es = elasticsearch.Client(config.get('search'));
+var es;
+var mappings;
+
+var logger;
 
 // Link to the object (used in private functions).
 var self;
 
-/**********************
- * Private functions
- **********************/
-
 /**
  * Generate index name.
  *
- * @param id
+ * @param customer_id
  *   Customer id.
  */
 var indexName = function indexName(customer_id) {
+  "use strict";
+
   return customer_id;
 };
+
+/**
+ * Build field mappings for a single field in the index.
+ *
+ * @param map
+ *   Mapping information for the field from mappings.json.
+ * @param body
+ *   The index body json object.
+ */
+function buildIndexMapping(map, body) {
+  "use strict";
+
+  var field = {};
+  field["field_" + map.field] = {
+    "match": map.field,
+    "match_pattern": 'regex',
+    "match_mapping_type": map.type,
+    "mapping": {
+      "type": map.type
+    }
+  };
+
+  // Add field default analyzer (eg. ngram string indexer).
+  if (map.hasOwnProperty('default_analyzer')) {
+    field["field_" + map.field].mapping.analyzer = 'string_index';
+  }
+
+  var analyzer = 'ducet_sort';
+  // If language and country is defined, create new filter
+  if (map.hasOwnProperty('language') && map.hasOwnProperty('country')) {
+    // Update language in filter.
+    body.settings.analysis.filter.search_language.language = map.language;
+    body.settings.analysis.filter.search_language.country = map.country;
+
+    // Change analyzer to use language sort.
+    analyzer = 'language_sort';
+  }
+
+  // Add sort field if required as an analyzer not filter as above.
+  if (map.hasOwnProperty('sort') && map.sort) {
+    field["field_" + map.field].mapping.fields = {
+      "sort": {
+        "type":  map.type,
+        "analyzer": analyzer
+      }
+    };
+  }
+
+  // Add the new field to templates.
+  body.mappings._default_.dynamic_templates.push(field);
+}
+
+/**
+ * Helper function to create default mappings if they do not exists.
+ */
+function addDefaultMapping(body) {
+  "use strict";
+
+  // Check if mapping exists.
+  if (!body.hasOwnProperty('mappings')) {
+    // Add mappings.
+    body.mappings = {
+      "_default_": {
+        "date_detection": false,
+        "dynamic_templates": []
+      }
+    };
+  }
+}
 
 /**
  * Build new index in the search backend.
@@ -50,81 +108,79 @@ var indexName = function indexName(customer_id) {
  *   Name of the index.
  */
 var buildNewIndex = function buildNewIndex(index) {
+  "use strict";
+
   var body = {
-    "settings" : {
-      "analysis" : {
-        "analyzer" : {
+    "settings": {
+      "analysis": {
+        "analyzer": {
           "string_search" : {
             "tokenizer" : "whitespace",
             "filter" : ["lowercase"]
           },
-          "string_index" : {
-            "tokenizer" : "alpha_nummeric_only",
-            "filter" : ["lowercase","ngram"]
+          "string_index": {
+            "tokenizer": "alpha_nummeric_only",
+            "filter": [ "lowercase", "ngram" ]
+          },
+          "ducet_sort": {
+            "tokenizer": "keyword",
+            "filter": [ "icu_collation" ]
+          },
+          "language_sort": {
+            "tokenizer": "keyword",
+            "filter": [ "search_language" ]
           }
         },
         "tokenizer" : {
-          "alpha_nummeric_only" : {
-            "pattern" : "[^\\p{L}\\d]+",
-            "type" : "pattern"
+          "alpha_nummeric_only": {
+            "pattern": "[^\\p{L}\\d]+",
+            "type": "pattern"
           }
         },
-        "filter" : {
-          "edge_ngram" : {
-            "max_gram" : 20,
-            "min_gram" : 1,
-            "type" : "edgeNGram"
+        "filter": {
+          "ngram": {
+            "max_gram": 20,
+            "min_gram": 1,
+            "type": "nGram"
           },
-          "ngram" : {
-            "max_gram" : 20,
-            "min_gram" : 1,
-            "type" : "nGram"
+          "search_language": {
+            "type":     "icu_collation",
+            "language": "en",
+            "country":  "UK",
           }
         }
-      }
-    },
-    "mappings" : {
-      "_default_": {
-        "date_detection": false,
-        "dynamic_templates": [{
-          "dates": {
-            "match": '',
-            "match_pattern": 'regex',
-            "mapping": {
-              "type": 'date'
-            }
-          }
-        },
-        {
-          "tokens_plus_raw": {
-            "match": '',
-            "unmatch": '',
-            "match_pattern": 'regex',
-            "match_mapping_type": "string",
-            "mapping": {
-              "type": "string",
-              "analyzer": "string_index",
-              "fields": {
-                "raw": {
-                  "type":  "string",
-                  "index": "not_analyzed"
-                }
-              }
-            }
-          }
-        }]
       }
     }
   };
 
   // Get customer mappings.
-  var map = mappings.getCustomerMappings(index);
+  var map = mappings[index];
 
-  // Update "raw" fields.
-  body.mappings._default_.dynamic_templates[1].tokens_plus_raw.match = map.raws.join('|');
+  // Setup dynamic mappings for language and sorting.
+  if (map.hasOwnProperty('fields')) {
+    addDefaultMapping(body);
 
-  // Update dates.
-  body.mappings._default_.dynamic_templates[0].dates.match = map.dates.join('|');
+    // Loop over sorts and add theme.
+    for (var i in map.fields) {
+      buildIndexMapping(map.fields[i], body);
+    }
+  }
+
+  // Setup mappings for dates.
+  if (map.hasOwnProperty('dates')) {
+    addDefaultMapping(body);
+
+    // Add dates mappings.
+    body.mappings._default_.dynamic_templates.push({
+      "dates": {
+        "match": map.dates.join('|'),
+        "match_pattern": 'regex',
+        "mapping": {
+          "type": 'date'
+        }
+      }
+    });
+  }
 
   // Create the index.
   es.indices.create({
@@ -132,37 +188,13 @@ var buildNewIndex = function buildNewIndex(index) {
     "body": body
   }, function (err, response, status) {
     if (status === 200) {
+      logger.info('New index have been created: ' + index);
       self.emit('indexCreated', index);
     }
     else {
       self.emit('error', { 'status': status, 'res': response });
     }
   });
-};
-
-/**
- * @TODO This needs to match the setup for ES dynamic_templates - how do we best handle that?
- *
- * @param data
- * @returns {boolean}
- */
-var isStringSort = function isStringSort(data) {
-  var result = true;
-
-  if (data.sort.hasOwnProperty('created_at') || data.sort.hasOwnProperty('updated_at')) {
-    result = false;
-  }
-
-  return result;
-};
-
-/**
- * Post-fix string with ".raw".
- *
- * @TODO: Why ?
- */
-var addRaw = function addRaw(str) {
-  return str + '.raw';
 };
 
 /**
@@ -178,6 +210,8 @@ var addRaw = function addRaw(str) {
  *   The documents unique id.
  */
 var addContent = function addContent(index, type, body, id) {
+  "use strict";
+
   es.create({
     "index": index,
     "type": type,
@@ -194,6 +228,21 @@ var addContent = function addContent(index, type, body, id) {
   });
 };
 
+/**
+ * Append ".sort" to a string.
+ *
+ * Used in the query build to ensure that the sort field is used to sort on
+ * based on the mappings loaded.
+ *
+ * @param property
+ *
+ * @returns {string}
+ */
+var addSort = function addSort(property) {
+  "use strict";
+
+  return property + '.sort';
+};
 
 /*********************
  * The Search object
@@ -210,11 +259,18 @@ var addContent = function addContent(index, type, body, id) {
  *   The documents unique id.
  */
 var Search = function (customer_id, type, id) {
+  "use strict";
+
+  // Set "outside" variable to ref to the object.
   self = this;
 
+  // Set internal variables.
   this.customer_id = customer_id;
   this.type = type;
   this.id = id;
+
+  // Set logger for the object (not part of the parameters).
+  this.logger = logger;
 };
 
 // Extend the object with event emitter.
@@ -228,8 +284,10 @@ util.inherits(Search, eventEmitter);
  * @TODO: explain the data format { ???? }.
  */
 Search.prototype.add = function add(body) {
+  "use strict";
+
   // Log request to the debugger.
-  logger.debug('Search: Add request for: ' + self.customer_id + ' with type: ' + self.type);
+  this.logger.debug('Search: Add request for: ' + self.customer_id + ' with type: ' + self.type);
 
   // Get index name from customer id.
   var index = indexName(self.customer_id);
@@ -255,7 +313,7 @@ Search.prototype.add = function add(body) {
       addContent(index, self.type, body, self.id);
     }
   });
-}
+};
 
 /**
  * Update content to the search backend.
@@ -266,8 +324,10 @@ Search.prototype.add = function add(body) {
  * @TODO: explain the data format.
  */
 Search.prototype.update = function update(doc) {
+  "use strict";
+
   // Log request to the debugger.
-  logger.debug('Search: Update request for: ' + self.customer_id + ' with type: ' + self.type);
+  this.logger.debug('Search: Update request for: ' + self.customer_id + ' with type: ' + self.type);
 
   // Get index name from customer id.
   var index = indexName(self.customer_id);
@@ -287,7 +347,7 @@ Search.prototype.update = function update(doc) {
       self.emit('error', { 'status': status, 'res' : response});
     }
   });
-}
+};
 
 /**
  * Remove document from the backend.
@@ -297,8 +357,10 @@ Search.prototype.update = function update(doc) {
  * @TODO: explain the data format { ???? }.
  */
 Search.prototype.remove = function remove(data) {
+  "use strict";
+
   // Log request to the debugger.
-  logger.debug('Search: Remove request from: ' + self.custommer_id + ' with type: ' + self.type);
+  this.logger.debug('Search: Remove request from: ' + self.custommer_id + ' with type: ' + self.type);
 
   // Get index name from customer id.
   var index = indexName(self.customer_id);
@@ -315,40 +377,40 @@ Search.prototype.remove = function remove(data) {
     }
   }, function (err, response, status) {
     if (status === 200) {
-      self.emit('removed', { 'id' : data.id })
+      self.emit('removed', { 'id' : data.id });
     }
     else {
       self.emit('error', { 'id' : data.id, 'status': status, 'res' : response});
     }
   });
-}
+};
 
 /**
  * Preform search query against the search engine.
  *
  * @param data
- *   The data that should be queryed base on.
+ *   The data that should be queried base on.
  */
 Search.prototype.query = function query(data) {
+  "use strict";
+
   // Log request to the debugger.
-  logger.debug('Search: Query request in: ' + self.customer_id + ' with type: ' + self.type);
+  this.logger.info('Search: Query request in: ' + self.customer_id + ' with type: ' + self.type);
 
   // Use mappings to fix sort on strings.
   if (data.hasOwnProperty('sort')) {
-    var map = mappings.getCustomerMappings(self.customer_id);
-    for (var i in map.raws) {
-      if (data.sort.hasOwnProperty(map.raws[i])) {
-        // Rename the property by adding .raw to swith sorting to using the fully
+    var map = mappings[self.customer_id];
+    for (var i in map.fields) {
+      if (data.sort.hasOwnProperty(map.fields[i].field)) {
+        // Rename the property by adding .sort to switch sorting to using the fully
         // indexed string for the field.
-        rename(data.sort, function(property) {
-          return property + '.raw';
-        });
+        rename(data.sort, addSort);
       }
     }
   }
 
-  // Add the raw search query.
-  var query = {
+  // Add the sort search query.
+  var search_query = {
     "type": self.type,
     "index": indexName(self.customer_id),
     "body": data
@@ -359,7 +421,7 @@ Search.prototype.query = function query(data) {
    */
 
   // Execute the search.
-  es.search(query).then(function (resp) {
+  es.search(search_query).then(function (resp) {
     var hits = [];
     if (resp.hits.total > 0) {
       // We got hits, return only _source.
@@ -368,14 +430,31 @@ Search.prototype.query = function query(data) {
       }
 
       // Log number of hits found.
-      logger.debug('Search: hits found: ' + resp.hits.total + ' items for ' + self.customer_id + ' with type: ' + self.type);
+      self.logger.debug('Search: hits found: ' + resp.hits.total + ' items for ' + self.customer_id + ' with type: ' + self.type);
     }
 
     // Emit hits.
-    self.emit('hits', hits);
+    self.emit('hits', {
+      'hits': resp.hits.total,
+      'results': hits
+    });
   });
-}
+};
 
-// Export the object.
-module.exports = Search;
+// Register the plugin.
+module.exports = function (options, imports, register) {
+  "use strict";
 
+  // Connect to Elasticsearch.
+  es = elasticsearch.Client(options.hosts);
+
+  // Load mappings.
+  mappings = require(options.mappings);
+
+  // Add logger.
+  logger = imports.logger;
+
+  register(null, {
+    'search': Search
+  });
+};

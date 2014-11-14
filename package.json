@@ -4,16 +4,6 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "elasticsearch": "2.2.x",
-    "express": "3.4.x",
-    "hjs": "0.0.6",
-    "jsonwebtoken": "0.4.0",
-    "log": "1.4.0",
-    "nconf": "0.6.9",
-    "optimist": "0.6.0",
-    "rename-keys": "^0.2.0",
-    "socket.io": "1.0.x",
-    "socketio-jwt": "2.3.1",
-    "minimist": "1.1.x"
+    "architect" : "0.1.11"
   }
 }

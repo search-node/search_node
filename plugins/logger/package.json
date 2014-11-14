@@ -1,0 +1,13 @@
+{
+  "name": "Logger",
+  "description": "Plugin to logge message to a log file",
+  "version": "0.0.1",
+  "main": "logger.js",
+  "private": true,
+  "dependencies": {
+    "log" : "1.4.x"
+  },
+  "plugin": {
+    "provides": [ "logger" ]
+  }
+}

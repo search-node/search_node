@@ -1,6 +1,6 @@
 /**
  * @file
- * This is a wrapper class to hande the system logger.
+ * This is a wrapper class to handel the system logger.
  */
 
 // Node core modules.
@@ -9,19 +9,21 @@ var fs = require('fs');
 // NPM modules.
 var Log = require('log');
 
-// Custom modules.
-var config = require('./configuration');
-
 // Holds the log object.
 var log;
 
 /**
  * Define the Base object (constructor).
  */
-var Logger = function() {
+var Logger = function Logger(filename, debug) {
+  "use strict";
+
+  // If true debug messages are logged.
+  this.log_debug = debug;
+
   // Set logger.
-  log = new Log('debug', fs.createWriteStream(config.get('log'), {'flags': 'a'}));
-}
+  log = new Log('debug', fs.createWriteStream(filename, {'flags': 'a'}));
+};
 
 /**
  * Log error message.
@@ -30,10 +32,12 @@ var Logger = function() {
  *   The message to send to the logger.
  */
 Logger.prototype.error = function error(message) {
+  "use strict";
+
   if (log !== undefined) {
     log.error(message);
   }
-}
+};
 
 /**
  * Log info message.
@@ -42,10 +46,12 @@ Logger.prototype.error = function error(message) {
  *   The message to send to the logger.
  */
 Logger.prototype.info = function info(message) {
+  "use strict";
+
   if (log !== undefined) {
     log.info(message);
   }
-}
+};
 
 /**
  * Log debug message.
@@ -54,10 +60,22 @@ Logger.prototype.info = function info(message) {
  *   The message to send to the logger.
  */
 Logger.prototype.debug = function debug(message) {
-  if (log !== undefined) {
+  "use strict";
+
+  if (log !== undefined && this.log_debug === true) {
     log.debug(message);
   }
-}
+};
 
-// Export the object (exports uses cache, hence singleton).
-module.exports = new Logger();
+/**
+ * Register the plugin with architect.
+ */
+module.exports = function (options, imports, register) {
+  "use strict";
+
+  var logger = new Logger(options.filename, options.debug || false);
+
+  register(null, {
+    "logger": logger
+  });
+};
