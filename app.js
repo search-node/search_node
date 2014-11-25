@@ -22,6 +22,11 @@ var config = [
   {
     "packagePath": "./plugins/server",
     "port": configs.port,
+    "session": true,
+    "sessionKey": "mySuperSecretKey",
+  },
+  {
+    "packagePath": "./plugins/auth"
   },
   {
     "packagePath": "./plugins/socket"
