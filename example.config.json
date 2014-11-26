@@ -1,5 +1,7 @@
 {
   "port": 3010,
+  "session": true,
+  "secret": "MySuperSecret",
   "log": {
     "file": "messages.log",
     "debug": false

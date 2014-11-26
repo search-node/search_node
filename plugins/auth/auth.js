@@ -78,7 +78,7 @@ module.exports = function (options, imports, register) {
           logger.info('Authenticated ' + user.apikey + ' from ' + req.ip);
 
           // API key accepted, so sen back token.
-          var token = jwt.sign(user, 'jwt_secret', { expiresInMinutes: 60*24*365 });
+          var token = jwt.sign(user, options.secret, { expiresInMinutes: 60*24*365 });
           res.json({ 'token': token });
         });
       }      

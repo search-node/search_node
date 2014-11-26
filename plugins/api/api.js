@@ -138,11 +138,11 @@ var API = function(app, logger, Search) {
         // @TODO: find better error code to send back.
         res.send(500);
       }
-    });
-  }
-  else {
-    req.send(403);
-  }
+    }
+    else {
+      req.send(403);
+    }
+  });
 };
 
 /**

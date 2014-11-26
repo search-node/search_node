@@ -28,7 +28,7 @@ module.exports = function (options, imports, register) {
   if (options.session) {
     var expressSession = require('express-session');
     app.use(expressSession({
-      "secret": options.sessionKey,
+      "secret": options.secret,
       "resave": true,
       "saveUninitialized": true
     }));
