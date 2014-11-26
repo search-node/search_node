@@ -30,11 +30,9 @@ module.exports = function (options, imports, register) {
   passport.use(new LocalAPIKeyStrategy(
     function(apikey, done) {
       if (apikey === '1234567890') {
-        console.log('YES!');
         return done(null, { 'apikey': '1234567890' }, { 'message': 'API key accepted' });
       }
       else {
-        console.log('NO!');
         return done(null, false, { 'message': 'API key not valid' });
       }
     }
@@ -58,7 +56,6 @@ module.exports = function (options, imports, register) {
 
   app.post('/api/auth', function(req, res, next) {
     passport.authenticate('localapikey', function(err, user, info) {
-      console.log(info);
       if (err) {
         logger.error(err);
         res.send(500);
