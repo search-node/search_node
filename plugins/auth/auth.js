@@ -40,10 +40,18 @@ module.exports = function (options, imports, register) {
     }
   ));
 
+  /**
+   * Store API key in the session.
+   */
   passport.serializeUser(function(user, done) {
     done(null, user.apikey);
   });
  
+  /**
+   * Restore the API key from the session.
+   *
+   * It's available in req.user after deserialization.
+   */
   passport.deserializeUser(function(apikey, done) {
     done(null, { 'apikey': apikey });
   });
@@ -52,24 +60,30 @@ module.exports = function (options, imports, register) {
     passport.authenticate('localapikey', function(err, user, info) {
       console.log(info);
       if (err) {
-        // System errors (first parameter in done)
-        return next(err);       
+        logger.error(err);
+        res.send(500);
       } 
       if (!user) {
         // Log info object.
-
-        ///
-        /// HERE
-        ///
-
+        logger.info(info);
 
         // API key not validated.
         res.send(403);
       }
       else {
-        // API key accepted, so sen back token.
-        var token = jwt.sign(user, 'jwt_secret', { expiresInMinutes: 60*24*365 });
-        res.json({ 'token': token });
+        // Call to login ensures that a session is created.
+        req.logIn(user, function(err) {
+          if (err) {
+            return next(err);
+          }
+
+          // Log auth request.
+          logger.info('Authenticated ' + user.apikey + ' from ' + req.ip);
+
+          // API key accepted, so sen back token.
+          var token = jwt.sign(user, 'jwt_secret', { expiresInMinutes: 60*24*365 });
+          res.json({ 'token': token });
+        });
       }      
     })(req, res, next);
   });
