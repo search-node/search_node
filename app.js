@@ -30,6 +30,9 @@ var config = [
     "admin": configs.admin
   },
   {
+    "packagePath": "./plugins/admin"
+  },
+  {
     "packagePath": "./plugins/socket"
   },
   {

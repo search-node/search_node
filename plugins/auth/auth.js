@@ -19,7 +19,6 @@ module.exports = function (options, imports, register) {
   // Get connected to the logger.
   var logger = imports.logger;
 
-
   // We are going to protect /api routes with JWT
   app.use('/api', expressJwt({ "secret": options.secret }));
 
@@ -73,6 +72,17 @@ module.exports = function (options, imports, register) {
     }
   });
 
+  /**
+   * Get API keys and configuration.
+   */
+  function getKeys() {
+    /**
+     * @TODO: Do this....
+     */
+  }
+
   // This plugin extends the server plugin and do not provide new services.
-  register(null, { 'auth': {}});
+  register(null, { 'auth': {
+    "getKeys": getKeys
+  }});
 };

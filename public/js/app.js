@@ -38,10 +38,14 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
     		templateUrl: 'views/login.html',
     		controller: 'LoginController'
   		})
- 		  .when('/apikeys', {
-    		templateUrl: 'views/apikeys.html',
-    		controller: 'ApiKeysController'
+ 		  .when('/indexes', {
+    		templateUrl: 'views/indexes.html',
+    		controller: 'IndexesController'
   		})
+      .when('/apikeys', {
+        templateUrl: 'views/apikeys.html',
+        controller: 'ApiKeysController'
+      })
       .when('/logout', {
         templateUrl: 'views/logout.html',
         controller: 'LogoutController'

@@ -10,25 +10,6 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
   "use strict";
 
   /**
-   * Custom exception.
-   *
-   * @param status
-   *   HTTP status code.
-   * @param message
-   *   Customer message.
-   * @constructor
-   */
-  function DataException(status, message) {
-    if (message === undefined) {
-      message = 'Der opstod en fejl i kommunikation med serveren.';
-    }
-
-    this.status = status;
-    this.message = message;
-    this.name = 'DataException';
-  }
-
-  /**
    * Fetch content from the backend service.
    *
    * @param method
@@ -52,8 +33,10 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
         deferred.resolve(data);
       }).
       error(function(data, status, headers, config) {
-        deferred.reject(status);
-        throw new DataException(status);
+        deferred.reject({
+          'status': status,
+          'message': data,
+        });
       });
 
     return deferred.promise;
@@ -84,8 +67,10 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
         deferred.resolve(data);
       }).
       error(function(data, status, headers, config) {
-        deferred.reject(status);
-        throw new DataException(status);
+        deferred.reject({
+          'status': status,
+          'message': data,
+        });
       });
 
     return deferred.promise;

@@ -29,7 +29,8 @@ app.controller('LoginController', ['$scope', '$http', '$window', '$location',
 
           // Handle login errors here
           $scope.message = 'Error: Invalid user or password';
-        });
+        }
+      );
     };
   }
 ]);
@@ -56,12 +57,47 @@ app.controller('NavigationController', ['$scope', '$location',
 ]);
 
 /**
- *
+ * API keys page.
  */
-app.controller('ApiKeysController', ['$scope', '$window', '$location',
-  function($scope, $window, $location) {
+app.controller('ApiKeysController', ['$scope', '$window', '$location', 'dataService',
+  function($scope, $window, $location, dataService) {
+    // Check that the user is logged in.
     if (!$window.sessionStorage.token) {
       $location.path('');
     }
+
+    // Get user/api key information form the backend.
+    dataService.fetch('get', '/api/admin/keys').then(
+      function (data) {
+        console.log(data);
+      },
+      function (reason) {
+        $scope.message = reason.message;
+        $scope.messageClass = 'alert-danger';
+      }
+    );
+  }
+]);
+
+/**
+ * Search indexes page.
+ */
+app.controller('IndexesController', ['$scope', '$window', '$location', 'dataService',
+  function($scope, $window, $location, dataService) {
+    // Check that the user is logged in.
+    if (!$window.sessionStorage.token) {
+      $location.path('');
+    }
+
+    // Get search indexes.
+    dataService.fetch('get', '/api/admin/indexes').then(
+      function (data) {
+        console.log(data);
+      },
+      function (reason) {
+        $scope.message = reason.message;
+        $scope.messageClass = 'alert-danger';
+      }
+    );
   }
 ]);
