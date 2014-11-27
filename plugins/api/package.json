@@ -11,7 +11,8 @@
     "consumes": [
       "app",
       "logger",
-      "search"
+      "search",
+      "auth"
     ]
   }
 }

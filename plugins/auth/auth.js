@@ -11,6 +11,7 @@ module.exports = function (options, imports, register) {
 
   // Load token library.
   var jwt = require('jsonwebtoken');
+  var expressJwt = require('express-jwt');
 
   // Get express app.
   var app = imports.app;
@@ -44,7 +45,7 @@ module.exports = function (options, imports, register) {
   passport.serializeUser(function(user, done) {
     done(null, user.apikey);
   });
- 
+
   /**
    * Restore the API key from the session.
    *
@@ -54,12 +55,15 @@ module.exports = function (options, imports, register) {
     done(null, { 'apikey': apikey });
   });
 
-  app.post('/api/auth', function(req, res, next) {
+  // We are going to protect /api routes with JWT
+  app.use('/api', expressJwt({secret: secret}));
+
+  app.post('/authenticate', function(req, res, next) {
     passport.authenticate('localapikey', function(err, user, info) {
       if (err) {
         logger.error(err);
         res.send(500);
-      } 
+      }
       if (!user) {
         // Log info object.
         logger.info(info);
@@ -81,7 +85,7 @@ module.exports = function (options, imports, register) {
           var token = jwt.sign(user, options.secret, { expiresInMinutes: 60*24*365 });
           res.json({ 'token': token });
         });
-      }      
+      }
     })(req, res, next);
   });
 

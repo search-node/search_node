@@ -20,13 +20,8 @@ var API = function(app, logger, Search) {
   /**
    * Default get request.
    */
-  app.get('/', function (req, res) {
-    if (self.isAuthenticated(req)) {
-      res.send('Please use /api');
-    }
-    else {
-      res.send(403);
-    }
+  app.get('/api', function (req, res) {
+    res.send('Please see documentation about using this api.');
   });
 
   /**
@@ -64,7 +59,7 @@ var API = function(app, logger, Search) {
       }
     }
     else {
-      req.send(403);
+      req.send(401);
     }
   });
 
@@ -101,7 +96,7 @@ var API = function(app, logger, Search) {
       }
     }
     else {
-      req.send(403);
+      req.send(401);
     }
   });
 
@@ -140,7 +135,7 @@ var API = function(app, logger, Search) {
       }
     }
     else {
-      req.send(403);
+      req.send(401);
     }
   });
 };
