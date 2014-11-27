@@ -23,6 +23,9 @@ module.exports = function (options, imports, register) {
   // We are going to protect /api routes with JWT
   app.use('/api', expressJwt({ "secret": options.secret }));
 
+  /**
+   * Authentication for API access.
+   */
   app.post('/authenticate', function(req, res, next) {
     if (!req.body.hasOwnProperty('apikey')) {
       res.send("API key not found in the request.", 404);
@@ -30,14 +33,40 @@ module.exports = function (options, imports, register) {
     else {
       if (req.body.apikey == 1234567890) {
         var profile = {
+          "role": 'api',
           "apikey": req.body.apikey
         };
         // API key accepted, so sen back token.
-        var token = jwt.sign(profile, options.secret, { expiresInMinutes: 60*24*365 });
+        var token = jwt.sign(profile, options.secret, { expiresInMinutes: 60 * 5 });
         res.json({ 'token': token });
       }
       else {
         res.send('API key could not be validated.', 401);
+      }
+    }
+  });
+
+  /**
+   * Administration login.
+   */
+  app.post('/login', function(req, res, next) {
+    if (!req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')) {
+      res.send("Credentials not found in the request.", 404);
+    }
+    else {
+      if (req.body.username == 'admin' && req.body.password == 'admin') {
+        var profile = {
+          "role": 'admin',
+        };
+
+        // Generate token for access.
+        var token = jwt.sign(profile, options.secret, { expiresInMinutes: 60 * 5 });
+        res.json({
+          'token': token
+        });
+      }
+      else {
+        res.send('Credentials could not be validated.', 401);
       }
     }
   });
