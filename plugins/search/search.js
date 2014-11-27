@@ -457,10 +457,10 @@ Search.prototype.getIndexes = function getIndexes() {
             "index": parts[1],
             "pri": parts[2],
             "rep": parts[3],
-            "docs.count": parts[4],
-            "docs.deleted": parts[5],
-            "store.size": parts[6],
-            "pri.store.size": parts[7]
+            "count": parts[4],
+            "deleted": parts[5],
+            "size": parts[6],
+            "prisize": parts[7]
           };
         }
       }

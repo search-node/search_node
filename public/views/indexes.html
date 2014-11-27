@@ -11,10 +11,36 @@
 
 <!-- Page content -->
 <div class="jumbotron">
-	health index                            pri rep docs.count docs.deleted store.size pri.store.size
-	<ul>
-		<li data-ng-repeat="index in indexes">
-			{{ index.index }}
-		</li>
-	</ul>
+	<div class="panel panel-default">
+  	<table class="table table-hover">
+  	<thead>
+			<tr>
+				<th>#</th>
+    		<th>health</th>
+     		<th>index</th>
+     		<th>pri</th>
+     		<th>rep</th>
+     		<th>docs</th>
+     		<th>deleted</th>
+     		<th>size</th>
+  		</tr>
+  	</thead>
+    <tr class="warning" data-ng-repeat="index in indexes">
+    	<td>{{ $index + 1 }}</td>
+    	<td>{{ index.health }}</td>
+    	<td>{{ index.index }}</td>
+    	<td>{{ index.pri }}</td>
+    	<td>{{ index.rep }}</td>
+    	<td>{{ index.count }}</td>
+    	<td>{{ index.deleted }}</td>
+    	<td>{{ index.size }}</td>
+    </tr>
+  	</table>
+	</div>
 </div>
+<!--
+        <tr class="active">
+        <tr class="success"> Green
+        <tr class="warning"> Yellow
+        <tr class="danger"> Red
+-->
