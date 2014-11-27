@@ -24,16 +24,6 @@ module.exports = function (options, imports, register) {
   app.use(express.urlencoded());
   app.use(express.json());
 
-  // Enable sessions.
-  if (options.session) {
-    var expressSession = require('express-session');
-    app.use(expressSession({
-      "secret": options.secret,
-      "resave": true,
-      "saveUninitialized": true
-    }));
-  }
-
   // Enable route.
   var route = options.route || false;
   if (route) {

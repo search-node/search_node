@@ -23,8 +23,6 @@ var config = [
     "packagePath": "./plugins/server",
     "port": configs.port,
     "path": path.join(__dirname, 'public'),
-    "session": configs.session,
-    "secret": configs.secret
   },
   {
     "packagePath": "./plugins/auth",
