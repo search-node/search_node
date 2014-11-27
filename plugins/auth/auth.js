@@ -38,7 +38,9 @@ module.exports = function (options, imports, register) {
         };
         // API key accepted, so sen back token.
         var token = jwt.sign(profile, options.secret, { expiresInMinutes: 60 * 5 });
-        res.json({ 'token': token });
+        res.json({
+          'token': token
+        });
       }
       else {
         res.send('API key could not be validated.', 401);
@@ -54,7 +56,7 @@ module.exports = function (options, imports, register) {
       res.send("Credentials not found in the request.", 404);
     }
     else {
-      if (req.body.username == 'admin' && req.body.password == 'admin') {
+      if (req.body.username == options.admin.username && req.body.password == options.admin.password) {
         var profile = {
           "role": 'admin',
         };

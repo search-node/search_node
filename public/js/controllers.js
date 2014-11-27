@@ -21,7 +21,7 @@ app.controller('LoginController', ['$scope', '$http', '$window', '$location',
           // Store token in session.
           $window.sessionStorage.token = data.token;
 
-          $location.path('home');
+          $location.path('apikeys');
         })
         .error(function (data, status, headers, config) {
           // Erase the token if the user fails to log in
@@ -34,8 +34,34 @@ app.controller('LoginController', ['$scope', '$http', '$window', '$location',
   }
 ]);
 
-app.controller('HomeController', ['$scope', '$route', '$routeParams', '$location',
-  function($scope, $route, $routeParams, $location) {
-    alert('home');
+/**
+ * Logout page.
+ */
+app.controller('LogoutController', ['$scope', '$window',
+  function($scope, $window) {
+    delete $window.sessionStorage.token;
+  }
+]);
+
+
+/**
+ * Navigation helpers.
+ */
+app.controller('NavigationController', ['$scope', '$location',
+  function($scope, $location) {
+     $scope.isActive = function (viewLocation) {
+        return viewLocation === $location.path();
+    };
+  }
+]);
+
+/**
+ *
+ */
+app.controller('ApiKeysController', ['$scope', '$window', '$location',
+  function($scope, $window, $location) {
+    if (!$window.sessionStorage.token) {
+      $location.path('');
+    }
   }
 ]);

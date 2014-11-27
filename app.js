@@ -26,7 +26,8 @@ var config = [
   },
   {
     "packagePath": "./plugins/auth",
-    "secret": configs.secret
+    "secret": configs.secret,
+    "admin": configs.admin
   },
   {
     "packagePath": "./plugins/socket"

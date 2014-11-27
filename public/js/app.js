@@ -38,10 +38,15 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
     		templateUrl: 'views/login.html',
     		controller: 'LoginController'
   		})
- 		  .when('/home', {
-    		templateUrl: 'views/home.html',
-    		controller: 'HomeController'
-  		});
+ 		  .when('/apikeys', {
+    		templateUrl: 'views/apikeys.html',
+    		controller: 'ApiKeysController'
+  		})
+      .when('/logout', {
+        templateUrl: 'views/logout.html',
+        controller: 'LogoutController'
+      });
+
 
     $httpProvider.interceptors.push('authInterceptor');
 	}

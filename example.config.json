@@ -1,6 +1,10 @@
 {
   "port": 3010,
   "secret": "MySuperSecret",
+  "admin": {
+    "username": "admin",
+    "password": "admin"
+  },
   "log": {
     "file": "messages.log",
     "debug": false
