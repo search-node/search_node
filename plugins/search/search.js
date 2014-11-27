@@ -258,7 +258,7 @@ var addSort = function addSort(property) {
  * @param id !optional
  *   The documents unique id.
  */
-var Search = function (customer_id, type, id) {
+var Search = function Search(customer_id, type, id) {
   "use strict";
 
   // Set "outside" variable to ref to the object.
@@ -440,6 +440,36 @@ Search.prototype.query = function query(data) {
     });
   });
 };
+
+/**
+ * Get indexes avavilable on the server.
+ */
+Search.prototype.getIndexes = function getIndexes() {
+  es.cat.indices(function (err, response, status) {
+    if (status === 200) {
+      var indexes = {};
+      var lines = response.split(/\n/g);
+      for (var i in lines) {
+        var parts = lines[i].match(/[\w\.\d]+/g);
+        if (parts !== null) {
+          indexes[parts[1]] = {
+            "health": parts[0],
+            "index": parts[1],
+            "pri": parts[2],
+            "rep": parts[3],
+            "docs.count": parts[4],
+            "docs.deleted": parts[5],
+            "store.size": parts[6],
+            "pri.store.size": parts[7]
+          };
+        }
+      }
+
+      // Emit hits.
+      self.emit('indexes', indexes);
+    }
+  });
+}
 
 // Register the plugin.
 module.exports = function (options, imports, register) {

@@ -11,7 +11,7 @@
  * @param Auth
  * @constructor
  */
-var Admin = function Admin(app, logger, Auth) {
+var Admin = function Admin(app, logger, Auth, search) {
   "use strict";
 
   var self = this;
@@ -46,7 +46,10 @@ var Admin = function Admin(app, logger, Auth) {
    */
   app.get('/api/admin/indexes', function (req, res) {
     if (self.validateCall(req)) {
-      res.send('indexes');
+      search.once('indexes', function (indexes) {
+        res.json(indexes);
+      });
+      search.getIndexes();
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -72,8 +75,10 @@ Admin.prototype.validateCall = function validateCall(req) {
 module.exports = function (options, imports, register) {
   "use strict";
 
+  var instance = new imports.search('', '');
+
   // Create the API routes using the API object.
-  var admin = new Admin(imports.app, imports.logger, imports.auth);
+  var admin = new Admin(imports.app, imports.logger, imports.auth, instance);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);

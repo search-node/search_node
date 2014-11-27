@@ -11,4 +11,10 @@
 
 <!-- Page content -->
 <div class="jumbotron">
+	health index                            pri rep docs.count docs.deleted store.size pri.store.size
+	<ul>
+		<li data-ng-repeat="index in indexes">
+			{{ index.index }}
+		</li>
+	</ul>
 </div>

@@ -92,7 +92,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'dataServ
     // Get search indexes.
     dataService.fetch('get', '/api/admin/indexes').then(
       function (data) {
-        console.log(data);
+        $scope.indexes = data;
       },
       function (reason) {
         $scope.message = reason.message;

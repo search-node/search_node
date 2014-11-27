@@ -37,7 +37,8 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
           'status': status,
           'message': data,
         });
-      });
+      }
+    );
 
     return deferred.promise;
   }
@@ -71,7 +72,8 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
           'status': status,
           'message': data,
         });
-      });
+      }
+    );
 
     return deferred.promise;
   }
