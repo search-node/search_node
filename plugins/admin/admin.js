@@ -89,6 +89,36 @@ var Admin = function Admin(options, app, logger, Auth, search) {
   });
 
   /**
+   * Flush indexes (remove an re-add it).
+   */
+  app.get('/api/admin/index/:index/flush', function (req, res) {
+    if (self.validateCall(req)) {
+      var index = req.params.index;
+
+      // Send response back when search engine have removed the index.
+      search.once('removed', function (status) {
+        if (status) {
+          // Listen to the created index event.
+          search.once('indexCreated', function (data) {
+            res.send('The index "' + index + '" have been flushed.', 200);
+          });
+          search.addIndex(index);
+        }
+        else {
+          res.send('The index "' + index + '" could not be flushed.', 500);
+        }
+      });
+
+      // Request to remove the index.
+      search.remove(index);
+    }
+    else {
+      res.send('You do not have the right role.', 401);
+    }
+  });
+
+
+  /**
    * Get mappings configuration.
    */
   app.get('/api/admin/mapping/:index', function (req, res) {

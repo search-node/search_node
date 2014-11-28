@@ -474,6 +474,14 @@ Search.prototype.getIndexes = function getIndexes() {
 }
 
 /**
+ * Add new index (requires mappings have been created).
+ */
+Search.prototype.addIndex = function addIndex(index) {
+  // Create index.
+  buildNewIndex(index);
+}
+
+/**
  * Remove index from the server.
  */
 Search.prototype.remove = function remove(index) {

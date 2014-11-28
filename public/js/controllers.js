@@ -3,7 +3,9 @@
  * The applications controllers.
  */
 
-
+/**
+ * Main application controller.
+ */
 app.controller('MainController', ['$scope', '$route', '$routeParams', '$location',
   function($scope, $route, $routeParams, $location) {
 
@@ -82,8 +84,8 @@ app.controller('ApiKeysController', ['$scope', '$window', '$location', 'dataServ
 /**
  * Search indexes page.
  */
-app.controller('IndexesController', ['$scope', '$window', '$location', 'ngOverlay', 'dataService',
-  function($scope, $window, $location, ngOverlay, dataService) {
+app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout', 'ngOverlay', 'dataService',
+  function($scope, $window, $location, $timeout, ngOverlay, dataService) {
     // Check that the user is logged in.
     if (!$window.sessionStorage.token) {
       $location.path('');
@@ -96,7 +98,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'ngOverla
       // Get search indexes.
       dataService.fetch('get', '/api/admin/indexes').then(
         function (data) {
-          $scope.indexes = data;
+          $scope.activeIndexes = data;
         },
         function (reason) {
           $scope.message = reason.message;
@@ -172,10 +174,38 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'ngOverla
     };
 
     $scope.flush = function flush(index) {
-      console.log(index);
-      // Call delete.
+      var scope = $scope.$new(true);
 
-      // Call create.
+      scope.title = 'Flush index';
+      scope.message = 'Flush all the indexed data in the index "' + index + '". This can not be undone.';
+      scope.okText = 'Flush';
+
+      scope.confirmed = function confirmed() {
+        dataService.fetch('get', '/api/admin/index/' + index + '/flush').then(
+          function (data) {
+            $scope.message = data;
+            $scope.messageClass = 'alert-success';
+
+            // Update index list (but give search an change to flush it).
+            $timeout(function() {
+              loadIndexes();
+            }, 1000);
+
+            // Close overlay.
+            overlay.close();
+          },
+          function (reason) {
+            $scope.message = reason.message;
+            $scope.messageClass = 'alert-danger';
+          }
+        );
+      };
+
+      // Open the overlay.
+      var overlay = ngOverlay.open({
+        template: "views/confirm.html",
+        scope: scope
+      });
     };
 
     /**
