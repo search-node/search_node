@@ -7,7 +7,13 @@
 </div>
 
 <!-- messages -->
-<div data-ng-show="message" class="alert {{ messageClass }}" role="alert">{{ message }}</div>
+<div class="alert {{ messageClass }} alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert">
+    <span aria-hidden="true">&times;</span>
+    <span class="sr-only">Close</span>
+  </button>
+  {{ message }}
+</div>
 
 <!-- Page content -->
 <div class="jumbotron">

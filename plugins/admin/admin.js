@@ -66,20 +66,22 @@ var Admin = function Admin(options, app, logger, Auth, search) {
   /**
    * Delete index.
    */
-  app.get('/api/admin/index/:index/remove', function (req, res) {
+  app.delete('/api/admin/index/:index', function (req, res) {
     if (self.validateCall(req)) {
+      var index = req.params.index;
+
       // Send response back when search engine have removed the index.
       search.once('removed', function (status) {
         if (status) {
-          res.send('Index have been removed in the search engine.', 200);
+          res.send('The index "' + index + '" have been removed from the search engine.', 200);
         }
         else {
-          res.send('Index could not be removed.', 500);
+          res.send('The index "' + index + '" could not be removed.', 500);
         }
       });
 
       // Request to remove the index.
-      search.remove(req.params.index);
+      search.remove(index);
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -100,7 +102,7 @@ var Admin = function Admin(options, app, logger, Auth, search) {
           res.json(mappings[index]);
         }
         else {
-          res.send('Index not found in mappings configuration on the server.', 404);
+          res.send('The index "' + index + '" was not found in mappings configuration on the server.', 404);
         }
       });
     }
@@ -141,26 +143,14 @@ var Admin = function Admin(options, app, logger, Auth, search) {
               res.send('Mappings file could not be updated.', 500);
             }
             else {
-              res.send('Mappings updated.', 200);
+              res.send('Mappings for the index "' + index + '" have been updated.', 200);
             }
           });
         }
         else {
-          res.send('Index not found in mappings configuration on the server.', 404);
+          res.send('The index "' + index + '" was not found in mappings configuration on the server.', 404);
         }
       });
-    }
-    else {
-      res.send('You do not have the right role.', 401);
-    }
-  });
-
-  /**
-   * Delete mappings configuration.
-   */
-  app.delete('/api/admin/mapping/:index', function (req, res) {
-    if (self.validateCall(req)) {
-      var index = req.params.index;
     }
     else {
       res.send('You do not have the right role.', 401);

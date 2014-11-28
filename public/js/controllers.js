@@ -128,7 +128,6 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'ngOverla
       dataService.fetch('get', '/api/admin/mapping/' + index).then(
         function (data) {
           var scope = $scope.$new(true);
-          console.log(data);
           // Add mapping information.
           scope.mapping = data;
 
@@ -174,25 +173,45 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'ngOverla
 
     $scope.flush = function flush(index) {
       console.log(index);
+      // Call delete.
+
+      // Call create.
     };
 
     /**
      * Delete index callback.
      */
     $scope.remove = function remove(index) {
-      dataService.fetch('get', '/api/admin/index/' + index + '/remove').then(
-        function (data) {
-          $scope.message = data;
-          $scope.messageClass = 'alert-success';
+      var scope = $scope.$new(true);
 
-          // Update index list.
-          loadIndexes();
-        },
-        function (reason) {
-          $scope.message = reason.message;
-          $scope.messageClass = 'alert-danger';
-        }
-      );
+      scope.title = 'Remove index';
+      scope.message = 'Remove the index "' + index + '" and all indexed data. This can not be undone.';
+      scope.okText = 'Remove';
+
+      scope.confirmed = function confirmed() {
+        dataService.fetch('delete', '/api/admin/index/' + index).then(
+          function (data) {
+            $scope.message = data;
+            $scope.messageClass = 'alert-success';
+
+            // Update index list.
+            loadIndexes();
+
+            // Close overlay.
+            overlay.close();
+          },
+          function (reason) {
+            $scope.message = reason.message;
+            $scope.messageClass = 'alert-danger';
+          }
+        );
+      };
+
+      // Open the overlay.
+      var overlay = ngOverlay.open({
+        template: "views/confirm.html",
+        scope: scope
+      });
     };
 
     // Get the controller up and running.
