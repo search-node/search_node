@@ -99,5 +99,21 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'dataServ
         $scope.messageClass = 'alert-danger';
       }
     );
+
+    /**
+     * Helper function to add table class base on cluster healt.
+     */
+    $scope.getClass = function getClass(healt) {
+      // Default to green.
+      var classname = 'success';
+      if (healt == 'yellow') {
+        classname = 'warning';
+      }
+      if (healt == 'red') {
+        classname = 'danger';
+      }
+
+      return classname;
+    }
   }
 ]);
