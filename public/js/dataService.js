@@ -62,7 +62,6 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
       success(function(data, status, headers, config) {
         if (status !== 200) {
           deferred.reject(status);
-          throw new DataException(status);
         }
         // Resolve promise.
         deferred.resolve(data);

@@ -89,16 +89,21 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'ngOverla
       $location.path('');
     }
 
-    // Get search indexes.
-    dataService.fetch('get', '/api/admin/indexes').then(
-      function (data) {
-        $scope.indexes = data;
-      },
-      function (reason) {
-        $scope.message = reason.message;
-        $scope.messageClass = 'alert-danger';
-      }
-    );
+    /**
+     * Load indexes from the backend.
+     */
+    function loadIndexes() {
+      // Get search indexes.
+      dataService.fetch('get', '/api/admin/indexes').then(
+        function (data) {
+          $scope.indexes = data;
+        },
+        function (reason) {
+          $scope.message = reason.message;
+          $scope.messageClass = 'alert-danger';
+        }
+      );
+    }
 
     /**
      * Helper function to add table class base on cluster healt.
@@ -114,31 +119,83 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'ngOverla
       }
 
       return classname;
-    }
+    };
 
+    /**
+     * Edit index callback.
+     */
     $scope.edit = function edit(index) {
       dataService.fetch('get', '/api/admin/mapping/' + index).then(
-      function (data) {
-        var scope = $scope.$new(true);
-        console.log(data);
-        // Add mapping information.
-        scope.mapping = data;
+        function (data) {
+          var scope = $scope.$new(true);
+          console.log(data);
+          // Add mapping information.
+          scope.mapping = data;
 
-        // Set index.
-        scope.index = index;
+          // Set index.
+          scope.index = index;
 
-        ngOverlay.open({
-          template: "views/editIndex.html",
-          scope: scope
-        });
-      },
-      function (reason) {
-        $scope.message = reason.message;
-        $scope.messageClass = 'alert-danger';
-      }
-    );
+          /**
+           * Save index callback.
+           */
+          scope.save = function save() {
+            dataService.send('put', '/api/admin/mapping/' + index, scope.mapping).then(
+              function (data) {
+                $scope.message = data;
+                $scope.messageClass = 'alert-success';
 
+                /**
+                 * @TODO: Reload the index at the server.
+                 */
 
-    }
+                // Close overlay.
+                overlay.close();
+              },
+              function (reason) {
+                $scope.message = reason.message;
+                $scope.messageClass = 'alert-danger';
+              }
+            );
+
+          }
+
+          // Open the overlay.
+          var overlay = ngOverlay.open({
+            template: "views/editIndex.html",
+            scope: scope
+          });
+        },
+        function (reason) {
+          $scope.message = reason.message;
+          $scope.messageClass = 'alert-danger';
+        }
+      );
+    };
+
+    $scope.flush = function flush(index) {
+      console.log(index);
+    };
+
+    /**
+     * Delete index callback.
+     */
+    $scope.remove = function remove(index) {
+      dataService.fetch('get', '/api/admin/index/' + index + '/remove').then(
+        function (data) {
+          $scope.message = reason.message;
+          $scope.messageClass = 'alert-success';
+
+          // Update index list.
+          loadIndexes();
+        },
+        function (reason) {
+          $scope.message = reason.message;
+          $scope.messageClass = 'alert-danger';
+        }
+      );
+    };
+
+    // Get the controller up and running.
+    loadIndexes();
   }
 ]);

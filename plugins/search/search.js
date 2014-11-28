@@ -471,6 +471,20 @@ Search.prototype.getIndexes = function getIndexes() {
   });
 }
 
+/**
+ * Remove index from the server.
+ */
+Search.prototype.remove = function remove(index) {
+  es.indices.delete({
+    "index": index
+  }, function (err, response, status) {
+    if (status === 200) {
+      return true;
+    }
+    return false;
+  });
+}
+
 // Register the plugin.
 module.exports = function (options, imports, register) {
   "use strict";

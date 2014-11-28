@@ -104,6 +104,13 @@
             // Return overlay to enable chaining.
             return self;
           },
+          /**
+           * Close function to close the open modal window.
+           */
+          "close": function close() {
+            $("#myModal").modal('hide');
+            angular.element(document.querySelector('#myModal')).remove();
+          },
         };
       }
     ];
