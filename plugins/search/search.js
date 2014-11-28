@@ -448,24 +448,26 @@ Search.prototype.getIndexes = function getIndexes() {
   es.cat.indices(function (err, response, status) {
     if (status === 200) {
       var indexes = {};
-      var lines = response.split(/\n/g);
-      for (var i in lines) {
-        var parts = lines[i].match(/[\w\.\d]+/g);
-        if (parts !== null) {
-          indexes[parts[1]] = {
-            "health": parts[0],
-            "index": parts[1],
-            "pri": parts[2],
-            "rep": parts[3],
-            "count": parts[4],
-            "deleted": parts[5],
-            "size": parts[6],
-            "prisize": parts[7]
-          };
+      if (response !== undefined) {
+        var lines = response.split(/\n/g);
+        for (var i in lines) {
+          var parts = lines[i].match(/[\w\.\d]+/g);
+          if (parts !== null) {
+            indexes[parts[1]] = {
+              "health": parts[0],
+              "index": parts[1],
+              "pri": parts[2],
+              "rep": parts[3],
+              "count": parts[4],
+              "deleted": parts[5],
+              "size": parts[6],
+              "prisize": parts[7]
+            };
+          }
         }
       }
 
-      // Emit hits.
+      // Emit indexes.
       self.emit('indexes', indexes);
     }
   });
@@ -478,10 +480,8 @@ Search.prototype.remove = function remove(index) {
   es.indices.delete({
     "index": index
   }, function (err, response, status) {
-    if (status === 200) {
-      return true;
-    }
-    return false;
+    // Emit removed status.
+    self.emit('removed', status === 200);
   });
 }
 

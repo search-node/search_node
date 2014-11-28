@@ -68,12 +68,18 @@ var Admin = function Admin(options, app, logger, Auth, search) {
    */
   app.get('/api/admin/index/:index/remove', function (req, res) {
     if (self.validateCall(req)) {
-      if (search.remove(req.params.index)) {
-        res.send('Index have been removed in the search engine.', 200);
-      }
-      else {
-        res.send('Index could not be removed.', 500);
-      }
+      // Send response back when search engine have removed the index.
+      search.once('removed', function (status) {
+        if (status) {
+          res.send('Index have been removed in the search engine.', 200);
+        }
+        else {
+          res.send('Index could not be removed.', 500);
+        }
+      });
+
+      // Request to remove the index.
+      search.remove(req.params.index);
     }
     else {
       res.send('You do not have the right role.', 401);

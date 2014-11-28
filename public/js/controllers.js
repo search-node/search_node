@@ -182,7 +182,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'ngOverla
     $scope.remove = function remove(index) {
       dataService.fetch('get', '/api/admin/index/' + index + '/remove').then(
         function (data) {
-          $scope.message = reason.message;
+          $scope.message = data;
           $scope.messageClass = 'alert-success';
 
           // Update index list.
