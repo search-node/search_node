@@ -31,6 +31,7 @@ var config = [
   },
   {
     "packagePath": "./plugins/admin"
+    "mappings": __dirname + '/' + configs.search.mappings
   },
   {
     "packagePath": "./plugins/socket"

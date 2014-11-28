@@ -11,7 +11,7 @@
  * @param Auth
  * @constructor
  */
-var Admin = function Admin(app, logger, Auth, search) {
+var Admin = function Admin(options, app, logger, Auth, search) {
   "use strict";
 
   var self = this;
@@ -46,14 +46,46 @@ var Admin = function Admin(app, logger, Auth, search) {
    */
   app.get('/api/admin/indexes', function (req, res) {
     if (self.validateCall(req)) {
+
+      // Send response back when search engine have the results.
       search.once('indexes', function (indexes) {
         res.json(indexes);
       });
+
+      // Get indexes from the search engine.
       search.getIndexes();
     }
     else {
       res.send('You do not have the right role.', 401);
     }
+  });
+
+  /**
+   * Get mappings configuration.
+   */
+  app.get('/api/admin/config', function (req, res) {
+
+  });
+
+  /**
+   * Create new mapping configuration.
+   */
+  app.post('/api/admin/config/', function (req, res) {
+
+  });
+
+  /**
+   * Update mappings configuration.
+   */
+  app.put('/api/admin/config/:id', function (req, res) {
+    var id = req.params.id;
+  });
+
+  /**
+   * Delete mappings configuration.
+   */
+  app.delete('/api/admin/config/:id', function (req, res) {
+    var id = req.params.id;
   });
 };
 
@@ -78,7 +110,7 @@ module.exports = function (options, imports, register) {
   var instance = new imports.search('', '');
 
   // Create the API routes using the API object.
-  var admin = new Admin(imports.app, imports.logger, imports.auth, instance);
+  var admin = new Admin(options, imports.app, imports.logger, imports.auth, instance);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);

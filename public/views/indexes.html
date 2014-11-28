@@ -16,12 +16,13 @@
   	<thead>
 			<tr>
 				<th>#</th>
-     		<th>index</th>
-     		<th>pri</th>
-     		<th>rep</th>
-     		<th>docs</th>
-     		<th>deleted</th>
-     		<th>size</th>
+     		<th>Index</th>
+     		<th>Pri</th>
+     		<th>Rep</th>
+     		<th>Docs</th>
+     		<th>Deleted</th>
+     		<th>Size</th>
+        <th>Actions</th>
   		</tr>
   	</thead>
     <tr data-ng-class="getClass(index.health)" data-ng-repeat="index in indexes">
@@ -32,6 +33,14 @@
     	<td>{{ index.count }}</td>
     	<td>{{ index.deleted }}</td>
     	<td>{{ index.size }}</td>
+      <td>
+        <button type="button" class="btn btn-success btn-xs" data-ng-click="edit(index.index)">
+          <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Edit
+        </button>
+        <button type="button" class="btn btn-danger btn-xs" data-ng-click="remove(index.index)">
+          <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Remove
+        </button>
+      </td>
     </tr>
   	</table>
 	</div>

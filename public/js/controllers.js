@@ -82,8 +82,8 @@ app.controller('ApiKeysController', ['$scope', '$window', '$location', 'dataServ
 /**
  * Search indexes page.
  */
-app.controller('IndexesController', ['$scope', '$window', '$location', 'dataService',
-  function($scope, $window, $location, dataService) {
+app.controller('IndexesController', ['$scope', '$window', '$location', 'ngOverlay', 'dataService',
+  function($scope, $window, $location, ngOverlay, dataService) {
     // Check that the user is logged in.
     if (!$window.sessionStorage.token) {
       $location.path('');
@@ -114,6 +114,12 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'dataServ
       }
 
       return classname;
+    }
+
+    $scope.edit = function edit(index) {
+      ngOverlay.open({
+        "template": "views/editIndex.html"
+      });
     }
   }
 ]);

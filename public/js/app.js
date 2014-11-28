@@ -4,7 +4,7 @@
 */
 
 // Define the angular application.
-var app = angular.module('SearchNodeApp', [ 'ngRoute' ]);
+var app = angular.module('SearchNodeApp', [ 'ngRoute', 'ngOverlay', 'appMessage' ]);
 
 /**
  * Add autentication header to all AJAX requests.
