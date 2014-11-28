@@ -117,9 +117,28 @@ app.controller('IndexesController', ['$scope', '$window', '$location', 'ngOverla
     }
 
     $scope.edit = function edit(index) {
-      ngOverlay.open({
-        "template": "views/editIndex.html"
-      });
+      dataService.fetch('get', '/api/admin/mapping/' + index).then(
+      function (data) {
+        var scope = $scope.$new(true);
+        console.log(data);
+        // Add mapping information.
+        scope.mapping = data;
+
+        // Set index.
+        scope.index = index;
+
+        ngOverlay.open({
+          template: "views/editIndex.html",
+          scope: scope
+        });
+      },
+      function (reason) {
+        $scope.message = reason.message;
+        $scope.messageClass = 'alert-danger';
+      }
+    );
+
+
     }
   }
 ]);

@@ -34,9 +34,17 @@
     	<td>{{ index.deleted }}</td>
     	<td>{{ index.size }}</td>
       <td>
+        <!-- Edit index -->
         <button type="button" class="btn btn-success btn-xs" data-ng-click="edit(index.index)">
           <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Edit
         </button>
+
+        <!-- Flush index -->
+        <button type="button" class="btn btn-warning btn-xs" data-ng-click="flush(index.index)">
+          <span class="glyphicon glyphicon-fire" aria-hidden="true"></span> Flush
+        </button>
+
+        <!-- Remove index -->
         <button type="button" class="btn btn-danger btn-xs" data-ng-click="remove(index.index)">
           <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Remove
         </button>
@@ -44,4 +52,9 @@
     </tr>
   	</table>
 	</div>
+
+  <!-- Add new index -->
+  <button type="button" class="btn btn-info" data-ng-click="add()">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add index
+  </button>
 </div>

@@ -17,6 +17,9 @@ var Admin = function Admin(options, app, logger, Auth, search) {
   var self = this;
   this.logger = logger;
 
+  // Get the json easy file read/writer.
+  var jf = require('jsonfile')
+
   /**
    * Default get request.
    */
@@ -63,29 +66,41 @@ var Admin = function Admin(options, app, logger, Auth, search) {
   /**
    * Get mappings configuration.
    */
-  app.get('/api/admin/config', function (req, res) {
+  app.get('/api/admin/mapping/:index', function (req, res) {
+    var index = req.params.index;
 
+    // Read the mappings file.
+    jf.readFile(options.mappings, function(err, mappings) {
+      // Test that the index exists.
+      if (mappings.hasOwnProperty(index)) {
+        res.json(mappings[index]);
+      }
+      else {
+        res.send('Index not found in mappings configuration on the server.', 404);
+      }
+
+    });
   });
 
   /**
    * Create new mapping configuration.
    */
-  app.post('/api/admin/config/', function (req, res) {
+  app.post('/api/admin/mapping', function (req, res) {
 
   });
 
   /**
    * Update mappings configuration.
    */
-  app.put('/api/admin/config/:id', function (req, res) {
-    var id = req.params.id;
+  app.put('/api/admin/mapping/:index', function (req, res) {
+    var index = req.params.index;
   });
 
   /**
    * Delete mappings configuration.
    */
-  app.delete('/api/admin/config/:id', function (req, res) {
-    var id = req.params.id;
+  app.delete('/api/admin/mapping/:index', function (req, res) {
+    var index = req.params.index;
   });
 };
 

@@ -30,7 +30,7 @@ var config = [
     "admin": configs.admin
   },
   {
-    "packagePath": "./plugins/admin"
+    "packagePath": "./plugins/admin",
     "mappings": __dirname + '/' + configs.search.mappings
   },
   {
