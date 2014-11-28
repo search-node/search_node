@@ -1,88 +1,105 @@
 <!-- Header -->
 <div class="modal-header">
-  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-  <h4 class="modal-title">Edit index</h4>
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	<h4 class="modal-title">Edit index</h4>
 </div>
 
 <!-- Content - edit form -->
 <div class="modal-body">
 	<form role="form">
-	  <!-- Index -->
-	  <fieldset disabled>
-		  <div class="form-group">
-	  	  <label for="index" class="control-label">ID</label>
-    		<input type="text" class="form-control" id="index" placeholder="Index" data-ng-model="index">
-    		<span class="help-block">Index id is normally not editable.</span>
-	   </div>
-	  </fieldset>
-
-	  <!-- Name -->
-	  <div class="form-group">
-  	  <label for="name">Name</label>
-    	<input type="text" class="form-control" id="name" placeholder="Enter Name" data-ng-model="mapping.name">
-   </div>
-
-   <!-- Dates -->
-   <fieldset class="form-border">
-   	 <legend>Dates</legend>
-	   <div class="form-group" data-ng-repeat="date in mapping.dates track by $index">
-	    	<input type="text" class="form-control" id="date-{{ $index }}" placeholder="Date field name" data-ng-model="mapping.dates[$index]">
-	   </div>
-
-	   <!-- @TODO: Add one more -->
-
-   </fieldset>
-
-   <!-- Fields -->
-   <fieldset class="form-border form-horizontal" data-ng-repeat="field in mapping.fields track by $index">
-   	 <legend>Field ({{ field.field }})</legend>
-	   <div class="form-group" >
-	  	  <label class="control-label col-xs-2" for="field-name-{{ $index }}">Name</label>
-	    	<div class="col-xs-10">
-		    	<input type="text" class="form-control" id="field-name-{{ $index }}" placeholder="Field name" ng-model="mapping.fields[$index].field">
-		    </div>
-	   </div>
-	   <div class="form-group" >
-	  	  <label class="control-label col-xs-2" for="field-type-{{ $index }}">Type</label>
-	  	  <div class="col-xs-10">
-		    	<input type="text" class="form-control" id="field-type-{{ $index }}" placeholder="Field type (string)" ng-model="mapping.fields[$index].type">
-		    </div>
-	   </div>
-	   <div class="form-group" >
-	  	  <label class="control-label col-xs-2" for="field-country-{{ $index }}">Country code</label>
-	    	<div class="col-xs-10">
-		    	<input type="text" class="form-control" id="field-country-{{ $index }}" placeholder="Country code" ng-model="mapping.fields[$index].country">
-		    </div>
-	   </div>
- 	   <div class="form-group" >
-	  	  <label class="control-label col-xs-2" for="field-language-{{ $index }}">Language</label>
-				<div class="col-xs-10">
-	    		<input type="text" class="form-control" id="field-language-{{ $index }}" placeholder="Language code" ng-model="mapping.fields[$index].language">
-	    	</div>
-	   </div>
-	   <div class="form-group" >
-	  	  <label class="control-label col-xs-2" for="field-default_analyzer-{{ $index }}">Default analyzer</label>
-				<div class="col-xs-10">
-		    	<input type="text" class="form-control" id="field-language-{{ $index }}" placeholder="Default analyzer" ng-model="mapping.fields[$index].default_analyzer">
-		    </div>
-	   </div>
-		<div class="form-group" >
-			<label class="control-label col-xs-2" for="field-sort-{{ $index }}">Sortable</label>
-			<div class="col-xs-10">
-			  <label class="radio-inline"><input type="radio" name="sort" ng-model="mapping.fields[$index].sort" ng-checked="mapping.fields[$index].sort == 'true'" ng-value="true">True</label>
-			  <label class="radio-inline"><input type="radio" name="sort" ng-model="mapping.fields[$index].sort" ng-checked="mapping.fields[$index].sort == 'false'" ng-value="false">False</label>
+		<!-- Index -->
+		<fieldset disabled>
+			<div class="form-group">
+				<label for="index" class="control-label">ID</label>
+				<input type="text" class="form-control" id="index" placeholder="Index" data-ng-model="index">
+				<span class="help-block">Index id is normally not editable.</span>
 			</div>
-   </div>
+		</fieldset>
 
-   <!-- @TODO: Add one more -->
+		<!-- Name -->
+		<div class="form-group">
+			<label for="name">Name</label>
+			<input type="text" class="form-control" id="name" placeholder="Enter Name" data-ng-model="mapping.name">
+		</div>
 
-   </fieldset>
+		<!-- Dates -->
+		<fieldset class="form-border form-horizontal">
+			<legend>Dates</legend>
+			<div class="form-group" data-ng-repeat="date in mapping.dates track by $index">
+				<div class="col-xs-10">
+					<input type="text" class="form-control" id="date-{{ $index }}" placeholder="Date field name" data-ng-model="mapping.dates[$index]">
+				</div>
+				<!-- Remove date  -->
+				<div class="col-xs-2 btn-remove-center">
+					<button type="button" class="btn btn-danger btn-xs" data-ng-click="removeDate($index)">
+						<span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Remove
+					</button>
+				</div>
+			</div>
+
+			<!-- Add one more date -->
+			<button type="button" class="btn btn-success btn-xs" data-ng-click="addDate($index)">
+				<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add date
+			</button>
+		</fieldset>
+
+		<!-- Fields -->
+		<fieldset class="form-border form-horizontal" data-ng-repeat="field in mapping.fields track by $index">
+			<legend>Field ({{ field.field }})</legend>
+			<div class="form-group" >
+				<label class="control-label col-xs-2" for="field-name-{{ $index }}">Name</label>
+				<div class="col-xs-10">
+					<input type="text" class="form-control" id="field-name-{{ $index }}" placeholder="Field name" ng-model="mapping.fields[$index].field">
+				</div>
+			</div>
+			<div class="form-group" >
+				<label class="control-label col-xs-2" for="field-type-{{ $index }}">Type</label>
+				<div class="col-xs-10">
+					<input type="text" class="form-control" id="field-type-{{ $index }}" placeholder="Field type (string)" ng-model="mapping.fields[$index].type">
+				</div>
+			</div>
+			<div class="form-group" >
+				<label class="control-label col-xs-2" for="field-country-{{ $index }}">Country code</label>
+				<div class="col-xs-10">
+					<input type="text" class="form-control" id="field-country-{{ $index }}" placeholder="Country code" ng-model="mapping.fields[$index].country">
+				</div>
+			</div>
+			<div class="form-group" >
+				<label class="control-label col-xs-2" for="field-language-{{ $index }}">Language</label>
+				<div class="col-xs-10">
+					<input type="text" class="form-control" id="field-language-{{ $index }}" placeholder="Language code" ng-model="mapping.fields[$index].language">
+				</div>
+			</div>
+			<div class="form-group" >
+				<label class="control-label col-xs-2" for="field-default_analyzer-{{ $index }}">Default analyzer</label>
+				<div class="col-xs-10">
+					<input type="text" class="form-control" id="field-language-{{ $index }}" placeholder="Default analyzer" ng-model="mapping.fields[$index].default_analyzer">
+				</div>
+			</div>
+			<div class="form-group" >
+				<label class="control-label col-xs-2" for="field-sort-{{ $index }}">Sortable</label>
+				<div class="col-xs-10">
+					<label class="radio-inline"><input type="radio" name="field-sort-{{ $index }}" ng-model="mapping.fields[$index].sort" ng-checked="mapping.fields[$index].sort == 'true'" ng-value="true">True</label>
+					<label class="radio-inline"><input type="radio" name="field-sort-{{ $index }}" ng-model="mapping.fields[$index].sort" ng-checked="mapping.fields[$index].sort == 'false'" ng-value="false">False</label>
+				</div>
+			</div>
+
+			<!-- Remove field  -->
+			<button type="button" class="btn btn-danger btn-xs" data-ng-click="removeField($index)">
+				<span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Remove field
+			</button>
+		</fieldset>
+
+		<!-- Add one more date -->
+		<button type="button" class="btn btn-success btn-xs" data-ng-click="addField()">
+			<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add field
+		</button>
 	</form>
 </div>
 
 <!-- Footer with action buttons -->
 <div class="modal-footer">
-  <p class="text-warning"><small>If you don't save, your changes will be lost.</small></p>
-  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-  <button type="button" class="btn btn-info" data-ng-click="save()">Save</button>
+	<p class="text-warning"><small>If you don't save, your changes will be lost.</small></p>
+	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	<button type="button" class="btn btn-info" data-ng-click="save()">Save</button>
 </div>

@@ -130,11 +130,12 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
       dataService.fetch('get', '/api/admin/mapping/' + index).then(
         function (data) {
           var scope = $scope.$new(true);
-          // Add mapping information.
-          scope.mapping = data;
 
           // Set index.
           scope.index = index;
+
+          // Add mapping information.
+          scope.mapping = data;
 
           /**
            * Save index callback.
@@ -157,8 +158,69 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
                 $scope.messageClass = 'alert-danger';
               }
             );
+          };
 
+          /**
+           * Add new date field to the index.
+           */
+          scope.addDate = function addDate() {
+            scope.mapping.dates.push('');
+          };
+
+          /**
+           * Remove date callback.
+           *
+           * @param index
+           *   Index of the date to remove.
+           */
+          scope.removeDate = function removeDate(index) {
+            var dates = [];
+
+            // Loop over mapping dates and remove the selected one.
+            for (var i in scope.mapping.dates) {
+              if (Number(i) !== index) {
+                dates.push(scope.mapping.dates[i]);
+              }
+            }
+
+            // Update the dates array in mappings.
+            scope.mapping.dates = dates;
           }
+
+          /**
+           * Add fields field to the index.
+           */
+          scope.addField = function addField() {
+            scope.mapping.fields.push({
+              "type": "string",
+              "country": "DK",
+              "language": "da",
+              "default_analyzer": "string_index",
+              "sort": false
+            });
+          }
+
+          /**
+           * Remove field callback.
+           *
+           * @todo: this can be optimize with removeDate().
+           *
+           * @param index
+           *   Index of the date to remove.
+           */
+          scope.removeField = function removeField(index) {
+            var fields = [];
+
+            // Loop over mapping fields and remove the selected one.
+            for (var i in scope.mapping.fields) {
+              if (Number(i) !== index) {
+                fields.push(scope.mapping.fields[i]);
+              }
+            }
+
+            // Update the fields array in mappings.
+            scope.mapping.fields = fields;
+          };
 
           // Open the overlay.
           var overlay = ngOverlay.open({
