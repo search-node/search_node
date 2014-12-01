@@ -87,5 +87,5 @@ module.exports = function (options, imports, register) {
   }
 
   // This plugin extends the server plugin and do not provide new services.
-  register(null, { 'auth': { "loadKeys": loadKeys } });
+  register(null, { 'auth': { } });
 };

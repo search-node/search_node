@@ -37,7 +37,116 @@ var Admin = function Admin(options, app, logger, Auth, search) {
    */
   app.get('/api/admin/keys', function (req, res) {
     if (self.validateCall(req)) {
-      console.log(Auth.loadKeys());
+      // Send API keys.
+      res.json(jf.readFileSync(options.apikeys));
+    }
+    else {
+      res.send('You do not have the right role.', 401);
+    }
+  });
+
+  /**
+   * Get single API key.
+   */
+  app.get('/api/admin/key/:key', function (req, res) {
+    if (self.validateCall(req)) {
+      var key = req.params.key;
+      var keys = jf.readFileSync(options.apikeys);
+
+      if (keys.hasOwnProperty(key)) {
+        res.json(keys[key]);
+      }
+      else {
+        res.send('The API key was not found.', 404);
+      }
+    }
+    else {
+      res.send('You do not have the right role.', 401);
+    }
+  });
+
+  /**
+   * Update API key.
+   */
+  app.put('/api/admin/key/:key', function (req, res) {
+    if (self.validateCall(req)) {
+      var info = req.body.api;
+      var key = req.params.key;
+
+      // Get API keys.
+      var keys = jf.readFileSync(options.apikeys);
+
+      // Remove key form information.
+      delete info.key;
+
+      // Update the information under the key.
+      keys[key] = info;
+
+      // Wrtie the keys back into the API keys file.
+      jf.writeFile(options.apikeys, keys, function(err) {
+        if (err) {
+          res.send('The API key was not found.', 404);
+        }
+        else {
+          res.send('API key "' + key + '" have been updated.', 200);
+        }
+      });
+    }
+    else {
+      res.send('You do not have the right role.', 401);
+    }
+  });
+
+  /**
+   * Delete API keys.
+   */
+  app.delete('/api/admin/key/:key', function (req, res) {
+    if (self.validateCall(req)) {
+      var key = req.params.key;
+      var keys = jf.readFileSync(options.apikeys);
+
+      delete keys[key];
+
+      jf.writeFile(options.apikeys, keys, function(err) {
+        if (err) {
+          res.send('API keys file could not be updated.', 500);
+        }
+        else {
+          res.send('API key "' + key + '" have been removed.', 200);
+        }
+      });
+    }
+    else {
+      res.send('You do not have the right role.', 401);
+    }
+  });
+
+  /**
+   * Add API key.
+   */
+  app.post('/api/admin/key', function (req, res) {
+    if (self.validateCall(req)) {
+      var info = req.body.api;
+      var key = req.body.api.key;
+
+      // Get API keys.
+      var keys = jf.readFileSync(options.apikeys);
+
+      // Remove key form information.
+      delete info.key;
+
+      // Add the information under the key.
+      keys[key] = info;
+
+      // Wrtie the keys back into the API keys file.
+      jf.writeFile(options.apikeys, keys, function(err) {
+        if (err) {
+          res.send('API keys file could not be added.', 500);
+        }
+        else {
+          res.send('API key "' + key + '" have been added.', 200);
+        }
+      });
     }
     else {
       res.send('You do not have the right role.', 401);

@@ -11,5 +11,37 @@
 
 <!-- Page content -->
 <div class="jumbotron">
+	<div class="panel panel-default">
+  	<table class="table table-hover">
+  	<thead>
+			<tr>
+				<th>#</th>
+     		<th>Name</th>
+     		<th>Key</th>
+     		<th>Actions</th>
+  		</tr>
+  	</thead>
+    <tr data-ng-repeat="(key, info) in apikeys">
+    	<td>{{ $index + 1 }}</td>
+    	<td>{{ info.name }}</td>
+    	<td>{{ key }}</td>
+      <td>
+        <!-- Edit index -->
+        <button type="button" class="btn btn-success btn-xs" data-ng-click="edit(key)">
+          <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Edit
+        </button>
 
+        <!-- Remove index -->
+        <button type="button" class="btn btn-danger btn-xs" data-ng-click="remove(key)">
+          <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Remove
+        </button>
+      </td>
+    </tr>
+  	</table>
+	</div>
+
+  <!-- Add new key -->
+  <button type="button" class="btn btn-info" data-ng-click="add()">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add key
+  </button>
 </div>
