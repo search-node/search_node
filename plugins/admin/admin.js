@@ -37,7 +37,7 @@ var Admin = function Admin(options, app, logger, Auth, search) {
    */
   app.get('/api/admin/keys', function (req, res) {
     if (self.validateCall(req)) {
-      res.send('KEYS');
+      console.log(Auth.loadKeys());
     }
     else {
       res.send('You do not have the right role.', 401);

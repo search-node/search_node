@@ -13,6 +13,9 @@ module.exports = function (options, imports, register) {
   var jwt = require('jsonwebtoken');
   var expressJwt = require('express-jwt');
 
+  // Get the json easy file read/writer.
+  var jf = require('jsonfile')
+
   // Get express app.
   var app = imports.app;
 
@@ -30,9 +33,13 @@ module.exports = function (options, imports, register) {
       res.send("API key not found in the request.", 404);
     }
     else {
-      if (req.body.apikey == 1234567890) {
+      // Load keys.
+      var keys = loadKeys();
+
+      if (keys.hasOwnProperty(req.body.apikey)) {
         var profile = {
           "role": 'api',
+          "name": keys[req.body.apikey].name,
           "apikey": req.body.apikey
         };
         // API key accepted, so sen back token.
@@ -73,15 +80,12 @@ module.exports = function (options, imports, register) {
   });
 
   /**
-   * Get API keys and configuration.
-   */
-  function getKeys() {
-    /**
-     * @TODO: Do this....
-     */
-     // apikeys
+  * Load api keys file.
+  */
+  function loadKeys() {
+    return jf.readFileSync(options.apikeys);
   }
 
   // This plugin extends the server plugin and do not provide new services.
-  register(null, { 'auth': { } });
+  register(null, { 'auth': { "loadKeys": loadKeys } });
 };
