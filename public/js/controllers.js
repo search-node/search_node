@@ -99,6 +99,28 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
       dataService.fetch('get', '/api/admin/indexes').then(
         function (data) {
           $scope.activeIndexes = data;
+          // Get mappings configuration.
+          dataService.fetch('get', '/api/admin/mappings').then(
+            function (mappings) {
+              // Reset the scopes variables for mappings.
+              $scope.activeMappings = {};
+              $scope.inActiveMappings = {};
+
+              // Filter out active indexes.
+              for (var index in mappings) {
+                if (!$scope.activeIndexes.hasOwnProperty(index)) {
+                  $scope.inActiveMappings[index] = mappings[index];
+                }
+                else {
+                  $scope.activeMappings[index] = mappings[index];
+                }
+              }
+            },
+            function (reason) {
+              $scope.message = reason.message;
+              $scope.messageClass = 'alert-danger';
+            }
+          );
         },
         function (reason) {
           $scope.message = reason.message;
@@ -149,6 +171,9 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
                 /**
                  * @TODO: Reload the index at the server.
                  */
+
+                // Reload indexes.
+                loadIndexes();
 
                 // Close overlay.
                 overlay.close();
@@ -224,7 +249,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
 
           // Open the overlay.
           var overlay = ngOverlay.open({
-            template: "views/editIndex.html",
+            template: "views/indexEdit.html",
             scope: scope
           });
         },
@@ -235,6 +260,9 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
       );
     };
 
+    /**
+     * Flush index callback.
+     */
     $scope.flush = function flush(index) {
       var scope = $scope.$new(true);
 
@@ -305,6 +333,160 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
         scope: scope
       });
     };
+
+    /**
+     * Add index callback.
+     */
+    $scope.add = function add(index) {
+      var scope = $scope.$new(true);
+
+      // Add mapping information.
+      scope.mapping = {
+        "name": '',
+        "fields": [],
+        "dates": []
+      };
+
+      // Update index name.
+      scope.$watch("mapping.name", function(newValue, oldValue) {
+        if (newValue.length > 0) {
+          scope.index = CryptoJS.MD5(newValue).toString();
+        }
+        else {
+          scope.index = '';
+        }
+      });
+
+      /**
+       * Save index callback.
+       */
+      scope.save = function save() {
+        dataService.send('post', '/api/admin/mapping/' + scope.index, scope.mapping).then(
+          function (data) {
+            $scope.message = data;
+            $scope.messageClass = 'alert-success';
+
+            /**
+             * @TODO: Reload the index at the server.
+             */
+
+            // Reload indexes.
+            loadIndexes();
+
+            // Close overlay.
+            overlay.close();
+          },
+          function (reason) {
+            $scope.message = reason.message;
+            $scope.messageClass = 'alert-danger';
+          }
+        );
+      };
+
+      /**
+       * Add new date field to the index.
+       */
+      scope.addDate = function addDate() {
+        scope.mapping.dates.push('');
+      };
+
+      /**
+       * Remove date callback.
+       *
+       * @param index
+       *   Index of the date to remove.
+       */
+      scope.removeDate = function removeDate(index) {
+        var dates = [];
+
+        // Loop over mapping dates and remove the selected one.
+        for (var i in scope.mapping.dates) {
+          if (Number(i) !== index) {
+            dates.push(scope.mapping.dates[i]);
+          }
+        }
+
+        // Update the dates array in mappings.
+        scope.mapping.dates = dates;
+      }
+
+      /**
+       * Add fields field to the index.
+       */
+      scope.addField = function addField() {
+        scope.mapping.fields.push({
+          "type": "string",
+          "country": "DK",
+          "language": "da",
+          "default_analyzer": "string_index",
+          "sort": false
+        });
+      }
+
+      /**
+       * Remove field callback.
+       *
+       * @todo: this can be optimize with removeDate().
+       *
+       * @param index
+       *   Index of the date to remove.
+       */
+      scope.removeField = function removeField(index) {
+        var fields = [];
+
+        // Loop over mapping fields and remove the selected one.
+        for (var i in scope.mapping.fields) {
+          if (Number(i) !== index) {
+            fields.push(scope.mapping.fields[i]);
+          }
+        }
+
+        // Update the fields array in mappings.
+        scope.mapping.fields = fields;
+      };
+
+      // Open the overlay.
+      var overlay = ngOverlay.open({
+        template: "views/indexAdd.html",
+        scope: scope
+      });
+    };
+
+    /**
+     * Remove mapping from configuration.
+     */
+    $scope.removeMapping = function removeMapping(index) {
+      var scope = $scope.$new(true);
+
+      scope.title = 'Remove mapping';
+      scope.message = 'Remove the mapping "' + index + '" from configuration. This can not be undone.';
+      scope.okText = 'Remove';
+
+      scope.confirmed = function confirmed() {
+        dataService.fetch('delete', '/api/admin/mapping/' + index).then(
+          function (data) {
+            $scope.message = data;
+            $scope.messageClass = 'alert-success';
+
+            // Update index list.
+            loadIndexes();
+
+            // Close overlay.
+            overlay.close();
+          },
+          function (reason) {
+            $scope.message = reason.message;
+            $scope.messageClass = 'alert-danger';
+          }
+        );
+      };
+
+      // Open the overlay.
+      var overlay = ngOverlay.open({
+        template: "views/confirm.html",
+        scope: scope
+      });
+    }
 
     // Get the controller up and running.
     loadIndexes();

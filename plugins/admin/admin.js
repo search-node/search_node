@@ -117,9 +117,25 @@ var Admin = function Admin(options, app, logger, Auth, search) {
     }
   });
 
+  /**
+   * Get mappings.
+   */
+  app.get('/api/admin/mappings', function (req, res) {
+    if (self.validateCall(req)) {
+      var index = req.params.index;
+
+      // Read the mappings file.
+      jf.readFile(options.mappings, function(err, mappings) {
+        res.json(mappings);
+      });
+    }
+    else {
+      res.send('You do not have the right role.', 401);
+    }
+  });
 
   /**
-   * Get mappings configuration.
+   * Get mapping configuration for an index.
    */
   app.get('/api/admin/mapping/:index', function (req, res) {
     if (self.validateCall(req)) {
@@ -144,9 +160,31 @@ var Admin = function Admin(options, app, logger, Auth, search) {
   /**
    * Create new mapping configuration.
    */
-  app.post('/api/admin/mapping', function (req, res) {
+  app.post('/api/admin/mapping/:index', function (req, res) {
     if (self.validateCall(req)) {
+      var index = req.params.index;
+      var mapping = req.body;
 
+      // Read the mappings file.
+      jf.readFile(options.mappings, function(err, mappings) {
+        // Test that the index exists.
+        if (!mappings.hasOwnProperty(index)) {
+          // Update the mappings
+          mappings[index] = mapping;
+
+          jf.writeFile(options.mappings, mappings, function(err) {
+            if (err) {
+              res.send('Mappings file could not be updated.', 500);
+            }
+            else {
+              res.send('Mappings for the index "' + index + '" have been created.', 200);
+            }
+          });
+        }
+        else {
+          res.send('The index "' + index + '" allready exists in mappings configuration on the server.', 404);
+        }
+      });
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -174,6 +212,42 @@ var Admin = function Admin(options, app, logger, Auth, search) {
             }
             else {
               res.send('Mappings for the index "' + index + '" have been updated.', 200);
+            }
+          });
+        }
+        else {
+          res.send('The index "' + index + '" was not found in mappings configuration on the server.', 404);
+        }
+      });
+    }
+    else {
+      res.send('You do not have the right role.', 401);
+    }
+  });
+
+
+
+  /**
+   * Delete mapping from configuration.
+   */
+  app.delete('/api/admin/mapping/:index', function (req, res) {
+    if (self.validateCall(req)) {
+      var index = req.params.index;
+
+      // Read the mappings file.
+      jf.readFile(options.mappings, function(err, mappings) {
+        // Test that the index exists.
+        if (mappings.hasOwnProperty(index)) {
+          // Remove mapping.
+          delete mappings[index];
+
+          // Write mappings file.
+          jf.writeFile(options.mappings, mappings, function(err) {
+            if (err) {
+              res.send('Mappings file could not be updated.', 500);
+            }
+            else {
+              res.send('Mappings for the index "' + index + '" have been removed.', 200);
             }
           });
         }

@@ -55,16 +55,47 @@
     </tr>
   	</table>
 	</div>
-
-  <!-- Add new index -->
-  <button type="button" class="btn btn-info" data-ng-click="add()">
-    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add index
-  </button>
 </div>
 
 <div class="jumbotron">
   <!-- Mapping without indexes -->
   <p>Indexes with mappings not in the search engine</p>
   <div class="panel panel-default">
+    <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Index</th>
+        <th>Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tr data-ng-repeat="(index, mapping) in inActiveMappings">
+      <td>{{ $index + 1 }}</td>
+      <td>{{ index }}</td>
+      <td>{{ mapping.name }}</td>
+      <td>
+        <!-- Edit mapping -->
+        <button type="button" class="btn btn-success btn-xs" data-ng-click="edit(index)">
+          <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Edit
+        </button>
+
+        <!-- Activate mapping -->
+        <button type="button" class="btn btn-info btn-xs" data-ng-click="activate(index)">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Activate
+        </button>
+
+        <!-- Remove mapping -->
+        <button type="button" class="btn btn-danger btn-xs" data-ng-click="removeMapping(index)">
+          <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Remove
+        </button>
+      </td>
+    </tr>
+    </table>
   </div>
+
+  <!-- Add new mapping -->
+  <button type="button" class="btn btn-info" data-ng-click="add()">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add mapping
+  </button>
 </div>
