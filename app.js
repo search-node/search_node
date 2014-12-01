@@ -27,7 +27,7 @@ var config = [
   {
     "packagePath": "./plugins/auth",
     "secret": configs.secret,
-    "admin": configs.admin
+    "admin": configs.admin,
     "apikeys": __dirname + '/' + configs.apikeys;
   },
   {
