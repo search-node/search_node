@@ -12,5 +12,6 @@
   "search": {
     "hosts": [ "localhost:9200" ],
     "mappings": "mappings.json"
-  }
+  },
+  "apikeys": "apikeys.json"
 }

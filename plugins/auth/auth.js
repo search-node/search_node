@@ -79,10 +79,9 @@ module.exports = function (options, imports, register) {
     /**
      * @TODO: Do this....
      */
+     // apikeys
   }
 
   // This plugin extends the server plugin and do not provide new services.
-  register(null, { 'auth': {
-    "getKeys": getKeys
-  }});
+  register(null, { 'auth': { } });
 };

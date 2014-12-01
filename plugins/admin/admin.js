@@ -129,6 +129,11 @@ var Admin = function Admin(options, app, logger, Auth, search) {
         res.send('The index "' + index + '" have been activated.', 200);
       });
 
+      // Listen to errors.
+      search.once('indexNotCreated', function () {
+        res.send('The index "' + index + '" have not been activated.', 500);
+      });
+
       search.addIndex(index);
     }
     else {

@@ -13,7 +13,12 @@ var rename = require('rename-keys');
 
 // Holds connection to the search backend.
 var es;
-var mappings;
+
+// Get the json easy file read/writer.
+var jf = require('jsonfile')
+
+// Mappings file.
+var map_file;
 
 var logger;
 
@@ -26,7 +31,7 @@ var self;
  * @param customer_id
  *   Customer id.
  */
-var indexName = function indexName(customer_id) {
+function indexName(customer_id) {
   "use strict";
 
   return customer_id;
@@ -107,7 +112,7 @@ function addDefaultMapping(body) {
  * @param index
  *   Name of the index.
  */
-var buildNewIndex = function buildNewIndex(index) {
+function buildNewIndex(map, index) {
   "use strict";
 
   var body = {
@@ -152,9 +157,6 @@ var buildNewIndex = function buildNewIndex(index) {
       }
     }
   };
-
-  // Get customer mappings.
-  var map = mappings[index];
 
   // Setup dynamic mappings for language and sorting.
   if (map.hasOwnProperty('fields')) {
@@ -209,7 +211,7 @@ var buildNewIndex = function buildNewIndex(index) {
  * @param id
  *   The documents unique id.
  */
-var addContent = function addContent(index, type, body, id) {
+function addContent(index, type, body, id) {
   "use strict";
 
   es.create({
@@ -238,11 +240,25 @@ var addContent = function addContent(index, type, body, id) {
  *
  * @returns {string}
  */
-var addSort = function addSort(property) {
+function addSort(property) {
   "use strict";
 
   return property + '.sort';
 };
+
+/**
+ * Load mappings file.
+ */
+function loadMappings() {
+  // Read mappings file.
+  jf.readFile(map_file, function(err, mappings) {
+    if (err) {
+      self.emit('error', { 'status': '500', 'res' : { 'message': err }});
+    }
+    self.emit('mappingsLoaded', mappings);
+  });
+}
+
 
 /*********************
  * The Search object
@@ -296,17 +312,7 @@ Search.prototype.add = function add(body) {
     "index": index
   }, function (err, response, status) {
     if (status === 404) {
-      // Listen to index create event.
-      self.once('indexCreated', function (i) {
-        // Make sure that this is the index and not another index
-        // created at the same time.
-        if (i === index) {
-          addContent(index, self.type, body, self.id);
-        }
-      });
-
-      // Index not found. Lets create it.
-      buildNewIndex(index);
+      this.logger.error('Search: Add request for unkown index: ' + self.customer_id + ' with type: ' + self.type);
     }
     else {
       // Index and mapping exists, so just add the document.
@@ -477,8 +483,19 @@ Search.prototype.getIndexes = function getIndexes() {
  * Add new index (requires mappings have been created).
  */
 Search.prototype.addIndex = function addIndex(index) {
-  // Create index.
-  buildNewIndex(index);
+  // Check mappings load event.
+  self.once('mappingsLoaded', function(mappings) {
+    if (mappings.hasOwnProperty(index)) {
+      buildNewIndex(mappings[index], index);
+    }
+    else {
+      // Send not created event.
+      self.emit('indexNotCreated', {});
+    }
+  })
+
+  // Load mappings.
+  loadMappings();
 }
 
 /**
@@ -500,8 +517,8 @@ module.exports = function (options, imports, register) {
   // Connect to Elasticsearch.
   es = elasticsearch.Client(options.hosts);
 
-  // Load mappings.
-  mappings = require(options.mappings);
+  // Set mappings file.
+  map_file = options.mappings;
 
   // Add logger.
   logger = imports.logger;
