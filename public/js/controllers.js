@@ -488,6 +488,28 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
       });
     }
 
+    /**
+     * Activate callback.
+     */
+    $scope.activate = function activate(index) {
+      // /api/admin/index/:index/activate
+      dataService.fetch('get', '/api/admin/index/' + index + '/activate').then(
+          function (data) {
+            $scope.message = data;
+            $scope.messageClass = 'alert-success';
+
+            // Update index list (but give search an change to load it).
+            $timeout(function() {
+              loadIndexes();
+            }, 1000);
+          },
+          function (reason) {
+            $scope.message = reason.message;
+            $scope.messageClass = 'alert-danger';
+          }
+        );
+    }
+
     // Get the controller up and running.
     loadIndexes();
   }

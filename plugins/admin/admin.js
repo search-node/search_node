@@ -118,6 +118,25 @@ var Admin = function Admin(options, app, logger, Auth, search) {
   });
 
   /**
+   * Activate indexes (add configured mapping).
+   */
+  app.get('/api/admin/index/:index/activate', function (req, res) {
+    if (self.validateCall(req)) {
+      var index = req.params.index;
+
+      // Listen to the created index event.
+      search.once('indexCreated', function (data) {
+        res.send('The index "' + index + '" have been activated.', 200);
+      });
+
+      search.addIndex(index);
+    }
+    else {
+      res.send('You do not have the right role.', 401);
+    }
+  });
+
+  /**
    * Get mappings.
    */
   app.get('/api/admin/mappings', function (req, res) {
