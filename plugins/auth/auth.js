@@ -80,8 +80,8 @@ module.exports = function (options, imports, register) {
   });
 
   /**
-  * Load api keys file.
-  */
+   * Load api keys file.
+   */
   function loadKeys() {
     return jf.readFileSync(options.apikeys);
   }

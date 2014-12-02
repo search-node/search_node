@@ -44,7 +44,8 @@ var config = [
     "mappings": __dirname + '/' + configs.search.mappings
   },
   {
-    "packagePath": "./plugins/api"
+    "packagePath": "./plugins/api",
+    "apikeys": __dirname + '/' + configs.apikeys
   },
   {
     "packagePath": "./plugins/search_client"

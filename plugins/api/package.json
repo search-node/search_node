@@ -5,7 +5,8 @@
   "main": "api.js",
   "private": true,
   "dependencies": {
-    "log" : "1.4.x"
+    "jsonfile": "^2.0.0",
+    "log": "1.4.x"
   },
   "plugin": {
     "consumes": [

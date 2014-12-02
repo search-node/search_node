@@ -11,8 +11,11 @@
  * @param Search
  * @constructor
  */
-var API = function(app, logger, Search) {
+var API = function(app, logger, Search, options) {
   "use strict";
+
+  // Get the json easy file read/writer.
+  var jf = require('jsonfile');
 
   var self = this;
   this.logger = logger;
@@ -123,6 +126,29 @@ var API = function(app, logger, Search) {
       res.send(500);
     }
   });
+
+  /**
+   * List indexes for the currently logged in user.
+   */
+  app.get('/api/indexes', function (req, res) {
+    var key = req.user.apikey;
+    var keys = loadKeys();
+
+    // Check the API key is stille validate.
+    if (keys.hasOwnProperty(key)) {
+      res.json(keys[key].indexes);
+    }
+    else {
+      res.send('API key was not found in the mappings.', 404);
+    }
+  });
+
+  /**
+   * Load api keys file.
+   */
+  function loadKeys() {
+    return jf.readFileSync(options.apikeys);
+  }
 };
 
 /**
@@ -144,7 +170,7 @@ module.exports = function (options, imports, register) {
   "use strict";
 
   // Create the API routes using the API object.
-  var api = new API(imports.app, imports.logger, imports.search);
+  var api = new API(imports.app, imports.logger, imports.search, options);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);
