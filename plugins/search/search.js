@@ -403,48 +403,54 @@ Search.prototype.query = function query(data) {
   // Log request to the debugger.
   this.logger.info('Search: Query request in: ' + self.customer_id + ' with type: ' + self.type);
 
-  // Use mappings to fix sort on strings.
-  if (data.hasOwnProperty('sort')) {
-    var map = mappings[self.customer_id];
-    for (var i in map.fields) {
-      if (data.sort.hasOwnProperty(map.fields[i].field)) {
-        // Rename the property by adding .sort to switch sorting to using the fully
-        // indexed string for the field.
-        rename(data.sort, addSort);
+  // Check mappings load event.
+  self.once('mappingsLoaded', function(mappings) {
+    // Use mappings to fix sort on strings.
+    if (data.hasOwnProperty('sort')) {
+      var map = mappings[self.customer_id];
+      for (var i in map.fields) {
+        if (data.sort.hasOwnProperty(map.fields[i].field)) {
+          // Rename the property by adding .sort to switch sorting to using the fully
+          // indexed string for the field.
+          rename(data.sort, addSort);
+        }
       }
     }
-  }
 
-  // Add the sort search query.
-  var search_query = {
-    "type": self.type,
-    "index": indexName(self.customer_id),
-    "body": data
-  };
+    // Add the sort search query.
+    var search_query = {
+      "type": self.type,
+      "index": indexName(self.customer_id),
+      "body": data
+    };
 
-  /**
-   * @TODO: Validate the search JSON request for safety reasons.
-   */
+    /**
+     * @TODO: Validate the search JSON request for safety reasons.
+     */
 
-  // Execute the search.
-  es.search(search_query).then(function (resp) {
-    var hits = [];
-    if (resp.hits.total > 0) {
-      // We got hits, return only _source.
-      for (var hit in resp.hits.hits) {
-        hits.push(resp.hits.hits[hit]._source);
+    // Execute the search.
+    es.search(search_query).then(function (resp) {
+      var hits = [];
+      if (resp.hits.total > 0) {
+        // We got hits, return only _source.
+        for (var hit in resp.hits.hits) {
+          hits.push(resp.hits.hits[hit]._source);
+        }
+
+        // Log number of hits found.
+        self.logger.debug('Search: hits found: ' + resp.hits.total + ' items for ' + self.customer_id + ' with type: ' + self.type);
       }
 
-      // Log number of hits found.
-      self.logger.debug('Search: hits found: ' + resp.hits.total + ' items for ' + self.customer_id + ' with type: ' + self.type);
-    }
-
-    // Emit hits.
-    self.emit('hits', {
-      'hits': resp.hits.total,
-      'results': hits
+      // Emit hits.
+      self.emit('hits', {
+        'hits': resp.hits.total,
+        'results': hits
+      });
     });
-  });
+  })
+
+  // Load mappings.
+  loadMappings();
 };
 
 /**
