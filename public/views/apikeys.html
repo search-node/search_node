@@ -18,6 +18,7 @@
 				<th>#</th>
      		<th>Name</th>
      		<th>Key</th>
+        <th>Indexes</th>
      		<th>Actions</th>
   		</tr>
   	</thead>
@@ -25,6 +26,7 @@
     	<td>{{ $index + 1 }}</td>
     	<td>{{ info.name }}</td>
     	<td>{{ key }}</td>
+      <td>{{ info.indexes.length }}</td>
       <td>
         <!-- Edit index -->
         <button type="button" class="btn btn-success btn-xs" data-ng-click="edit(key)">

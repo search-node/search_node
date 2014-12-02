@@ -68,11 +68,25 @@ app.controller('ApiKeysController', ['$scope', '$window', '$location', 'ngOverla
       $location.path('');
     }
 
+    /**
+     * Load API keys.
+     */
     function loadApikeys() {
       // Get user/api key information form the backend.
       dataService.fetch('get', '/api/admin/keys').then(
         function (data) {
           $scope.apikeys = data;
+
+          // Get search indexes.
+          dataService.fetch('get', '/api/admin/mappings').then(
+            function (data) {
+              $scope.mappings = data;
+            },
+            function (reason) {
+              $scope.message = reason.message;
+              $scope.messageClass = 'alert-danger';
+            }
+          );
         },
         function (reason) {
           $scope.message = reason.message;
@@ -126,7 +140,8 @@ app.controller('ApiKeysController', ['$scope', '$window', '$location', 'ngOverla
       // Add mapping information.
       scope.api = {
         "key": '',
-        "name": ''
+        "name": '',
+        "indexes": []
       };
 
       // Update index name.
@@ -181,6 +196,15 @@ app.controller('ApiKeysController', ['$scope', '$window', '$location', 'ngOverla
 
           // Set key.
           scope.api.key = key;
+
+          // Get mappings.
+          scope.mappings = [];
+          for (var index in $scope.mappings) {
+            scope.mappings.push({
+              "id": index,
+              "name": $scope.mappings[index].name
+            });
+          }
 
           /**
            * Save API key callback.
