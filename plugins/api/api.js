@@ -160,7 +160,25 @@ var API = function(app, logger, Search, options) {
 API.prototype.validateCall = function validateCall(body) {
   "use strict";
 
-  return (body.customer_id !== undefined) && (body.type !== undefined);
+  // Validate that minimum parameters is available.
+  if (body.customer_id !== undefined) && (body.type !== undefined) {}
+    // Get current logged in users API key.
+    var key = req.user.apikey;
+
+    // Check that the index is allowed based on the API key for the currently logged in user.
+    keys = loadKeys();
+
+    // Check the API key is stille validate.
+    if (keys.hasOwnProperty(key)) {
+      var indexes = keys[key].indexes;
+
+      if(indexes.indexOf(body.customer_id) {
+        return TRUE;
+      }
+    }
+  }
+
+  return FALSE;
 };
 
 /**
