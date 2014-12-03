@@ -18,18 +18,20 @@
   	<table class="table table-hover">
   	<thead>
 			<tr>
-				<th>#</th>
-     		<th>Index</th>
-     		<th>Pri</th>
-     		<th>Rep</th>
-     		<th>Docs</th>
-     		<th>Deleted</th>
-     		<th>Size</th>
+        <th>#</th>
+        <th>Name</th>
+        <th>Index</th>
+        <th>Pri</th>
+        <th>Rep</th>
+        <th>Docs</th>
+        <th>Deleted</th>
+        <th>Size</th>
         <th>Actions</th>
   		</tr>
   	</thead>
     <tr data-ng-class="getClass(index.health)" data-ng-repeat="index in activeIndexes">
     	<td>{{ $index + 1 }}</td>
+      <td>{{ activeMappings[index.index].name }}</td>
     	<td>{{ index.index }}</td>
     	<td>{{ index.pri }}</td>
     	<td>{{ index.rep }}</td>
@@ -65,15 +67,15 @@
     <thead>
       <tr>
         <th>#</th>
-        <th>Index</th>
         <th>Name</th>
+        <th>Index</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tr data-ng-repeat="(index, mapping) in inActiveMappings">
       <td>{{ $index + 1 }}</td>
-      <td>{{ index }}</td>
       <td>{{ mapping.name }}</td>
+      <td>{{ index }}</td>
       <td>
         <!-- Edit mapping -->
         <button type="button" class="btn btn-success btn-xs" data-ng-click="edit(index)">
