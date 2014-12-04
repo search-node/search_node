@@ -35,7 +35,7 @@ function indexName(customer_id) {
   "use strict";
 
   return customer_id;
-};
+}
 
 /**
  * Build field mappings for a single field in the index.
@@ -197,7 +197,7 @@ function buildNewIndex(map, index) {
       self.emit('error', { 'status': status, 'res': response });
     }
   });
-};
+}
 
 /**
  * Add content/document to the search backend.
@@ -228,7 +228,7 @@ function addContent(index, type, body, id) {
       self.emit('error', { 'status': status, 'res' : response});
     }
   });
-};
+}
 
 /**
  * Append ".sort" to a string.
@@ -244,12 +244,14 @@ function addSort(property) {
   "use strict";
 
   return property + '.sort';
-};
+}
 
 /**
  * Load mappings file.
  */
 function loadMappings() {
+  "use strict";
+
   // Read mappings file.
   jf.readFile(map_file, function(err, mappings) {
     if (err) {
@@ -312,7 +314,7 @@ Search.prototype.add = function add(body) {
     "index": index
   }, function (err, response, status) {
     if (status === 404) {
-      this.logger.error('Search: Add request for unkown index: ' + self.customer_id + ' with type: ' + self.type);
+      self.logger.error('Search: Add request for unkown index: ' + self.customer_id + ' with type: ' + self.type);
     }
     else {
       // Index and mapping exists, so just add the document.
@@ -447,16 +449,18 @@ Search.prototype.query = function query(data) {
         'results': hits
       });
     });
-  })
+  });
 
   // Load mappings.
   loadMappings();
 };
 
 /**
- * Get indexes avavilable on the server.
+ * Get indexes available on the server.
  */
 Search.prototype.getIndexes = function getIndexes() {
+  "use strict";
+
   es.cat.indices(function (err, response, status) {
     if (status === 200) {
       var indexes = {};
@@ -483,12 +487,14 @@ Search.prototype.getIndexes = function getIndexes() {
       self.emit('indexes', indexes);
     }
   });
-}
+};
 
 /**
  * Add new index (requires mappings have been created).
  */
 Search.prototype.addIndex = function addIndex(index) {
+  "use strict";
+
   // Check mappings load event.
   self.once('mappingsLoaded', function(mappings) {
     if (mappings.hasOwnProperty(index)) {
@@ -498,23 +504,25 @@ Search.prototype.addIndex = function addIndex(index) {
       // Send not created event.
       self.emit('indexNotCreated', {});
     }
-  })
+  });
 
   // Load mappings.
   loadMappings();
-}
+};
 
 /**
  * Remove index from the server.
  */
 Search.prototype.remove = function remove(index) {
+  "use strict";
+
   es.indices.delete({
     "index": index
   }, function (err, response, status) {
     // Emit removed status.
     self.emit('removed', status === 200);
   });
-}
+};
 
 // Register the plugin.
 module.exports = function (options, imports, register) {

@@ -34,7 +34,7 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
       error(function(data, status, headers, config) {
         deferred.reject({
           'status': status,
-          'message': data,
+          'message': data
         });
       }
     );
@@ -68,7 +68,7 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
       error(function(data, status, headers, config) {
         deferred.reject({
           'status': status,
-          'message': data,
+          'message': data
         });
       }
     );
@@ -81,6 +81,6 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
    */
   return {
     "fetch": fetch,
-    "send": send,
+    "send": send
   };
 }]);

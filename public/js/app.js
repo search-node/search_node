@@ -7,10 +7,12 @@
 var app = angular.module('SearchNodeApp', [ 'ngRoute', 'ngOverlay', 'appMessage' ]);
 
 /**
- * Add autentication header to all AJAX requests.
+ * Add authentication header to all AJAX requests.
  */
 app.factory('authInterceptor', ['$rootScope', '$q', '$window', '$location',
   function ($rootScope, $q, $window, $location) {
+    "use strict";
+
     return {
       request: function (config) {
         config.headers = config.headers || {};
@@ -35,15 +37,17 @@ app.factory('authInterceptor', ['$rootScope', '$q', '$window', '$location',
  */
 app.config(['$routeProvider', '$locationProvider', '$httpProvider',
   function ($routeProvider, $locationProvider, $httpProvider) {
- 		$routeProvider
- 		  .when('/', {
-    		templateUrl: 'views/login.html',
-    		controller: 'LoginController'
-  		})
- 		  .when('/indexes', {
-    		templateUrl: 'views/indexes.html',
-    		controller: 'IndexesController'
-  		})
+    "use strict";
+
+    $routeProvider
+      .when('/', {
+       templateUrl: 'views/login.html',
+        controller: 'LoginController'
+      })
+      .when('/indexes', {
+        templateUrl: 'views/indexes.html',
+        controller: 'IndexesController'
+      })
       .when('/apikeys', {
         templateUrl: 'views/apikeys.html',
         controller: 'ApiKeysController'

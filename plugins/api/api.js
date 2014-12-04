@@ -14,11 +14,11 @@
 var API = function(app, logger, Search, options) {
   "use strict";
 
-  // Get the json easy file read/writer.
-  var jf = require('jsonfile');
-
   var self = this;
   this.logger = logger;
+
+  // Save options.
+  this.options = options;
 
   /**
    * Default get request.
@@ -31,7 +31,7 @@ var API = function(app, logger, Search, options) {
    * Add content to the search index.
    */
   app.post('/api', function(req, res) {
-    if (self.validateCall(req.body)) {
+    if (self.validateCall(req)) {
       // Added the data to the search index (a side effect is that a new
       // index maybe created.). The id may not be given and is hence undefined.
       var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
@@ -65,7 +65,7 @@ var API = function(app, logger, Search, options) {
    * Update content to the search index.
    */
   app.put('/api', function(req, res) {
-    if (self.validateCall(req.body)) {
+    if (self.validateCall(req)) {
       // Update the data in the search index (a side effect is that a new
       // index maybe created.).
       var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
@@ -97,7 +97,7 @@ var API = function(app, logger, Search, options) {
    * Remove content from the search index.
    */
   app.delete('/api', function(req, res) {
-    if (self.validateCall(req.body)) {
+    if (self.validateCall(req)) {
       var instance = new Search(req.body.customer_id, req.body.type);
 
       // Handle completed
@@ -132,9 +132,9 @@ var API = function(app, logger, Search, options) {
    */
   app.get('/api/indexes', function (req, res) {
     var key = req.user.apikey;
-    var keys = loadKeys();
+    var keys = self.loadKeys();
 
-    // Check the API key is stille validate.
+    // Check the API key is stile validate.
     if (keys.hasOwnProperty(key)) {
       res.json(keys[key].indexes);
     }
@@ -142,43 +142,49 @@ var API = function(app, logger, Search, options) {
       res.send('API key was not found in the mappings.', 404);
     }
   });
+};
 
-  /**
-   * Load api keys file.
-   */
-  function loadKeys() {
-    return jf.readFileSync(options.apikeys);
-  }
+
+/**
+ * Load api keys file.
+ */
+API.prototype.loadKeys = function loadKeys() {
+  "use strict";
+
+  // Get the json easy file read/writer.
+  var jf = require('jsonfile');
+
+  return jf.readFileSync(this.options.apikeys);
 };
 
 /**
  * Validate that required parameters exists in an API call.
  *
- * @param body
- *   The request body from the express http request.
+ * @param req
+ *   The request from the express.
  */
-API.prototype.validateCall = function validateCall(body) {
+API.prototype.validateCall = function validateCall(req) {
   "use strict";
 
   // Validate that minimum parameters is available.
-  if (body.customer_id !== undefined) && (body.type !== undefined) {}
+  if (req.body.customer_id !== undefined && (req.body.type !== undefined)) {
     // Get current logged in users API key.
     var key = req.user.apikey;
 
     // Check that the index is allowed based on the API key for the currently logged in user.
-    keys = loadKeys();
+    var keys = this.loadKeys();
 
-    // Check the API key is stille validate.
+    // Check the API key is stile validate.
     if (keys.hasOwnProperty(key)) {
       var indexes = keys[key].indexes;
 
-      if(indexes.indexOf(body.customer_id) {
-        return TRUE;
+      if (indexes.indexOf(req.body.customer_id)) {
+        return true;
       }
     }
   }
 
-  return FALSE;
+  return false;
 };
 
 /**

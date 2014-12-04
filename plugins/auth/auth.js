@@ -14,7 +14,7 @@ module.exports = function (options, imports, register) {
   var expressJwt = require('express-jwt');
 
   // Get the json easy file read/writer.
-  var jf = require('jsonfile')
+  var jf = require('jsonfile');
 
   // Get express app.
   var app = imports.app;

@@ -8,6 +8,7 @@
  */
 app.controller('MainController', ['$scope', '$route', '$routeParams', '$location',
   function($scope, $route, $routeParams, $location) {
+    "use strict";
 
   }
 ]);
@@ -17,6 +18,8 @@ app.controller('MainController', ['$scope', '$route', '$routeParams', '$location
  */
 app.controller('LoginController', ['$scope', '$http', '$window', '$location',
   function($scope, $http, $window, $location) {
+    "use strict";
+
     $scope.login = function login() {
       $http.post('/login', $scope.user)
         .success(function (data, status, headers, config) {
@@ -42,6 +45,9 @@ app.controller('LoginController', ['$scope', '$http', '$window', '$location',
  */
 app.controller('LogoutController', ['$scope', '$window',
   function($scope, $window) {
+    "use strict";
+
+    // Remove the token from login.
     delete $window.sessionStorage.token;
   }
 ]);
@@ -52,6 +58,8 @@ app.controller('LogoutController', ['$scope', '$window',
  */
 app.controller('NavigationController', ['$scope', '$location',
   function($scope, $location) {
+    "use strict";
+
     $scope.isActive = function (viewLocation) {
       return viewLocation === $location.path();
     };
@@ -63,6 +71,8 @@ app.controller('NavigationController', ['$scope', '$location',
  */
 app.controller('ApiKeysController', ['$scope', '$window', '$location', 'ngOverlay', 'dataService',
   function($scope, $window, $location, ngOverlay, dataService) {
+    "use strict";
+
     // Check that the user is logged in.
     if (!$window.sessionStorage.token) {
       $location.path('');
@@ -251,6 +261,8 @@ app.controller('ApiKeysController', ['$scope', '$window', '$location', 'ngOverla
  */
 app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout', 'ngOverlay', 'dataService',
   function($scope, $window, $location, $timeout, ngOverlay, dataService) {
+    "use strict";
+
     // Check that the user is logged in.
     if (!$window.sessionStorage.token) {
       $location.path('');
@@ -375,7 +387,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
 
             // Update the dates array in mappings.
             scope.mapping.dates = dates;
-          }
+          };
 
           /**
            * Add fields field to the index.
@@ -388,7 +400,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
               "default_analyzer": "string_index",
               "sort": false
             });
-          }
+          };
 
           /**
            * Remove field callback.
@@ -413,7 +425,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
           };
 
           // Open the overlay.
-          var overlay = ngOverlay.open({
+          ngOverlay.open({
             template: "views/indexEdit.html",
             scope: scope
           });
@@ -573,7 +585,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
 
         // Update the dates array in mappings.
         scope.mapping.dates = dates;
-      }
+      };
 
       /**
        * Add fields field to the index.
@@ -586,7 +598,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
           "default_analyzer": "string_index",
           "sort": false
         });
-      }
+      };
 
       /**
        * Remove field callback.
@@ -651,7 +663,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
         template: "views/confirm.html",
         scope: scope
       });
-    }
+    };
 
     /**
      * Activate callback.
@@ -673,7 +685,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
             $scope.messageClass = 'alert-danger';
           }
         );
-    }
+    };
 
     // Get the controller up and running.
     loadIndexes();

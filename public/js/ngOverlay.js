@@ -66,13 +66,14 @@
                 $dialogParent.append($dialog);
 
                 // Let bootstrap take over.
-                $("#myModal").modal('show');
+                var el = $("#myModal");
+                el.modal('show');
 
                 // Ensures that the modal code is removed on close. This will also
                 // ensure that the modal is updated if open once more.
-                $('#myModal').on('hidden.bs.modal', function (e) {
+                el.on('hidden.bs.modal', function (e) {
                   angular.element(document.querySelector('#myModal')).remove();
-                })
+                });
               });
             });
 
@@ -115,7 +116,7 @@
            */
           "close": function close() {
             $("#myModal").modal('hide');
-          },
+          }
         };
       }
     ];
