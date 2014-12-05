@@ -31,7 +31,7 @@ var API = function(app, logger, Search, options) {
    * Add content to the search index.
    */
   app.post('/api', function(req, res) {
-    if (self.validateCall(req)) {
+    if (self.validateCall(req, res)) {
       // Added the data to the search index (a side effect is that a new
       // index maybe created.). The id may not be given and is hence undefined.
       var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
@@ -39,25 +39,22 @@ var API = function(app, logger, Search, options) {
       instance.on('created', function (data) {
         self.logger.debug('Content added: status ' + data.status + ' : ' + data.index);
 
-        // @TODO: find better error code to send back (201).
-        res.send(200);
+        res.send('Content have been added.', 201);
       });
 
       instance.on('error', function (data) {
         self.logger.error('Error in add content: status ' + data.status + ' : ' + data.res);
 
-        // @TODO: find better error code to send back.
-        res.send(data.status);
+        // Send error back to client.
+        res.send('Content have not been added.', data.status);
       });
 
       // Add the content.
       instance.add(req.body.data);
     }
     else {
+      // Log error, validate has send responce to client.
       self.logger.error('Error: missing parameters in add content');
-
-      // @TODO: find better error code to send back.
-      res.send(500);
     }
   });
 
@@ -65,16 +62,19 @@ var API = function(app, logger, Search, options) {
    * Update content to the search index.
    */
   app.put('/api', function(req, res) {
-    if (self.validateCall(req)) {
+    if (self.validateCall(req, res)) {
       // Update the data in the search index (a side effect is that a new
       // index maybe created.).
       var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
 
+      // Updated event.
       instance.on('updated', function (data) {
         self.logger.debug('Content updated: status ' + data.status + ' : ' + data.index);
-        res.send(200);
+
+        res.send('Content have been updated.', 200);
       });
 
+      // On error event.
       instance.on('error', function (data) {
         self.logger.error('Error in add content: status ' + data.status + ' : ' + data.res);
 
@@ -86,10 +86,8 @@ var API = function(app, logger, Search, options) {
       instance.update(req.body.data);
     }
     else {
+      // Log error, validate has send responce to client.
       self.logger.error('Error: missing parameters in add content');
-
-      // @TODO: find better error code to send back.
-      res.send(500);
     }
   });
 
@@ -97,7 +95,7 @@ var API = function(app, logger, Search, options) {
    * Remove content from the search index.
    */
   app.delete('/api', function(req, res) {
-    if (self.validateCall(req)) {
+    if (self.validateCall(req, res)) {
       var instance = new Search(req.body.customer_id, req.body.type);
 
       // Handle completed
@@ -120,10 +118,8 @@ var API = function(app, logger, Search, options) {
       instance.remove(req.body.data);
     }
     else {
+      // Log error, validate has send responce to client.
       self.logger.error('Error: missing parameters in remove content');
-
-      // @TODO: find better error code to send back.
-      res.send(500);
     }
   });
 
@@ -142,8 +138,35 @@ var API = function(app, logger, Search, options) {
       res.send('API key was not found in the mappings.', 404);
     }
   });
-};
 
+  /**
+   * Search request to the search engine.
+   */
+  app.post('/api/search', function (req, res) {
+    if (self.validateCall(req, res)) {
+      var instance = new Search(req.body.customer_id, req.body.type);
+
+      // Handle completed query.
+      instance.once('hits', function (hits) {
+        res.send(hits);
+      });
+
+      // Handle errors in the search.
+      instance.once('error', function (data) {
+        self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + data.res);
+
+        // @TODO: send error message with the status code.
+        res.send(data.status);
+      });
+
+      // Send the query.
+      instance.query(req.body.query);
+    }
+    else {
+      self.logger.error('Error: missing parameters in remove content');
+    }
+  });
+};
 
 /**
  * Load api keys file.
@@ -162,8 +185,13 @@ API.prototype.loadKeys = function loadKeys() {
  *
  * @param req
  *   The request from the express.
+ * @param res
+ *   The responce to express.
+ *
+ * @return bool
+ *   If valid true else false.
  */
-API.prototype.validateCall = function validateCall(req) {
+API.prototype.validateCall = function validateCall(req, res) {
   "use strict";
 
   // Validate that minimum parameters is available.
@@ -178,12 +206,21 @@ API.prototype.validateCall = function validateCall(req) {
     if (keys.hasOwnProperty(key)) {
       var indexes = keys[key].indexes;
 
+      // Check that the index is in the API keys configuration.
       if (indexes.indexOf(req.body.customer_id)) {
-        return true;
+        return true
+      }
+      else {
+        // Index not found, access denied.
+        res.send('Access denied index not allowed', 401);
       }
     }
   }
 
+  // Missing parameters.
+  res.send('Missing parameters in the request, please see the log for more information', 500);
+
+  // The request was not valid.
   return false;
 };
 
