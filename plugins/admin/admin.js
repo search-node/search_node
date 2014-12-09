@@ -187,7 +187,7 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
       });
 
       // Request to remove the index.
-      search.remove(index);
+      search.removeIndex(index);
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -216,7 +216,7 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
       });
 
       // Request to remove the index.
-      search.remove(index);
+      search.removeIndex(index);
     }
     else {
       res.send('You do not have the right role.', 401);
