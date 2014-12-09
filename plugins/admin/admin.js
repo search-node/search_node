@@ -11,6 +11,7 @@
  * @param logger
  * @param search
  * @param apikeys
+ *
  * @constructor
  */
 var Admin = function Admin(options, app, logger, search, apikeys) {
@@ -39,8 +40,13 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
    */
   app.get('/api/admin/keys', function (req, res) {
     if (self.validateCall(req)) {
-      // Send API keys.
-      res.json(jf.readFileSync(options.apikeys));
+      apikeys.load().then(
+        function (keys) {
+          res.json(keys);
+        }, function (error) {
+          res.send(error.message, 500);
+        }
+      );
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -52,15 +58,19 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
    */
   app.get('/api/admin/key/:key', function (req, res) {
     if (self.validateCall(req)) {
-      var key = req.params.key;
-      var keys = jf.readFileSync(options.apikeys);
-
-      if (keys.hasOwnProperty(key)) {
-        res.json(keys[key]);
-      }
-      else {
-        res.send('The API key was not found.', 404);
-      }
+      // Get info about API keys.
+      apikeys.get(req.params.key).then(
+        function (info) {
+          if (info) {
+            res.json(info);
+          }
+          else {
+            res.send('The API key was not found.', 404);
+          }
+        }, function (error) {
+          res.send(error.message, 500);
+        }
+      );
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -75,24 +85,17 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
       var info = req.body.api;
       var key = req.params.key;
 
-      // Get API keys.
-      var keys = jf.readFileSync(options.apikeys);
-
       // Remove key form information.
       delete info.key;
 
-      // Update the information under the key.
-      keys[key] = info;
-
-      // Wrtie the keys back into the API keys file.
-      jf.writeFile(options.apikeys, keys, function(err) {
-        if (err) {
-          res.send('The API key was not found.', 404);
-        }
-        else {
+      apikeys.update(key, info).then(
+        function (status) {
           res.send('API key "' + key + '" have been updated.', 200);
+        },
+        function (error) {
+          res.send(error.message, 500);
         }
-      });
+      );
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -105,18 +108,16 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
   app.delete('/api/admin/key/:key', function (req, res) {
     if (self.validateCall(req)) {
       var key = req.params.key;
-      var keys = jf.readFileSync(options.apikeys);
 
-      delete keys[key];
-
-      jf.writeFile(options.apikeys, keys, function(err) {
-        if (err) {
-          res.send('API keys file could not be updated.', 500);
-        }
-        else {
+      // Remove API key.
+      apikeys.remove(key).then(
+        function (status) {
           res.send('API key "' + key + '" have been removed.', 200);
+        },
+        function (error) {
+          res.send(error.message, 500);
         }
-      });
+      );
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -131,24 +132,18 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
       var info = req.body.api;
       var key = req.body.api.key;
 
-      // Get API keys.
-      var keys = jf.readFileSync(options.apikeys);
-
       // Remove key form information.
       delete info.key;
 
-      // Add the information under the key.
-      keys[key] = info;
-
-      // Wrtie the keys back into the API keys file.
-      jf.writeFile(options.apikeys, keys, function(err) {
-        if (err) {
-          res.send('API keys file could not be added.', 500);
-        }
-        else {
+      // Add API key.
+      apikeys.add(key, info).then(
+        function (status) {
           res.send('API key "' + key + '" have been added.', 200);
+        },
+        function (error) {
+          res.send(error.message, 500);
         }
-      });
+      );
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -257,8 +252,6 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
    */
   app.get('/api/admin/mappings', function (req, res) {
     if (self.validateCall(req)) {
-      var index = req.params.index;
-
       // Read the mappings file.
       jf.readFile(options.mappings, function(err, mappings) {
         res.json(mappings);
