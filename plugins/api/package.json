@@ -14,7 +14,8 @@
       "logger",
       "search",
       "auth",
-      "apikeys"
+      "apikeys",
+      "mappings"
     ]
   }
 }

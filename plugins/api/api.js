@@ -15,7 +15,7 @@ var Q = require('q');
  *
  * @constructor
  */
-var API = function (app, logger, Search, apikeys) {
+var API = function (app, logger, Search, apikeys, mappings) {
   "use strict";
 
   var self = this;
@@ -23,6 +23,9 @@ var API = function (app, logger, Search, apikeys) {
 
   // Store link to api keys.
   this.apikeys = apikeys;
+
+  // Store link to mappings.
+  this.mappings = mappings;
 
   /**
    * Default get request.
@@ -116,7 +119,26 @@ var API = function (app, logger, Search, apikeys) {
     self.apikeys.get(req.user.apikey).then(
       function (info) {
         if (info) {
-          res.json(info.indexes);
+          // Load mappings to get index names.
+          self.mappings.load().then(
+            function (mappings) {
+              var indexes = [];
+
+              // Loop over indexes to get names.
+              for (var index in info.indexes) {
+                indexes.push({
+                  "index": index,
+                  "name": mappings[index].name
+                });
+              }
+
+              // Send indexes.
+              res.json(indexes);
+            },
+            function (error) {
+              res.send(error.message, 500);
+            }
+          );
         }
         else {
           res.send('API key was not found.', 404);
@@ -213,7 +235,7 @@ module.exports = function (options, imports, register) {
   "use strict";
 
   // Create the API routes using the API object.
-  var api = new API(imports.app, imports.logger, imports.search, imports.apikeys);
+  var api = new API(imports.app, imports.logger, imports.search, imports.apikeys, imports.mappings);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);
