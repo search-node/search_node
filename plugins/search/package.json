@@ -6,7 +6,6 @@
   "private": true,
   "dependencies": {
     "elasticsearch": "2.2.x",
-    "jsonfile": "^2.0.0",
     "rename-keys": "^0.2.0"
   },
   "plugin": {
@@ -14,7 +13,8 @@
       "search"
     ],
     "consumes": [
-      "logger"
+      "logger",
+      "mappings"
     ]
   }
 }

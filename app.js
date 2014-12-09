@@ -39,15 +39,13 @@ var config = [
   },
   {
     "packagePath": "./plugins/admin",
-    "mappings": __dirname + '/' + configs.search.mappings
   },
   {
     "packagePath": "./plugins/socket"
   },
   {
     "packagePath": "./plugins/search",
-    "hosts": configs.search.hosts,
-    "mappings": __dirname + '/' + configs.search.mappings
+    "hosts": configs.search.hosts
   },
   {
     "packagePath": "./plugins/api"
