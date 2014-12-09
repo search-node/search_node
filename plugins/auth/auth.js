@@ -34,23 +34,28 @@ module.exports = function (options, imports, register) {
     }
     else {
       // Load keys.
-      var keys = loadKeys();
+      imports.apikeys.get(req.body.apikey).then(
+				function (info) {
+					if (info) {
+						// Create profile.
+						var profile = {
+							"role": 'api',
+							"name": info.name,
+							"apikey": req.body.apikey
+						};
 
-      if (keys.hasOwnProperty(req.body.apikey)) {
-        var profile = {
-          "role": 'api',
-          "name": keys[req.body.apikey].name,
-          "apikey": req.body.apikey
-        };
-        // API key accepted, so sen back token.
-        var token = jwt.sign(profile, options.secret, { expiresInMinutes: 60 * 5 });
-        res.json({
-          'token': token
-        });
-      }
-      else {
-        res.send('API key could not be validated.', 401);
-      }
+						// API key accepted, so send back token.
+						var token = jwt.sign(profile, options.secret, { expiresInMinutes: 60 * 5 });
+						res.json({ 'token': token });
+					}
+					else {
+						res.send('API key could not be validated.', 401);
+					}
+				},
+				function (error) {
+					res.send(error.message, 500);
+				}
+			);
     }
   });
 
@@ -64,7 +69,7 @@ module.exports = function (options, imports, register) {
     else {
       if (req.body.username == options.admin.username && req.body.password == options.admin.password) {
         var profile = {
-          "role": 'admin',
+          "role": 'admin'
         };
 
         // Generate token for access.
@@ -78,13 +83,6 @@ module.exports = function (options, imports, register) {
       }
     }
   });
-
-  /**
-   * Load api keys file.
-   */
-  function loadKeys() {
-    return jf.readFileSync(options.apikeys);
-  }
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, { 'auth': { } });

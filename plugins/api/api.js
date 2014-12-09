@@ -208,7 +208,7 @@ API.prototype.validateCall = function validateCall(req, res) {
 
       // Check that the index is in the API keys configuration.
       if (indexes.indexOf(req.body.customer_id)) {
-        return true
+        return true;
       }
       else {
         // Index not found, access denied.
