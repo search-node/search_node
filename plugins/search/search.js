@@ -513,14 +513,19 @@ Search.prototype.addIndex = function addIndex(index) {
 /**
  * Remove index from the server.
  */
-Search.prototype.remove = function remove(index) {
+Search.prototype.removeIndex = function removeIndex(index) {
   "use strict";
 
   es.indices.delete({
     "index": index
   }, function (err, response, status) {
-    // Emit removed status.
-    self.emit('removed', status === 200);
+    if (err) {
+      self.emit('error', { 'id' : data.id, 'status': status, 'res' : response});
+    }
+    else {
+      // Emit removed status.
+      self.emit('removed', index);
+    }
   });
 };
 

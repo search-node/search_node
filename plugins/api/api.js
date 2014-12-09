@@ -35,7 +35,7 @@ var API = function (app, logger, Search, apikeys) {
    * Add content to the search index.
    */
   app.post('/api', function (req, res) {
-    self.validateCall(req, res).then(function (resovled) {
+    self.validateCall(req, res).then(function (resolved) {
       // Added the data to the search index (a side effect is that a new
       // index maybe created.). The id may not be given and is hence undefined.
       var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
@@ -62,7 +62,7 @@ var API = function (app, logger, Search, apikeys) {
    * Update content to the search index.
    */
   app.put('/api', function (req, res) {
-    self.validateCall(req, res).then(function (resovled) {
+    self.validateCall(req, res).then(function (resolved) {
       // Update the data in the search index (a side effect is that a new
       // index maybe created.).
       var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
@@ -89,15 +89,13 @@ var API = function (app, logger, Search, apikeys) {
    * Remove content from the search index.
    */
   app.delete('/api', function (req, res) {
-    self.validateCall(req, res).then(function (resovled) {
+    self.validateCall(req, res).then(function (resolved) {
       var instance = new Search(req.body.customer_id, req.body.type);
 
       // Handle completed
       instance.once('removed', function (data) {
-        self.logger.debug('Removed: ' + data.id);
-
         // Send back the id of the element that have been removed.
-        res.send(data);
+        res.send(data.id, 200);
       });
 
       // Handle errors in the request.
@@ -134,7 +132,7 @@ var API = function (app, logger, Search, apikeys) {
    * Search request to the search engine.
    */
   app.post('/api/search', function (req, res) {
-    self.validateCall(req, res).then(function (resovled) {
+    self.validateCall(req, res).then(function (resolved) {
       var instance = new Search(req.body.customer_id, req.body.type);
 
       // Handle completed query.
