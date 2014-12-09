@@ -115,10 +115,7 @@ var API = function (app, logger, Search, apikeys) {
    * List indexes for the currently logged in user.
    */
   app.get('/api/indexes', function (req, res) {
-    var key = req.user.apikey;
-    var keys = self.loadKeys();
-
-    self.apikeys.get().then(
+    self.apikeys.get(req.user.apikey).then(
       function (info) {
         if (info) {
           res.json(info.indexes);
