@@ -13,7 +13,8 @@
       "app",
       "logger",
       "search",
-      "auth"
+      "auth",
+			"apikeys"
     ]
   }
 }

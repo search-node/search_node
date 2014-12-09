@@ -11,7 +11,7 @@
  * @param Search
  * @constructor
  */
-var API = function(app, logger, Search, options) {
+var API = function (app, logger, Search, apikeys, options) {
   "use strict";
 
   var self = this;
@@ -19,6 +19,9 @@ var API = function(app, logger, Search, options) {
 
   // Save options.
   this.options = options;
+
+  // Store link to api keys.
+  this.apikeys = apikeys;
 
   /**
    * Default get request.
@@ -30,7 +33,7 @@ var API = function(app, logger, Search, options) {
   /**
    * Add content to the search index.
    */
-  app.post('/api', function(req, res) {
+  app.post('/api', function (req, res) {
     if (self.validateCall(req, res)) {
       // Added the data to the search index (a side effect is that a new
       // index maybe created.). The id may not be given and is hence undefined.
@@ -53,7 +56,7 @@ var API = function(app, logger, Search, options) {
       instance.add(req.body.data);
     }
     else {
-      // Log error, validate has send responce to client.
+      // Log error, validate has send response to client.
       self.logger.error('Error: missing parameters in add content');
     }
   });
@@ -61,7 +64,7 @@ var API = function(app, logger, Search, options) {
   /**
    * Update content to the search index.
    */
-  app.put('/api', function(req, res) {
+  app.put('/api', function (req, res) {
     if (self.validateCall(req, res)) {
       // Update the data in the search index (a side effect is that a new
       // index maybe created.).
@@ -77,16 +80,14 @@ var API = function(app, logger, Search, options) {
       // On error event.
       instance.on('error', function (data) {
         self.logger.error('Error in add content: status ' + data.status + ' : ' + data.res);
-
-        // @TODO: find better error code to send back.
-        res.send(data.status);
+        res.send(data.status, 500);
       });
 
       // Add the content.
       instance.update(req.body.data);
     }
     else {
-      // Log error, validate has send responce to client.
+      // Log error, validate has send response to client.
       self.logger.error('Error: missing parameters in add content');
     }
   });
@@ -94,7 +95,7 @@ var API = function(app, logger, Search, options) {
   /**
    * Remove content from the search index.
    */
-  app.delete('/api', function(req, res) {
+  app.delete('/api', function (req, res) {
     if (self.validateCall(req, res)) {
       var instance = new Search(req.body.customer_id, req.body.type);
 
@@ -109,16 +110,14 @@ var API = function(app, logger, Search, options) {
       // Handle errors in the request.
       instance.once('error', function (data) {
         self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + data.res);
-
-        // @TODO: send error message with the status code.
-        res.send(data.status);
+        res.send(data.status, 500);
       });
 
       // Send the request.
       instance.remove(req.body.data);
     }
     else {
-      // Log error, validate has send responce to client.
+      // Log error, validate has send response to client.
       self.logger.error('Error: missing parameters in remove content');
     }
   });
@@ -130,13 +129,19 @@ var API = function(app, logger, Search, options) {
     var key = req.user.apikey;
     var keys = self.loadKeys();
 
-    // Check the API key is stile validate.
-    if (keys.hasOwnProperty(key)) {
-      res.json(keys[key].indexes);
-    }
-    else {
-      res.send('API key was not found in the mappings.', 404);
-    }
+    self.apikeys.get().then(
+      function (info) {
+        if (info) {
+          res.json(info.indexes);
+        }
+        else {
+          res.send('API key was not found.', 404);
+        }
+      },
+      function (error) {
+        res.send(error.message, 500);
+      }
+    );
   });
 
   /**
@@ -154,9 +159,7 @@ var API = function(app, logger, Search, options) {
       // Handle errors in the search.
       instance.once('error', function (data) {
         self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + data.res);
-
-        // @TODO: send error message with the status code.
-        res.send(data.status);
+        res.send(data.status, 500);
       });
 
       // Send the query.
@@ -169,24 +172,12 @@ var API = function(app, logger, Search, options) {
 };
 
 /**
- * Load api keys file.
- */
-API.prototype.loadKeys = function loadKeys() {
-  "use strict";
-
-  // Get the json easy file read/writer.
-  var jf = require('jsonfile');
-
-  return jf.readFileSync(this.options.apikeys);
-};
-
-/**
  * Validate that required parameters exists in an API call.
  *
  * @param req
  *   The request from the express.
  * @param res
- *   The responce to express.
+ *   The response to express.
  *
  * @return bool
  *   If valid true else false.
@@ -196,25 +187,29 @@ API.prototype.validateCall = function validateCall(req, res) {
 
   // Validate that minimum parameters is available.
   if (req.body.customer_id !== undefined && (req.body.type !== undefined)) {
-    // Get current logged in users API key.
-    var key = req.user.apikey;
-
     // Check that the index is allowed based on the API key for the currently logged in user.
-    var keys = this.loadKeys();
+    this.apikeys.get(req.user.apikey).then(
+      function (info) {
+        if (info) {
+          var indexes = info.indexes;
 
-    // Check the API key is stile validate.
-    if (keys.hasOwnProperty(key)) {
-      var indexes = keys[key].indexes;
-
-      // Check that the index is in the API keys configuration.
-      if (indexes.indexOf(req.body.customer_id)) {
-        return true;
+          // Check that the index is in the API keys configuration.
+          if (indexes.indexOf(req.body.customer_id) !== -1) {
+            return true;
+          }
+          else {
+            // Index not found, access denied.
+            res.send('Access denied index not allowed.', 401);
+          }
+        }
+        else {
+          res.send('API key was not found.', 404);
+        }
+      },
+      function (error) {
+        res.send(error.message, 500);
       }
-      else {
-        // Index not found, access denied.
-        res.send('Access denied index not allowed', 401);
-      }
-    }
+    );
   }
 
   // Missing parameters.
@@ -231,7 +226,7 @@ module.exports = function (options, imports, register) {
   "use strict";
 
   // Create the API routes using the API object.
-  var api = new API(imports.app, imports.logger, imports.search, options);
+  var api = new API(imports.app, imports.logger, imports.search, imports.apikeys, options);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);
