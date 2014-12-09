@@ -22,13 +22,16 @@ var config = [
   {
     "packagePath": "./plugins/server",
     "port": configs.port,
-    "path": path.join(__dirname, 'public'),
+    "path": path.join(__dirname, 'public')
   },
+	{
+		"packagePath": "./plugins/apikeys",
+		"file": __dirname + '/' + configs.apikeys
+	},
   {
     "packagePath": "./plugins/auth",
     "secret": configs.secret,
-    "admin": configs.admin,
-    "apikeys": __dirname + '/' + configs.apikeys
+    "admin": configs.admin
   },
   {
     "packagePath": "./plugins/admin",

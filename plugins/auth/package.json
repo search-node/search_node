@@ -15,7 +15,8 @@
     ],
     "consumes": [
       "app",
-      "logger"
+      "logger",
+			"apikeys"
     ]
   }
 }
