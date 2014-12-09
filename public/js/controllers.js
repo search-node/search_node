@@ -478,12 +478,12 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
     /**
      * Delete index callback.
      */
-    $scope.remove = function remove(index) {
+    $scope.deactivate = function deactivate(index) {
       var scope = $scope.$new(true);
 
-      scope.title = 'Remove index';
-      scope.message = 'Remove the index "' + index + '" and all indexed data. This can not be undone.';
-      scope.okText = 'Remove';
+      scope.title = 'Deactivate index';
+      scope.message = 'Deactivate the index "' + index + '" will delete all indexed data. This can not be undone.';
+      scope.okText = 'Deactivate';
 
       scope.confirmed = function confirmed() {
         dataService.fetch('delete', '/api/admin/index/' + index).then(
