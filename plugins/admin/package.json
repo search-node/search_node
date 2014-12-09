@@ -12,7 +12,8 @@
       "app",
       "logger",
       "search",
-      "apikeys"
+      "apikeys",
+      "mappings"
     ]
   }
 }

@@ -425,7 +425,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
           };
 
           // Open the overlay.
-          ngOverlay.open({
+          var overlay = ngOverlay.open({
             template: "views/indexEdit.html",
             scope: scope
           });

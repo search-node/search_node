@@ -14,7 +14,7 @@
  *
  * @constructor
  */
-var Admin = function Admin(options, app, logger, search, apikeys) {
+var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
   "use strict";
 
   var self = this;
@@ -252,10 +252,14 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
    */
   app.get('/api/admin/mappings', function (req, res) {
     if (self.validateCall(req)) {
-      // Read the mappings file.
-      jf.readFile(options.mappings, function(err, mappings) {
-        res.json(mappings);
-      });
+      mappings.load().then(
+        function (mappings) {
+          res.json(mappings);
+        },
+        function (error) {
+          res.send(error.message, 500);
+        }
+      );
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -270,15 +274,19 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
       var index = req.params.index;
 
       // Read the mappings file.
-      jf.readFile(options.mappings, function(err, mappings) {
-        // Test that the index exists.
-        if (mappings.hasOwnProperty(index)) {
-          res.json(mappings[index]);
+      mappings.get(index).then(
+        function (info) {
+          if (info) {
+            res.json(info);
+          }
+          else {
+            res.send('The index "' + index + '" was not found in mappings configuration on the server.', 404);
+          }
+        },
+        function (error) {
+          res.send(error.message, 500);
         }
-        else {
-          res.send('The index "' + index + '" was not found in mappings configuration on the server.', 404);
-        }
-      });
+      );
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -293,26 +301,14 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
       var index = req.params.index;
       var mapping = req.body;
 
-      // Read the mappings file.
-      jf.readFile(options.mappings, function(err, mappings) {
-        // Test that the index exists.
-        if (!mappings.hasOwnProperty(index)) {
-          // Update the mappings
-          mappings[index] = mapping;
-
-          jf.writeFile(options.mappings, mappings, function(err) {
-            if (err) {
-              res.send('Mappings file could not be updated.', 500);
-            }
-            else {
-              res.send('Mappings for the index "' + index + '" have been created.', 200);
-            }
-          });
+      mappings.add(index, mapping).then(
+        function (status) {
+          res.send('Mappings for the index "' + index + '" have been created.', 200);
+        },
+        function (error) {
+          res.send(error.message, 500);
         }
-        else {
-          res.send('The index "' + index + '" allready exists in mappings configuration on the server.', 404);
-        }
-      });
+      );
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -327,33 +323,19 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
       var index = req.params.index;
       var mapping = req.body;
 
-      // Read the mappings file.
-      jf.readFile(options.mappings, function(err, mappings) {
-        // Test that the index exists.
-        if (mappings.hasOwnProperty(index)) {
-          // Update the mappings
-          mappings[index] = mapping;
-
-          jf.writeFile(options.mappings, mappings, function(err) {
-            if (err) {
-              res.send('Mappings file could not be updated.', 500);
-            }
-            else {
-              res.send('Mappings for the index "' + index + '" have been updated.', 200);
-            }
-          });
+      mappings.update(index, mapping).then(
+        function (status) {
+          res.send('Mappings for the index "' + index + '" have been updated.', 200);
+        },
+        function (error) {
+          res.send(error.message, 500);
         }
-        else {
-          res.send('The index "' + index + '" was not found in mappings configuration on the server.', 404);
-        }
-      });
+      );
     }
     else {
       res.send('You do not have the right role.', 401);
     }
   });
-
-
 
   /**
    * Delete mapping from configuration.
@@ -362,27 +344,14 @@ var Admin = function Admin(options, app, logger, search, apikeys) {
     if (self.validateCall(req)) {
       var index = req.params.index;
 
-      // Read the mappings file.
-      jf.readFile(options.mappings, function(err, mappings) {
-        // Test that the index exists.
-        if (mappings.hasOwnProperty(index)) {
-          // Remove mapping.
-          delete mappings[index];
-
-          // Write mappings file.
-          jf.writeFile(options.mappings, mappings, function(err) {
-            if (err) {
-              res.send('Mappings file could not be updated.', 500);
-            }
-            else {
-              res.send('Mappings for the index "' + index + '" have been removed.', 200);
-            }
-          });
+      mappings.remove(index).then(
+        function (status) {
+          res.send('Mappings for the index "' + index + '" have been removed.', 200);
+        },
+        function (error) {
+          res.send(error.message, 500);
         }
-        else {
-          res.send('The index "' + index + '" was not found in mappings configuration on the server.', 404);
-        }
-      });
+      );
     }
     else {
       res.send('You do not have the right role.', 401);
@@ -412,7 +381,7 @@ module.exports = function (options, imports, register) {
   var instance = new imports.search('', '');
 
   // Create the API routes using the API object.
-  var admin = new Admin(options, imports.app, imports.logger, instance, imports.apikeys);
+  var admin = new Admin(options, imports.app, imports.logger, instance, imports.apikeys, imports.mappings);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);

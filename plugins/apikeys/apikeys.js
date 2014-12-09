@@ -87,7 +87,7 @@ ApiKeys.prototype.save = function save() {
 function addAndSaveKey(self, deferred, key, info) {
   "use strict";
 
-  // Check if ket exists.
+  // Check if key exists.
   if (!self.keys.hasOwnProperty(key)) {
     // Set the key info.
     self.keys[key] = info;
@@ -150,14 +150,14 @@ ApiKeys.prototype.add = function add(key, info) {
  * @param deferred
  *   Promise deferred object.
  * @param key
- *   The new API key.
+ *   The API key to update.
  * @param info
  *   The API key information.
  */
 function updateAndSaveKey(self, deferred, key, info) {
 	"use strict";
 
-	// Check if ket exists.
+	// Check if key exists.
 	if (self.keys.hasOwnProperty(key)) {
 		// Set the key info.
 		self.keys[key] = info;
@@ -179,7 +179,7 @@ function updateAndSaveKey(self, deferred, key, info) {
  * Update API key.
  *
  * @param key
- *   API key to add.
+ *   API key to update.
  * @param info
  *   API key information.
  *
@@ -220,14 +220,14 @@ ApiKeys.prototype.update = function update(key, info) {
  * @param deferred
  *   Promise deferred object.
  * @param key
- *   The new API key.
+ *   The API key to remove.
  */
 function removeAndSaveKey(self, deferred, key) {
 	"use strict";
 
-	// Check if ket exists.
+	// Check if key exists.
 	if (self.keys.hasOwnProperty(key)) {
-		// Set the key info.
+		// Remove api key.
 		delete self.keys[key];
 
 		// Save the keys to disk.
@@ -283,6 +283,7 @@ ApiKeys.prototype.remove = function remove(key) {
  *
  * @param key
  *   API key to check.
+ *
  * @returns {*}
  *   Promise that either will resolve with the API keys info or false if it do
  *   not exists. If rejected it's do to api file errors.

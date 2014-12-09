@@ -29,6 +29,10 @@ var config = [
 		"file": __dirname + '/' + configs.apikeys
 	},
   {
+    "packagePath": "./plugins/mappings",
+    "file": __dirname + '/' + configs.search.mappings
+  },
+  {
     "packagePath": "./plugins/auth",
     "secret": configs.secret,
     "admin": configs.admin
