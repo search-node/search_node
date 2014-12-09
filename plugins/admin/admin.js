@@ -20,9 +20,6 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
   var self = this;
   this.logger = logger;
 
-  // Get the json easy file read/writer.
-  var jf = require('jsonfile');
-
   /**
    * Default get request.
    */

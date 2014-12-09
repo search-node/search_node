@@ -4,9 +4,6 @@
   "version": "0.0.1",
   "main": "admin.js",
   "private": true,
-  "dependencies": {
-    "jsonfile": "^2.0.0"
-  },
   "plugin": {
     "consumes": [
       "app",
