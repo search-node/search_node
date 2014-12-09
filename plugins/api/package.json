@@ -6,7 +6,8 @@
   "private": true,
   "dependencies": {
     "jsonfile": "^2.0.0",
-    "log": "1.4.x"
+    "log": "1.4.x",
+    "q": "^1.1.2"
   },
   "plugin": {
     "consumes": [
@@ -14,7 +15,7 @@
       "logger",
       "search",
       "auth",
-			"apikeys"
+      "apikeys"
     ]
   }
 }

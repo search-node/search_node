@@ -3,22 +3,23 @@
  * Added API to send content into the search engine
  */
 
+var Q = require('q');
+
 /**
  * This object encapsulate the RESET API.
  *
  * @param app
  * @param logger
  * @param Search
+ * @param apikeys
+ *
  * @constructor
  */
-var API = function (app, logger, Search, apikeys, options) {
+var API = function (app, logger, Search, apikeys) {
   "use strict";
 
   var self = this;
   this.logger = logger;
-
-  // Save options.
-  this.options = options;
 
   // Store link to api keys.
   this.apikeys = apikeys;
@@ -34,7 +35,7 @@ var API = function (app, logger, Search, apikeys, options) {
    * Add content to the search index.
    */
   app.post('/api', function (req, res) {
-    if (self.validateCall(req, res)) {
+    self.validateCall(req, res).then(function (resovled) {
       // Added the data to the search index (a side effect is that a new
       // index maybe created.). The id may not be given and is hence undefined.
       var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
@@ -54,18 +55,14 @@ var API = function (app, logger, Search, apikeys, options) {
 
       // Add the content.
       instance.add(req.body.data);
-    }
-    else {
-      // Log error, validate has send response to client.
-      self.logger.error('Error: missing parameters in add content');
-    }
+    });
   });
 
   /**
    * Update content to the search index.
    */
   app.put('/api', function (req, res) {
-    if (self.validateCall(req, res)) {
+    self.validateCall(req, res).then(function (resovled) {
       // Update the data in the search index (a side effect is that a new
       // index maybe created.).
       var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
@@ -85,18 +82,14 @@ var API = function (app, logger, Search, apikeys, options) {
 
       // Add the content.
       instance.update(req.body.data);
-    }
-    else {
-      // Log error, validate has send response to client.
-      self.logger.error('Error: missing parameters in add content');
-    }
+    });
   });
 
   /**
    * Remove content from the search index.
    */
   app.delete('/api', function (req, res) {
-    if (self.validateCall(req, res)) {
+    self.validateCall(req, res).then(function (resovled) {
       var instance = new Search(req.body.customer_id, req.body.type);
 
       // Handle completed
@@ -115,11 +108,7 @@ var API = function (app, logger, Search, apikeys, options) {
 
       // Send the request.
       instance.remove(req.body.data);
-    }
-    else {
-      // Log error, validate has send response to client.
-      self.logger.error('Error: missing parameters in remove content');
-    }
+    });
   });
 
   /**
@@ -148,7 +137,7 @@ var API = function (app, logger, Search, apikeys, options) {
    * Search request to the search engine.
    */
   app.post('/api/search', function (req, res) {
-    if (self.validateCall(req, res)) {
+    self.validateCall(req, res).then(function (resovled) {
       var instance = new Search(req.body.customer_id, req.body.type);
 
       // Handle completed query.
@@ -164,10 +153,7 @@ var API = function (app, logger, Search, apikeys, options) {
 
       // Send the query.
       instance.query(req.body.query);
-    }
-    else {
-      self.logger.error('Error: missing parameters in remove content');
-    }
+    });
   });
 };
 
@@ -179,11 +165,13 @@ var API = function (app, logger, Search, apikeys, options) {
  * @param res
  *   The response to express.
  *
- * @return bool
- *   If valid true else false.
+ * @returns {*}
+ *   Promise that either will resolve if valid else reject.
  */
 API.prototype.validateCall = function validateCall(req, res) {
   "use strict";
+
+  var deferred = Q.defer();
 
   // Validate that minimum parameters is available.
   if (req.body.customer_id !== undefined && (req.body.type !== undefined)) {
@@ -195,28 +183,32 @@ API.prototype.validateCall = function validateCall(req, res) {
 
           // Check that the index is in the API keys configuration.
           if (indexes.indexOf(req.body.customer_id) !== -1) {
-            return true;
+            deferred.resolve(true);
           }
           else {
             // Index not found, access denied.
             res.send('Access denied index not allowed.', 401);
+            deferred.reject(false);
           }
         }
         else {
           res.send('API key was not found.', 404);
+          deferred.reject(false);
         }
       },
       function (error) {
         res.send(error.message, 500);
+        deferred.reject(false);
       }
     );
   }
+  else {
+    res.send('Missing parameters in the request, please see the log for more information', 500);
 
-  // Missing parameters.
-  res.send('Missing parameters in the request, please see the log for more information', 500);
+    deferred.reject(false);
+  }
 
-  // The request was not valid.
-  return false;
+  return deferred.promise;
 };
 
 /**
@@ -226,7 +218,7 @@ module.exports = function (options, imports, register) {
   "use strict";
 
   // Create the API routes using the API object.
-  var api = new API(imports.app, imports.logger, imports.search, imports.apikeys, options);
+  var api = new API(imports.app, imports.logger, imports.search, imports.apikeys);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);

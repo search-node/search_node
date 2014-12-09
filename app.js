@@ -35,8 +35,7 @@ var config = [
   },
   {
     "packagePath": "./plugins/admin",
-    "mappings": __dirname + '/' + configs.search.mappings,
-    "apikeys": __dirname + '/' + configs.apikeys
+    "mappings": __dirname + '/' + configs.search.mappings
   },
   {
     "packagePath": "./plugins/socket"
@@ -47,8 +46,7 @@ var config = [
     "mappings": __dirname + '/' + configs.search.mappings
   },
   {
-    "packagePath": "./plugins/api",
-    "apikeys": __dirname + '/' + configs.apikeys
+    "packagePath": "./plugins/api"
   },
   {
     "packagePath": "./plugins/search_client"

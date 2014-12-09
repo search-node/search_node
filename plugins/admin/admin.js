@@ -6,19 +6,21 @@
 /**
  * This object encapsulate the RESET API.
  *
+ * @param options
  * @param app
  * @param logger
- * @param Auth
+ * @param search
+ * @param apikeys
  * @constructor
  */
-var Admin = function Admin(options, app, logger, Auth, search) {
+var Admin = function Admin(options, app, logger, search, apikeys) {
   "use strict";
 
   var self = this;
   this.logger = logger;
 
   // Get the json easy file read/writer.
-  var jf = require('jsonfile')
+  var jf = require('jsonfile');
 
   /**
    * Default get request.
@@ -413,10 +415,11 @@ Admin.prototype.validateCall = function validateCall(req) {
 module.exports = function (options, imports, register) {
   "use strict";
 
+  // Create search instance (eg. connection to search engine).
   var instance = new imports.search('', '');
 
   // Create the API routes using the API object.
-  var admin = new Admin(options, imports.app, imports.logger, imports.auth, instance);
+  var admin = new Admin(options, imports.app, imports.logger, instance, imports.apikeys);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);
