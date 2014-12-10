@@ -20,46 +20,52 @@ module.exports = function (options, imports, register) {
   var logger = imports.logger;
 
   // We are going to protect /api routes with JWT
-  app.use('/api', expressJwt({ "secret": options.secret }));
+  app.use('/api', expressJwt({"secret": options.secret}));
 
   /**
    * Authentication for API access.
    */
-  app.post('/authenticate', function(req, res, next) {
+  app.post('/authenticate', function (req, res, next) {
     if (!req.body.hasOwnProperty('apikey')) {
       res.send("API key not found in the request.", 404);
     }
     else {
       // Load keys.
       imports.apikeys.get(req.body.apikey).then(
-				function (info) {
-					if (info) {
-						// Create profile.
-						var profile = {
-							"role": 'api',
-							"name": info.name,
-							"apikey": req.body.apikey
-						};
+        function (info) {
+          if (info) {
+            // Create profile.
+            var profile = {
+              "role": 'api',
+              "name": info.name,
+              "apikey": req.body.apikey
+            };
 
-						// API key accepted, so send back token.
-						var token = jwt.sign(profile, options.secret, { expiresInMinutes: 60 * 5 });
-						res.json({ 'token': token });
-					}
-					else {
-						res.send('API key could not be validated.', 401);
-					}
-				},
-				function (error) {
-					res.send(error.message, 500);
-				}
-			);
+            // Default expire.
+            var expire = 300;
+            if (info.hasOwnProperty('expire')) {
+              expire = info.expire;
+            }
+
+            // API key accepted, so send back token.
+            var token = jwt.sign(profile, options.secret, { "expiresInMinutes": expire});
+            res.json({'token': token});
+          }
+          else {
+            res.send('API key could not be validated.', 401);
+          }
+        },
+        function (error) {
+          res.send(error.message, 500);
+        }
+      );
     }
   });
 
   /**
    * Administration login.
    */
-  app.post('/login', function(req, res, next) {
+  app.post('/login', function (req, res, next) {
     if (!req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')) {
       res.send("Credentials not found in the request.", 404);
     }
@@ -70,7 +76,7 @@ module.exports = function (options, imports, register) {
         };
 
         // Generate token for access.
-        var token = jwt.sign(profile, options.secret, { expiresInMinutes: 60 * 5 });
+        var token = jwt.sign(profile, options.secret, {expiresInMinutes: 60 * 5});
         res.json({
           'token': token
         });
@@ -82,5 +88,5 @@ module.exports = function (options, imports, register) {
   });
 
   // This plugin extends the server plugin and do not provide new services.
-  register(null, { 'auth': { } });
+  register(null, {'auth': {}});
 };

@@ -151,6 +151,7 @@ app.controller('ApiKeysController', ['$scope', '$window', '$location', 'ngOverla
       scope.api = {
         "key": '',
         "name": '',
+        "expire": 300,
         "indexes": []
       };
 
