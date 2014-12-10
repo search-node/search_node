@@ -1,6 +1,7 @@
 {
    "abcd0987654321": {
     "name": "Indholdskanalen",
+    "tag": "private",
     "fields": [
       {
         "field": "title",
