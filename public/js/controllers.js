@@ -164,6 +164,15 @@ app.controller('ApiKeysController', ['$scope', '$window', '$location', 'ngOverla
         }
       });
 
+      // Get mappings.
+      scope.mappings = [];
+      for (var index in $scope.mappings) {
+        scope.mappings.push({
+          "id": index,
+          "name": $scope.mappings[index].name
+        });
+      }
+
       /**
        * Save index callback.
        */
