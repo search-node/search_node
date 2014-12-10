@@ -129,7 +129,8 @@ var API = function (app, logger, Search, apikeys, mappings) {
                 var index = info.indexes[i];
                 indexes.push({
                   "index": index,
-                  "name": mappings[index].name
+                  "name": mappings[index].name,
+                  "tag": mappings[index].tag
                 });
               }
 
