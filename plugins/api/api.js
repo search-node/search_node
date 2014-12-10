@@ -125,7 +125,8 @@ var API = function (app, logger, Search, apikeys, mappings) {
               var indexes = [];
 
               // Loop over indexes to get names.
-              for (var index in info.indexes) {
+              for (var i in info.indexes) {
+                var index = info.indexes[i];
                 indexes.push({
                   "index": index,
                   "name": mappings[index].name
