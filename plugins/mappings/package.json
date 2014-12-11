@@ -1,0 +1,19 @@
+{
+  "name": "Mappings",
+  "description": "Handles load, update and delete of mappings",
+  "version": "0.0.1",
+  "main": "mappings.js",
+  "private": true,
+  "dependencies": {
+    "jsonfile": "^2.0.0",
+    "q": "^1.1.2"
+  },
+  "plugin": {
+    "provides": [
+      "mappings"
+    ],
+    "consumes": [
+      "logger"
+    ]
+  }
+}

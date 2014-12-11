@@ -13,24 +13,15 @@ var rename = require('rename-keys');
 
 // Holds connection to the search backend.
 var es;
-var mappings;
 
+// Logger.
 var logger;
+
+// Mappings
+var mappings;
 
 // Link to the object (used in private functions).
 var self;
-
-/**
- * Generate index name.
- *
- * @param customer_id
- *   Customer id.
- */
-var indexName = function indexName(customer_id) {
-  "use strict";
-
-  return customer_id;
-};
 
 /**
  * Build field mappings for a single field in the index.
@@ -107,7 +98,7 @@ function addDefaultMapping(body) {
  * @param index
  *   Name of the index.
  */
-var buildNewIndex = function buildNewIndex(index) {
+function buildNewIndex(map, index) {
   "use strict";
 
   var body = {
@@ -153,9 +144,6 @@ var buildNewIndex = function buildNewIndex(index) {
     }
   };
 
-  // Get customer mappings.
-  var map = mappings[index];
-
   // Setup dynamic mappings for language and sorting.
   if (map.hasOwnProperty('fields')) {
     addDefaultMapping(body);
@@ -195,7 +183,7 @@ var buildNewIndex = function buildNewIndex(index) {
       self.emit('error', { 'status': status, 'res': response });
     }
   });
-};
+}
 
 /**
  * Add content/document to the search backend.
@@ -209,7 +197,7 @@ var buildNewIndex = function buildNewIndex(index) {
  * @param id
  *   The documents unique id.
  */
-var addContent = function addContent(index, type, body, id) {
+function addContent(index, type, body, id) {
   "use strict";
 
   es.create({
@@ -226,7 +214,7 @@ var addContent = function addContent(index, type, body, id) {
       self.emit('error', { 'status': status, 'res' : response});
     }
   });
-};
+}
 
 /**
  * Append ".sort" to a string.
@@ -238,11 +226,11 @@ var addContent = function addContent(index, type, body, id) {
  *
  * @returns {string}
  */
-var addSort = function addSort(property) {
+function addSort(property) {
   "use strict";
 
   return property + '.sort';
-};
+}
 
 /*********************
  * The Search object
@@ -251,21 +239,21 @@ var addSort = function addSort(property) {
 /**
  * Define the Search object (constructor).
  *
- * @param customer_id
- *   The unique id to identify the customer (index) to use.
+ * @param index
+ *   The unique id to identify the index to use.
  * @param type !optional
  *   The type of documents to search or manipulate.
  * @param id !optional
  *   The documents unique id.
  */
-var Search = function (customer_id, type, id) {
+var Search = function Search(index, type, id) {
   "use strict";
 
   // Set "outside" variable to ref to the object.
   self = this;
 
   // Set internal variables.
-  this.customer_id = customer_id;
+  this.index = index;
   this.type = type;
   this.id = id;
 
@@ -287,30 +275,17 @@ Search.prototype.add = function add(body) {
   "use strict";
 
   // Log request to the debugger.
-  this.logger.debug('Search: Add request for: ' + self.customer_id + ' with type: ' + self.type);
-
-  // Get index name from customer id.
-  var index = indexName(self.customer_id);
+  this.logger.debug('Search: Add request for: ' + self.index + ' with type: ' + self.type);
 
   es.indices.exists({
-    "index": index
+    "index": self.index
   }, function (err, response, status) {
     if (status === 404) {
-      // Listen to index create event.
-      self.once('indexCreated', function (i) {
-        // Make sure that this is the index and not another index
-        // created at the same time.
-        if (i === index) {
-          addContent(index, self.type, body, self.id);
-        }
-      });
-
-      // Index not found. Lets create it.
-      buildNewIndex(index);
+      self.logger.error('Search: Add request for unkown index: ' + self.index + ' with type: ' + self.type);
     }
     else {
       // Index and mapping exists, so just add the document.
-      addContent(index, self.type, body, self.id);
+      addContent(self.index, self.type, body, self.id);
     }
   });
 };
@@ -327,13 +302,10 @@ Search.prototype.update = function update(doc) {
   "use strict";
 
   // Log request to the debugger.
-  this.logger.debug('Search: Update request for: ' + self.customer_id + ' with type: ' + self.type);
-
-  // Get index name from customer id.
-  var index = indexName(self.customer_id);
+  this.logger.debug('Search: Update request for: ' + self.index + ' with type: ' + self.type);
 
   es.update({
-    "index": index,
+    "index": self.index,
     "type": self.type,
     "id": self.id,
     "body": {
@@ -341,7 +313,7 @@ Search.prototype.update = function update(doc) {
     }
   }, function (err, response, status) {
     if (status === 200) {
-      self.emit('updated', { 'status': status, 'index': index });
+      self.emit('updated', { 'status': status, 'index': self.index });
     }
     else {
       self.emit('error', { 'status': status, 'res' : response});
@@ -360,14 +332,11 @@ Search.prototype.remove = function remove(data) {
   "use strict";
 
   // Log request to the debugger.
-  this.logger.debug('Search: Remove request from: ' + self.custommer_id + ' with type: ' + self.type);
-
-  // Get index name from customer id.
-  var index = indexName(self.customer_id);
+  this.logger.debug('Search: Remove request from: ' + self.index + ' with type: ' + self.type);
 
   // Remove content.
   es.deleteByQuery({
-    "index": index,
+    "index": self.index,
     "body": {
       "query": {
         "term": {
@@ -395,49 +364,125 @@ Search.prototype.query = function query(data) {
   "use strict";
 
   // Log request to the debugger.
-  this.logger.info('Search: Query request in: ' + self.customer_id + ' with type: ' + self.type);
+  this.logger.info('Search: Query request in: ' + self.index + ' with type: ' + self.type);
 
-  // Use mappings to fix sort on strings.
-  if (data.hasOwnProperty('sort')) {
-    var map = mappings[self.customer_id];
-    for (var i in map.fields) {
-      if (data.sort.hasOwnProperty(map.fields[i].field)) {
-        // Rename the property by adding .sort to switch sorting to using the fully
-        // indexed string for the field.
-        rename(data.sort, addSort);
-      }
-    }
-  }
-
-  // Add the sort search query.
-  var search_query = {
-    "type": self.type,
-    "index": indexName(self.customer_id),
-    "body": data
-  };
-
-  /**
-   * @TODO: Validate the search JSON request for safety reasons.
-   */
-
-  // Execute the search.
-  es.search(search_query).then(function (resp) {
-    var hits = [];
-    if (resp.hits.total > 0) {
-      // We got hits, return only _source.
-      for (var hit in resp.hits.hits) {
-        hits.push(resp.hits.hits[hit]._source);
+  mappings.get(self.index).then(
+    function (map) {
+      // Use mappings to fix sort on strings.
+      if (data.hasOwnProperty('sort')) {
+        for (var i in map.fields) {
+          if (data.sort.hasOwnProperty(map.fields[i].field)) {
+            // Rename the property by adding .sort to switch sorting to using the fully
+            // indexed string for the field.
+            rename(data.sort, addSort);
+          }
+        }
       }
 
-      // Log number of hits found.
-      self.logger.debug('Search: hits found: ' + resp.hits.total + ' items for ' + self.customer_id + ' with type: ' + self.type);
-    }
+      // Add the sort search query.
+      var search_query = {
+        "type": self.type,
+        "index": self.index,
+        "body": data
+      };
 
-    // Emit hits.
-    self.emit('hits', {
-      'hits': resp.hits.total,
-      'results': hits
-    });
+      /**
+       * @TODO: Validate the search JSON request for safety reasons.
+       */
+
+      // Execute the search.
+      es.search(search_query).then(function (resp) {
+        var hits = [];
+        if (resp.hits.total > 0) {
+          // We got hits, return only _source.
+          for (var hit in resp.hits.hits) {
+            hits.push(resp.hits.hits[hit]._source);
+          }
+
+          // Log number of hits found.
+          self.logger.debug('Search: hits found: ' + resp.hits.total + ' items for ' + self.index + ' with type: ' + self.type);
+        }
+
+        // Emit hits.
+        self.emit('hits', {
+          'hits': resp.hits.total,
+          'results': hits
+        });
+      });
+    },
+    function (error) {
+      self.logger.debug("Search error: " + error.message);
+    }
+  );
+};
+
+/**
+ * Get indexes available on the server.
+ */
+Search.prototype.getIndexes = function getIndexes() {
+  "use strict";
+
+  es.cat.indices(function (err, response, status) {
+    if (status === 200) {
+      var indexes = {};
+      if (response !== undefined) {
+        var lines = response.split(/\n/g);
+        for (var i in lines) {
+          var parts = lines[i].match(/[\w\.\d]+/g);
+          if (parts !== null) {
+            indexes[parts[1]] = {
+              "health": parts[0],
+              "index": parts[1],
+              "pri": parts[2],
+              "rep": parts[3],
+              "count": parts[4],
+              "deleted": parts[5],
+              "size": parts[6],
+              "prisize": parts[7]
+            };
+          }
+        }
+      }
+
+      // Emit indexes.
+      self.emit('indexes', indexes);
+    }
+  });
+};
+
+/**
+ * Add new index (requires mappings have been created).
+ */
+Search.prototype.addIndex = function addIndex(index) {
+  "use strict";
+
+  mappings.get(index).then(
+    function (map) {
+      buildNewIndex(map, index);
+    },
+    function (error) {
+      // Send not created event.
+      self.emit('indexNotCreated', error);
+    }
+  );
+};
+
+/**
+ * Remove index from the server.
+ */
+Search.prototype.removeIndex = function removeIndex(index) {
+  "use strict";
+
+  es.indices.delete({
+    "index": index
+  }, function (err, response, status) {
+    if (err) {
+      self.emit('error', { 'id' : data.id, 'status': status, 'res' : response});
+    }
+    else {
+      // Emit removed status.
+      self.emit('removed', index);
+    }
   });
 };
 
@@ -448,8 +493,8 @@ module.exports = function (options, imports, register) {
   // Connect to Elasticsearch.
   es = elasticsearch.Client(options.hosts);
 
-  // Load mappings.
-  mappings = require(options.mappings);
+  // Add mappings.
+  mappings = imports.mappings;
 
   // Add logger.
   logger = imports.logger;

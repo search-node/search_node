@@ -1,0 +1,16 @@
+{
+  "name": "Admin",
+  "description": "Provides reset API for the administration interface",
+  "version": "0.0.1",
+  "main": "admin.js",
+  "private": true,
+  "plugin": {
+    "consumes": [
+      "app",
+      "logger",
+      "search",
+      "apikeys",
+      "mappings"
+    ]
+  }
+}

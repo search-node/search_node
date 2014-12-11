@@ -5,13 +5,17 @@
   "main": "api.js",
   "private": true,
   "dependencies": {
-    "log" : "1.4.x"
+    "log": "1.4.x",
+    "q": "^1.1.2"
   },
   "plugin": {
     "consumes": [
       "app",
       "logger",
-      "search"
+      "search",
+      "auth",
+      "apikeys",
+      "mappings"
     ]
   }
 }

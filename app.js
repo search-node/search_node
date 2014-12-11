@@ -22,14 +22,30 @@ var config = [
   {
     "packagePath": "./plugins/server",
     "port": configs.port,
+    "path": path.join(__dirname, 'public')
+  },
+	{
+		"packagePath": "./plugins/apikeys",
+		"file": __dirname + '/' + configs.apikeys
+	},
+  {
+    "packagePath": "./plugins/mappings",
+    "file": __dirname + '/' + configs.search.mappings
+  },
+  {
+    "packagePath": "./plugins/auth",
+    "secret": configs.secret,
+    "admin": configs.admin
+  },
+  {
+    "packagePath": "./plugins/admin",
   },
   {
     "packagePath": "./plugins/socket"
   },
   {
     "packagePath": "./plugins/search",
-    "hosts": configs.search.hosts,
-    "mappings": __dirname + '/' + configs.search.mappings
+    "hosts": configs.search.hosts
   },
   {
     "packagePath": "./plugins/api"

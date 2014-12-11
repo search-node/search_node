@@ -9,9 +9,12 @@
     "rename-keys": "^0.2.0"
   },
   "plugin": {
-    "provides": [ "search" ],
+    "provides": [
+      "search"
+    ],
     "consumes": [
-      "logger"
+      "logger",
+      "mappings"
     ]
   }
 }

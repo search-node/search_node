@@ -1,6 +1,7 @@
 node_modules
 mappings.json
 config.json
+apikeys.json
 dump.rdb
 ssl/ind*
 *.log

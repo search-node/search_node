@@ -1,0 +1,19 @@
+{
+  "name": "ApiKeys",
+  "description": "Handles load, update and delete of api keys",
+  "version": "0.0.1",
+  "main": "apikeys.js",
+  "private": true,
+  "dependencies": {
+    "jsonfile": "^2.0.0",
+    "q": "^1.1.2"
+  },
+  "plugin": {
+    "provides": [
+      "apikeys"
+    ],
+    "consumes": [
+      "logger"
+    ]
+  }
+}
