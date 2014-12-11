@@ -606,7 +606,8 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
           "country": "DK",
           "language": "da",
           "default_analyzer": "string_index",
-          "sort": false
+          "sort": false,
+          "indexable": true
         });
       };
 

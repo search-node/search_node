@@ -35,39 +35,55 @@ function buildIndexMapping(map, body) {
   "use strict";
 
   var field = {};
-  field["field_" + map.field] = {
-    "match": map.field,
-    "match_pattern": 'regex',
-    "match_mapping_type": map.type,
-    "mapping": {
-      "type": map.type
-    }
-  };
 
-  // Add field default analyzer (eg. ngram string indexer).
-  if (map.hasOwnProperty('default_analyzer')) {
-    field["field_" + map.field].mapping.analyzer = 'string_index';
-  }
-
-  var analyzer = 'ducet_sort';
-  // If language and country is defined, create new filter
-  if (map.hasOwnProperty('language') && map.hasOwnProperty('country')) {
-    // Update language in filter.
-    body.settings.analysis.filter.search_language.language = map.language;
-    body.settings.analysis.filter.search_language.country = map.country;
-
-    // Change analyzer to use language sort.
-    analyzer = 'language_sort';
-  }
-
-  // Add sort field if required as an analyzer not filter as above.
-  if (map.hasOwnProperty('sort') && map.sort) {
-    field["field_" + map.field].mapping.fields = {
-      "sort": {
-        "type":  map.type,
-        "analyzer": analyzer
+  // Check if field should be indexed/searchable.
+  if (map.hasOwnProperty('indexable') && map.indexable === false) {
+    // Disable analyse and indexing this field.
+    field["field_" + map.field] = {
+      "match": map.field,
+      "match_pattern": 'regex',
+      "match_mapping_type": map.type,
+      "mapping": {
+        "type": map.type,
+        "index": 'no'
       }
     };
+  }
+  else {
+    field["field_" + map.field] = {
+      "match": map.field,
+      "match_pattern": 'regex',
+      "match_mapping_type": map.type,
+      "mapping": {
+        "type": map.type,
+      }
+    };
+
+    // Add field default analyzer (eg. ngram string indexer).
+    if (map.hasOwnProperty('default_analyzer')) {
+      field["field_" + map.field].mapping.analyzer = 'string_index';
+    }
+
+    var analyzer = 'ducet_sort';
+    // If language and country is defined, create new filter
+    if (map.hasOwnProperty('language') && map.hasOwnProperty('country')) {
+      // Update language in filter.
+      body.settings.analysis.filter.search_language.language = map.language;
+      body.settings.analysis.filter.search_language.country = map.country;
+
+      // Change analyzer to use language sort.
+      analyzer = 'language_sort';
+    }
+
+    // Add sort field if required as an analyzer not filter as above.
+    if (map.hasOwnProperty('sort') && map.sort) {
+      field["field_" + map.field].mapping.fields = {
+        "sort": {
+          "type":  map.type,
+          "analyzer": analyzer
+        }
+      };
+    }
   }
 
   // Add the new field to templates.
@@ -446,6 +462,9 @@ Search.prototype.getIndexes = function getIndexes() {
 
       // Emit indexes.
       self.emit('indexes', indexes);
+    }
+    else {
+      self.logger.error('Index error: ' + require('util').inspect(response, true, 10));
     }
   });
 };
