@@ -24,18 +24,6 @@ var mappings;
 var self;
 
 /**
- * Generate index name.
- *
- * @param customer_id
- *   Customer id.
- */
-function indexName(customer_id) {
-  "use strict";
-
-  return customer_id;
-}
-
-/**
  * Build field mappings for a single field in the index.
  *
  * @param map
@@ -251,21 +239,21 @@ function addSort(property) {
 /**
  * Define the Search object (constructor).
  *
- * @param customer_id
- *   The unique id to identify the customer (index) to use.
+ * @param index
+ *   The unique id to identify the index to use.
  * @param type !optional
  *   The type of documents to search or manipulate.
  * @param id !optional
  *   The documents unique id.
  */
-var Search = function Search(customer_id, type, id) {
+var Search = function Search(index, type, id) {
   "use strict";
 
   // Set "outside" variable to ref to the object.
   self = this;
 
   // Set internal variables.
-  this.customer_id = customer_id;
+  this.index = index;
   this.type = type;
   this.id = id;
 
@@ -287,20 +275,17 @@ Search.prototype.add = function add(body) {
   "use strict";
 
   // Log request to the debugger.
-  this.logger.debug('Search: Add request for: ' + self.customer_id + ' with type: ' + self.type);
-
-  // Get index name from customer id.
-  var index = indexName(self.customer_id);
+  this.logger.debug('Search: Add request for: ' + self.index + ' with type: ' + self.type);
 
   es.indices.exists({
-    "index": index
+    "index": self.index
   }, function (err, response, status) {
     if (status === 404) {
-      self.logger.error('Search: Add request for unkown index: ' + self.customer_id + ' with type: ' + self.type);
+      self.logger.error('Search: Add request for unkown index: ' + self.index + ' with type: ' + self.type);
     }
     else {
       // Index and mapping exists, so just add the document.
-      addContent(index, self.type, body, self.id);
+      addContent(self.index, self.type, body, self.id);
     }
   });
 };
@@ -317,13 +302,10 @@ Search.prototype.update = function update(doc) {
   "use strict";
 
   // Log request to the debugger.
-  this.logger.debug('Search: Update request for: ' + self.customer_id + ' with type: ' + self.type);
-
-  // Get index name from customer id.
-  var index = indexName(self.customer_id);
+  this.logger.debug('Search: Update request for: ' + self.index + ' with type: ' + self.type);
 
   es.update({
-    "index": index,
+    "index": self.index,
     "type": self.type,
     "id": self.id,
     "body": {
@@ -331,7 +313,7 @@ Search.prototype.update = function update(doc) {
     }
   }, function (err, response, status) {
     if (status === 200) {
-      self.emit('updated', { 'status': status, 'index': index });
+      self.emit('updated', { 'status': status, 'index': self.index });
     }
     else {
       self.emit('error', { 'status': status, 'res' : response});
@@ -350,14 +332,11 @@ Search.prototype.remove = function remove(data) {
   "use strict";
 
   // Log request to the debugger.
-  this.logger.debug('Search: Remove request from: ' + self.custommer_id + ' with type: ' + self.type);
-
-  // Get index name from customer id.
-  var index = indexName(self.customer_id);
+  this.logger.debug('Search: Remove request from: ' + self.index + ' with type: ' + self.type);
 
   // Remove content.
   es.deleteByQuery({
-    "index": index,
+    "index": self.index,
     "body": {
       "query": {
         "term": {
@@ -385,9 +364,9 @@ Search.prototype.query = function query(data) {
   "use strict";
 
   // Log request to the debugger.
-  this.logger.info('Search: Query request in: ' + self.customer_id + ' with type: ' + self.type);
+  this.logger.info('Search: Query request in: ' + self.index + ' with type: ' + self.type);
 
-  mappings.get(self.customer_id).then(
+  mappings.get(self.index).then(
     function (map) {
       // Use mappings to fix sort on strings.
       if (data.hasOwnProperty('sort')) {
@@ -403,7 +382,7 @@ Search.prototype.query = function query(data) {
       // Add the sort search query.
       var search_query = {
         "type": self.type,
-        "index": indexName(self.customer_id),
+        "index": self.index,
         "body": data
       };
 
@@ -421,7 +400,7 @@ Search.prototype.query = function query(data) {
           }
 
           // Log number of hits found.
-          self.logger.debug('Search: hits found: ' + resp.hits.total + ' items for ' + self.customer_id + ' with type: ' + self.type);
+          self.logger.debug('Search: hits found: ' + resp.hits.total + ' items for ' + self.index + ' with type: ' + self.type);
         }
 
         // Emit hits.

@@ -41,7 +41,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
     self.validateCall(req, res).then(function (resolved) {
       // Added the data to the search index (a side effect is that a new
       // index maybe created.). The id may not be given and is hence undefined.
-      var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
+      var instance = new Search(req.body.index, req.body.type, req.body.id);
 
       instance.on('created', function (data) {
         self.logger.debug('Content added: status ' + data.status + ' : ' + data.index);
@@ -68,7 +68,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
     self.validateCall(req, res).then(function (resolved) {
       // Update the data in the search index (a side effect is that a new
       // index maybe created.).
-      var instance = new Search(req.body.customer_id, req.body.type, req.body.id);
+      var instance = new Search(req.body.index, req.body.type, req.body.id);
 
       // Updated event.
       instance.on('updated', function (data) {
@@ -93,7 +93,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
    */
   app.delete('/api', function (req, res) {
     self.validateCall(req, res).then(function (resolved) {
-      var instance = new Search(req.body.customer_id, req.body.type);
+      var instance = new Search(req.body.index, req.body.type);
 
       // Handle completed
       instance.once('removed', function (data) {
@@ -157,7 +157,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
    */
   app.post('/api/search', function (req, res) {
     self.validateCall(req, res).then(function (resolved) {
-      var instance = new Search(req.body.customer_id, req.body.type);
+      var instance = new Search(req.body.index, req.body.type);
 
       // Handle completed query.
       instance.once('hits', function (hits) {
@@ -193,7 +193,7 @@ API.prototype.validateCall = function validateCall(req, res) {
   var deferred = Q.defer();
 
   // Validate that minimum parameters is available.
-  if (req.body.customer_id !== undefined && (req.body.type !== undefined)) {
+  if (req.body.index !== undefined && (req.body.type !== undefined)) {
     // Check that the index is allowed based on the API key for the currently logged in user.
     this.apikeys.get(req.user.apikey).then(
       function (info) {
@@ -201,7 +201,7 @@ API.prototype.validateCall = function validateCall(req, res) {
           var indexes = info.indexes;
 
           // Check that the index is in the API keys configuration.
-          if (indexes.indexOf(req.body.customer_id) !== -1) {
+          if (indexes.indexOf(req.body.index) !== -1) {
             deferred.resolve(true);
           }
           else {
