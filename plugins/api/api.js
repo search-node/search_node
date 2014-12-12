@@ -50,7 +50,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
       });
 
       instance.on('error', function (data) {
-        self.logger.error('Error in add content: status ' + data.status + ' : ' + data.res);
+        self.logger.error('Error in add content: status ' + data.status + ' : ' +  require('util').inspect(data.res, true, 10));
 
         // Send error back to client.
         res.send('Content have not been added.', data.status);
@@ -79,7 +79,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
 
       // On error event.
       instance.on('error', function (data) {
-        self.logger.error('Error in add content: status ' + data.status + ' : ' + data.res);
+        self.logger.error('Error in add content: status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
         res.send(data.status, 500);
       });
 
@@ -103,7 +103,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
 
       // Handle errors in the request.
       instance.once('error', function (data) {
-        self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + data.res);
+        self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
         res.send(data.status, 500);
       });
 
@@ -166,7 +166,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
 
       // Handle errors in the search.
       instance.once('error', function (data) {
-        self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + data.res);
+        self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
         res.send(data.status, 500);
       });
 
