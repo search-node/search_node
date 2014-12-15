@@ -502,6 +502,7 @@ module.exports = function (options, imports, register) {
     });
   };
 
+  // Register the plugin with the system.
   register(null, {
     'search': Search
   });

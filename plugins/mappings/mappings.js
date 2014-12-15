@@ -329,7 +329,7 @@ module.exports = function (options, imports, register) {
 
   var mappings = new Mappings(options.file, imports.logger);
 
-  // This plugin extends the server plugin and do not provide new services.
+  // Register the plugin with the system.
   register(null, {
     "mappings": mappings
   });
