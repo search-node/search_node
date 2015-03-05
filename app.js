@@ -41,7 +41,8 @@ var config = [
     "packagePath": "./plugins/admin"
   },
   {
-    "packagePath": "./plugins/socket"
+    "packagePath": "./plugins/socket",
+    "secret": configs.secret
   },
   {
     "packagePath": "./plugins/search",
