@@ -53,6 +53,10 @@ var config = [
   },
   {
     "packagePath": "./plugins/search_client"
+  },
+  {
+    "packagePath": "./plugins/sentry",
+    "url": configs.sentryUrl
   }
 ];
 
