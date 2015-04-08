@@ -15,7 +15,7 @@ module.exports = function (options, imports, register) {
   client.patchGlobal();
 
   // Send message that middleware have been loaded.
-  client.captureMessage('The middleware have been laoded.');
+  client.captureMessage('The search node have been laoded.');
 
   logger.info('Start the sentry connection.');
 
