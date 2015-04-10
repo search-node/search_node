@@ -37,7 +37,11 @@ module.exports = function (options, imports, register) {
 
       // Handle errors in the search.
       instance.once('error', function (data) {
-        logger.error(data);
+        // Log error.
+        logger.error('Search error: ' + data.message);
+
+        // Send error to client.
+        socket.emit('searchError', data);
       });
 
       // Remove customer ID and type.

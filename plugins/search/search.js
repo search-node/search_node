@@ -421,10 +421,13 @@ module.exports = function (options, imports, register) {
             'hits': resp.hits.total,
             'results': hits
           });
+        },
+        function (error) {
+          self.emit('error', { message: error.message });
         });
       },
       function (error) {
-        self.logger.debug("Search error: " + error.message);
+        self.emit('error', { message: error.message });
       }
     );
   };
