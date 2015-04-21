@@ -446,15 +446,16 @@ module.exports = function (options, imports, register) {
           for (var i in lines) {
             var parts = lines[i].match(/[\w\.\d]+/g);
             if (parts !== null) {
-              indexes[parts[1]] = {
+              indexes[parts[2]] = {
                 "health": parts[0],
-                "index": parts[1],
-                "pri": parts[2],
-                "rep": parts[3],
-                "count": parts[4],
-                "deleted": parts[5],
-                "size": parts[6],
-                "prisize": parts[7]
+                "open": parts[1],
+                "index": parts[2],
+                "pri": parts[3],
+                "rep": parts[4],
+                "count": parts[5],
+                "deleted": parts[6],
+                "size": parts[7],
+                "prisize": parts[8]
               };
             }
           }
