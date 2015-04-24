@@ -18,7 +18,7 @@
         "language": "da",
         "country": "DK",
         "default_analyzer": "string_index",
-        "sort": false,
+        "sort": true,
         "indexable": true
       }
     ],
