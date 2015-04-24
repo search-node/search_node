@@ -11,6 +11,15 @@
         "default_analyzer": "string_index",
         "sort": true,
         "indexable": true
+      },
+      {
+        "field": "name",
+        "type": "string",
+        "language": "da",
+        "country": "DK",
+        "default_analyzer": "string_index",
+        "sort": false,
+        "indexable": true
       }
     ],
     "dates": [ "created_at", "updated_at" ]
