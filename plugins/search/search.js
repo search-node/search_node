@@ -336,33 +336,24 @@ module.exports = function (options, imports, register) {
 
   /**
    * Remove document from the backend.
-   *
-   * @param data
-   *
-   * @TODO: explain the data format { ???? }.
    */
-  Search.prototype.remove = function remove(data) {
+  Search.prototype.remove = function remove() {
     var self = this;
 
     // Log request to the debugger.
-    self.logger.debug('Search: Remove request from: ' + self.index + ' with type: ' + self.type);
+    self.logger.debug('Search: Remove request from: ' + self.index + ' with type: ' + self.type + ' and id:' + self.id);
 
     // Remove content.
-    self.es.deleteByQuery({
+    self.es.delete({
       "index": self.index,
-      "body": {
-        "query": {
-          "term": {
-            "id": data.id
-          }
-        }
-      }
+      "type": self.type,
+      "id": self.id
     }, function (err, response, status) {
       if (status === 200) {
-        self.emit('removed', { 'id' : data.id });
+        self.emit('removed', { 'id' : self.id });
       }
       else {
-        self.emit('error', { 'id' : data.id, 'status': status, 'res' : response});
+        self.emit('error', { 'id' : self.id, 'status': status, 'res' : response});
       }
     });
   };
