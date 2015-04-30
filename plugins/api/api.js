@@ -93,7 +93,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
    */
   app.delete('/api', function (req, res) {
     self.validateCall(req, res).then(function (resolved) {
-      var instance = new Search(req.body.index, req.body.type);
+      var instance = new Search(req.body.index, req.body.type, req.body.id);
 
       // Handle completed
       instance.once('removed', function (data) {
@@ -108,7 +108,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
       });
 
       // Send the request.
-      instance.remove(req.body.data);
+      instance.remove();
     });
   });
 
