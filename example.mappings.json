@@ -1,6 +1,7 @@
 {
    "abcd0987654321": {
     "name": "Indholdskanalen",
+    "tag": "private",
     "fields": [
       {
         "field": "title",
@@ -8,7 +9,38 @@
         "language": "da",
         "country": "DK",
         "default_analyzer": "string_index",
-        "sort": true
+        "sort": true,
+        "indexable": true
+      },
+      {
+        "field": "name",
+        "type": "string",
+        "language": "da",
+        "country": "DK",
+        "default_analyzer": "string_index",
+        "sort": true,
+        "indexable": true
+      }
+    ],
+    "dates": [ "created_at", "updated_at" ]
+  },
+  "shared": {
+    "name": "Shared",
+    "tag": "shared",
+    "fields": [
+      {
+        "field": "title",
+        "type": "string",
+        "language": "da",
+        "country": "DK",
+        "default_analyzer": "string_index",
+        "sort": true,
+        "indexable": true
+      },
+      {
+        "field": "slides",
+        "indexable": false,
+        "type": "object"
       }
     ],
     "dates": [ "created_at", "updated_at" ]

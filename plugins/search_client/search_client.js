@@ -25,9 +25,9 @@ module.exports = function (options, imports, register) {
      */
     socket.on('search', function(data) {
 
-      // @TODO: Check that customer_id and type exists in the data.
+      // @TODO: Check that index and type exists in the data.
       // Create new search instance.
-      var instance = new imports.search(data.customer_id, data.type);
+      var instance = new imports.search(data.index, data.type);
 
       // Handle completed query.
       instance.once('hits', function (hits) {
@@ -37,13 +37,17 @@ module.exports = function (options, imports, register) {
 
       // Handle errors in the search.
       instance.once('error', function (data) {
-        logger.error(data);
+        // Log error.
+        logger.error('Search error: ' + data.message);
+
+        // Send error to client.
+        socket.emit('searchError', data);
       });
 
       // Remove customer ID and type.
       // @todo: finder better way to get customer id, store it in socket
       // connection.
-      delete data.customer_id;
+      delete data.index;
       delete data.type;
 
       // Send the query.

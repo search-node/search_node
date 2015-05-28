@@ -1,18 +1,14 @@
 {
-  "name": "API",
-  "description": "Provides reset API to index data",
+  "name": "Admin",
+  "description": "Provides reset API for the administration interface",
   "version": "0.0.1",
-  "main": "api.js",
+  "main": "admin.js",
   "private": true,
-  "dependencies": {
-    "q": "^1.1.2"
-  },
   "plugin": {
     "consumes": [
       "app",
       "logger",
       "search",
-      "auth",
       "apikeys",
       "mappings"
     ]
