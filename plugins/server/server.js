@@ -15,14 +15,19 @@ module.exports = function (options, imports, register) {
   // Start the express app.
   var app = express();
 
+  // Connect middleware extension.
+  var bodyParser = require('body-parser');
+  var favicon = require('serve-favicon');
+  var morgan = require('morgan')
+
   // Start the http server.
   var server = http.createServer(app);
 
   // Set express app configuration.
   app.set('port', options.port || 3000);
-  app.use(express.favicon());
-  app.use(express.urlencoded());
-  app.use(express.json());
+  app.use(favicon(__dirname + '../../../public/favicon.ico'));
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.json());
 
   // Enable route.
   var route = options.route || false;
@@ -41,10 +46,8 @@ module.exports = function (options, imports, register) {
   });
 
   // Log express requests.
-  app.use(express.logger({
-    stream: {
-      write: logger.info
-    }
+  app.use(morgan('combined', {
+    stream: logger.info
   }));
 
   // Register exposed function with architect.

@@ -5,7 +5,8 @@
   "main": "api.js",
   "private": true,
   "dependencies": {
-    "q": "^1.4.1"
+    "q": "^1.4.1",
+    "express-jwt": "^3.0.1"
   },
   "plugin": {
     "consumes": [

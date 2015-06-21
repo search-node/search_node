@@ -14,46 +14,49 @@
  *
  * @constructor
  */
-var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
+var Admin = function Admin(options, app, logger, search, apikeys, mappings, options) {
   "use strict";
 
   var self = this;
   this.logger = logger;
 
+    // Get express JWT to validate access.
+  this.expressJwt = require('express-jwt');
+
   /**
    * Default get request.
    */
-  app.get('/api/admin', function (req, res) {
+  app.get('/api/admin', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       res.send('Please see documentation about using this administration api.');
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Get API keys.
    */
-  app.get('/api/admin/keys', function (req, res) {
+  app.get('/api/admin/keys', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       apikeys.load().then(
         function (keys) {
           res.json(keys);
         }, function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Get single API key.
    */
-  app.get('/api/admin/key/:key', function (req, res) {
+  app.get('/api/admin/key/:key', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       // Get info about API keys.
       apikeys.get(req.params.key).then(
@@ -62,22 +65,22 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
             res.json(info);
           }
           else {
-            res.send('The API key was not found.', 404);
+            res.status(404).send('The API key was not found.');
           }
         }, function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Update API key.
    */
-  app.put('/api/admin/key/:key', function (req, res) {
+  app.put('/api/admin/key/:key', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       var info = req.body.api;
       var key = req.params.key;
@@ -87,44 +90,44 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
 
       apikeys.update(key, info).then(
         function (status) {
-          res.send('API key "' + key + '" have been updated.', 200);
+          res.send('API key "' + key + '" have been updated.');
         },
         function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Delete API keys.
    */
-  app.delete('/api/admin/key/:key', function (req, res) {
+  app.delete('/api/admin/key/:key', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       var key = req.params.key;
 
       // Remove API key.
       apikeys.remove(key).then(
         function (status) {
-          res.send('API key "' + key + '" have been removed.', 200);
+          res.send('API key "' + key + '" have been removed.');
         },
         function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Add API key.
    */
-  app.post('/api/admin/key', function (req, res) {
+  app.post('/api/admin/key', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       var info = req.body.api;
       var key = req.body.api.key;
@@ -135,22 +138,22 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
       // Add API key.
       apikeys.add(key, info).then(
         function (status) {
-          res.send('API key "' + key + '" have been added.', 200);
+          res.send('API key "' + key + '" have been added.');
         },
         function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Get search indexes.
    */
-  app.get('/api/admin/indexes', function (req, res) {
+  app.get('/api/admin/indexes', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
 
       // Send response back when search engine have the results.
@@ -162,24 +165,24 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
       search.getIndexes();
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Delete index.
    */
-  app.delete('/api/admin/index/:index', function (req, res) {
+  app.delete('/api/admin/index/:index', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       var index = req.params.index;
 
       // Send response back when search engine have removed the index.
       search.once('removed', function (status) {
         if (status) {
-          res.send('The index "' + index + '" have been removed from the search engine.', 200);
+          res.send('The index "' + index + '" have been removed from the search engine.');
         }
         else {
-          res.send('The index "' + index + '" could not be removed.', 500);
+          res.status(500).send('The index "' + index + '" could not be removed.');
         }
       });
 
@@ -187,14 +190,14 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
       search.removeIndex(index);
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Flush indexes (remove an re-add it).
    */
-  app.get('/api/admin/index/:index/flush', function (req, res) {
+  app.get('/api/admin/index/:index/flush', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       var index = req.params.index;
 
@@ -203,12 +206,12 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
         if (status) {
           // Listen to the created index event.
           search.once('indexCreated', function (data) {
-            res.send('The index "' + index + '" have been flushed.', 200);
+            res.send('The index "' + index + '" have been flushed.');
           });
           search.addIndex(index);
         }
         else {
-          res.send('The index "' + index + '" could not be flushed.', 500);
+          res.status(500).send('The index "' + index + '" could not be flushed.');
         }
       });
 
@@ -216,57 +219,57 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
       search.removeIndex(index);
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Activate indexes (add configured mapping).
    */
-  app.get('/api/admin/index/:index/activate', function (req, res) {
+  app.get('/api/admin/index/:index/activate', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       var index = req.params.index;
 
       // Listen to the created index event.
       search.once('indexCreated', function (data) {
-        res.send('The index "' + index + '" have been activated.', 200);
+        res.send('The index "' + index + '" have been activated.');
       });
 
       // Listen to errors.
       search.once('indexNotCreated', function () {
-        res.send('The index "' + index + '" have not been activated.', 500);
+        res.status(500).send('The index "' + index + '" have not been activated.');
       });
 
       search.addIndex(index);
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Get mappings.
    */
-  app.get('/api/admin/mappings', function (req, res) {
+  app.get('/api/admin/mappings', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       mappings.load().then(
         function (mappings) {
           res.json(mappings);
         },
         function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Get mapping configuration for an index.
    */
-  app.get('/api/admin/mapping/:index', function (req, res) {
+  app.get('/api/admin/mapping/:index', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       var index = req.params.index;
 
@@ -277,81 +280,81 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
             res.json(info);
           }
           else {
-            res.send('The index "' + index + '" was not found in mappings configuration on the server.', 404);
+            res.status(404).send('The index "' + index + '" was not found in mappings configuration on the server.');
           }
         },
         function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Create new mapping configuration.
    */
-  app.post('/api/admin/mapping/:index', function (req, res) {
+  app.post('/api/admin/mapping/:index', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       var index = req.params.index;
       var mapping = req.body;
 
       mappings.add(index, mapping).then(
         function (status) {
-          res.send('Mappings for the index "' + index + '" have been created.', 200);
+          res.send('Mappings for the index "' + index + '" have been created.');
         },
         function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Update mappings configuration.
    */
-  app.put('/api/admin/mapping/:index', function (req, res) {
+  app.put('/api/admin/mapping/:index', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       var index = req.params.index;
       var mapping = req.body;
 
       mappings.update(index, mapping).then(
         function (status) {
-          res.send('Mappings for the index "' + index + '" have been updated.', 200);
+          res.send('Mappings for the index "' + index + '" have been updated.');
         },
         function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 
   /**
    * Delete mapping from configuration.
    */
-  app.delete('/api/admin/mapping/:index', function (req, res) {
+  app.delete('/api/admin/mapping/:index', this.expressJwt({"secret": options.secret}), function (req, res) {
     if (self.validateCall(req)) {
       var index = req.params.index;
 
       mappings.remove(index).then(
         function (status) {
-          res.send('Mappings for the index "' + index + '" have been removed.', 200);
+          res.send('Mappings for the index "' + index + '" have been removed.');
         },
         function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
     else {
-      res.send('You do not have the right role.', 401);
+      res.status(401).send('You do not have the right role.');
     }
   });
 };
@@ -378,7 +381,7 @@ module.exports = function (options, imports, register) {
   var instance = new imports.search('', '');
 
   // Create the API routes using the API object.
-  var admin = new Admin(options, imports.app, imports.logger, instance, imports.apikeys, imports.mappings);
+  var admin = new Admin(options, imports.app, imports.logger, instance, imports.apikeys, imports.mappings, options);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);

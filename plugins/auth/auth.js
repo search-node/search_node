@@ -27,7 +27,7 @@ module.exports = function (options, imports, register) {
    */
   app.post('/authenticate', function (req, res, next) {
     if (!req.body.hasOwnProperty('apikey')) {
-      res.send("API key not found in the request.", 404);
+      res.status(404).send('API key not found in the request.');
     }
     else {
       // Load keys.
@@ -52,11 +52,11 @@ module.exports = function (options, imports, register) {
             res.json({'token': token});
           }
           else {
-            res.send('API key could not be validated.', 401);
+            res.status(401).send('API key could not be validated.');
           }
         },
         function (error) {
-          res.send(error.message, 500);
+          res.status(500).send(error.message);
         }
       );
     }
@@ -67,7 +67,7 @@ module.exports = function (options, imports, register) {
    */
   app.post('/login', function (req, res, next) {
     if (!req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')) {
-      res.send("Credentials not found in the request.", 404);
+      res.status(404).send('Credentials not found in the request.');
     }
     else {
       if (req.body.username == options.admin.username && req.body.password == options.admin.password) {
@@ -82,7 +82,7 @@ module.exports = function (options, imports, register) {
         });
       }
       else {
-        res.send('Credentials could not be validated.', 401);
+        res.status(401).send('Credentials could not be validated.');
       }
     }
   });

@@ -15,7 +15,7 @@ var Q = require('q');
  *
  * @constructor
  */
-var API = function (app, logger, Search, apikeys, mappings) {
+var API = function (app, logger, Search, apikeys, mappings, options) {
   "use strict";
 
   var self = this;
@@ -27,6 +27,9 @@ var API = function (app, logger, Search, apikeys, mappings) {
   // Store link to mappings.
   this.mappings = mappings;
 
+  // Get express JWT to validate access.
+  this.expressJwt = require('express-jwt');
+
   /**
    * Default get request.
    */
@@ -37,7 +40,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
   /**
    * Add content to the search index.
    */
-  app.post('/api', function (req, res) {
+  app.post('/api', this.expressJwt({"secret": options.secret}), function (req, res) {
     self.validateCall(req, res).then(function (resolved) {
       // Added the data to the search index (a side effect is that a new
       // index maybe created.). The id may not be given and is hence undefined.
@@ -46,14 +49,14 @@ var API = function (app, logger, Search, apikeys, mappings) {
       instance.on('created', function (data) {
         self.logger.debug('Content added: status ' + data.status + ' : ' + data.index);
 
-        res.send('Content have been added.', 201);
+        res.status(201).send('Content have been added.');
       });
 
       instance.on('error', function (data) {
         self.logger.error('Error in add content: status ' + data.status + ' : ' +  require('util').inspect(data.res, true, 10));
 
         // Send error back to client.
-        res.send('Content have not been added.', data.status);
+        res.status(data.status).send('Content have not been added.');
       });
 
       // Add the content.
@@ -64,7 +67,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
   /**
    * Update content to the search index.
    */
-  app.put('/api', function (req, res) {
+  app.put('/api', this.expressJwt({"secret": options.secret}), function (req, res) {
     self.validateCall(req, res).then(function (resolved) {
       // Update the data in the search index (a side effect is that a new
       // index maybe created.).
@@ -74,13 +77,13 @@ var API = function (app, logger, Search, apikeys, mappings) {
       instance.on('updated', function (data) {
         self.logger.debug('Content updated: status ' + data.status + ' : ' + data.index);
 
-        res.send('Content have been updated.', 200);
+        res.send('Content have been updated.');
       });
 
       // On error event.
       instance.on('error', function (data) {
         self.logger.error('Error in add content: status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
-        res.send(data.status, 500);
+        res.status(500).send(data.status);
       });
 
       // Add the content.
@@ -91,20 +94,20 @@ var API = function (app, logger, Search, apikeys, mappings) {
   /**
    * Remove content from the search index.
    */
-  app.delete('/api', function (req, res) {
+  app.delete('/api', this.expressJwt({"secret": options.secret}), function (req, res) {
     self.validateCall(req, res).then(function (resolved) {
       var instance = new Search(req.body.index, req.body.type, req.body.id);
 
       // Handle completed
       instance.once('removed', function (data) {
         // Send back the id of the element that have been removed.
-        res.send(data.id, 200);
+        res.send(data.id);
       });
 
       // Handle errors in the request.
       instance.once('error', function (data) {
         self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
-        res.send(data.status, 500);
+        res.status(500).send(data.status);
       });
 
       // Send the request.
@@ -115,7 +118,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
   /**
    * List indexes for the currently logged in user.
    */
-  app.get('/api/indexes', function (req, res) {
+  app.get('/api/indexes', this.expressJwt({"secret": options.secret}), function (req, res) {
     self.apikeys.get(req.user.apikey).then(
       function (info) {
         if (info) {
@@ -138,16 +141,16 @@ var API = function (app, logger, Search, apikeys, mappings) {
               res.json(indexes);
             },
             function (error) {
-              res.send(error.message, 500);
+              res.status(500).send(error.message);
             }
           );
         }
         else {
-          res.send('API key was not found.', 404);
+          res.status(404).send('API key was not found.');
         }
       },
       function (error) {
-        res.send(error.message, 500);
+        res.status(500).send(error.message);
       }
     );
   });
@@ -155,7 +158,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
   /**
    * Search request to the search engine.
    */
-  app.post('/api/search', function (req, res) {
+  app.post('/api/search', this.expressJwt({"secret": options.secret}), function (req, res) {
     self.validateCall(req, res).then(function (resolved) {
       var instance = new Search(req.body.index, req.body.type);
 
@@ -167,7 +170,7 @@ var API = function (app, logger, Search, apikeys, mappings) {
       // Handle errors in the search.
       instance.once('error', function (data) {
         self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
-        res.send(data.status, 500);
+        res.status(500).send(data.status);
       });
 
       // Send the query.
@@ -206,23 +209,23 @@ API.prototype.validateCall = function validateCall(req, res) {
           }
           else {
             // Index not found, access denied.
-            res.send('Access denied index not allowed.', 401);
+            res.status(401).send('Access denied index not allowed.');
             deferred.reject(false);
           }
         }
         else {
-          res.send('API key was not found.', 404);
+          res.status(404).send('API key was not found.');
           deferred.reject(false);
         }
       },
       function (error) {
-        res.send(error.message, 500);
+        res.status(500).send(error.message);
         deferred.reject(false);
       }
     );
   }
   else {
-    res.send('Missing parameters in the request, please see the log for more information', 500);
+    res.status(500).send('Missing parameters in the request, please see the log for more information');
 
     deferred.reject(false);
   }
@@ -237,7 +240,7 @@ module.exports = function (options, imports, register) {
   "use strict";
 
   // Create the API routes using the API object.
-  var api = new API(imports.app, imports.logger, imports.search, imports.apikeys, imports.mappings);
+  var api = new API(imports.app, imports.logger, imports.search, imports.apikeys, imports.mappings, options);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);
