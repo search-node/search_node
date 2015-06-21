@@ -5,7 +5,7 @@
   "main": "api.js",
   "private": true,
   "dependencies": {
-    "q": "^1.1.2"
+    "q": "^1.4.1"
   },
   "plugin": {
     "consumes": [

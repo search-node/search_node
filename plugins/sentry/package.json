@@ -5,7 +5,7 @@
   "main": "sentry.js",
   "private": true,
   "dependencies": {
-    "raven": "0.7.x"
+    "raven": "0.8.x"
   },
   "plugin": {
     "consumes": [
