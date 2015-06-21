@@ -14,7 +14,7 @@
  *
  * @constructor
  */
-var Admin = function Admin(options, app, logger, search, apikeys, mappings, options) {
+var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
   "use strict";
 
   var self = this;
@@ -381,7 +381,7 @@ module.exports = function (options, imports, register) {
   var instance = new imports.search('', '');
 
   // Create the API routes using the API object.
-  var admin = new Admin(options, imports.app, imports.logger, instance, imports.apikeys, imports.mappings, options);
+  var admin = new Admin(options, imports.app, imports.logger, instance, imports.apikeys, imports.mappings);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);
