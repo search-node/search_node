@@ -23,6 +23,13 @@ module.exports = function (options, imports, register) {
   // Start the http server.
   var server = http.createServer(app);
 
+  // Log express requests.
+  app.use(morgan('combined', {
+    "stream": {
+      "write": logger.info
+    }
+  }));
+
   // Set express app configuration.
   app.set('port', options.port || 3000);
   app.use(favicon(__dirname + '../../../public/favicon.ico'));
@@ -44,11 +51,6 @@ module.exports = function (options, imports, register) {
   server.listen(app.get('port'), function () {
     logger.debug('Express server with socket.io is listening on port ' + app.get('port'));
   });
-
-  // Log express requests.
-  app.use(morgan('combined', {
-    stream: logger.info
-  }));
 
   // Register exposed function with architect.
   register(null, {
