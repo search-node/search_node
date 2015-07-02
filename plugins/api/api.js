@@ -12,6 +12,8 @@ var Q = require('q');
  * @param logger
  * @param Search
  * @param apikeys
+ * @param mappings
+ * @param options
  *
  * @constructor
  */
@@ -41,7 +43,7 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
    * Add content to the search index.
    */
   app.post('/api', this.expressJwt({"secret": options.secret}), function (req, res) {
-    self.validateCall(req, res).then(function (resolved) {
+    self.validateCall(req, res, 'rw').then(function (resolved) {
       // Added the data to the search index (a side effect is that a new
       // index maybe created.). The id may not be given and is hence undefined.
       var instance = new Search(req.body.index, req.body.type, req.body.id);
@@ -68,7 +70,7 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
    * Update content to the search index.
    */
   app.put('/api', this.expressJwt({"secret": options.secret}), function (req, res) {
-    self.validateCall(req, res).then(function (resolved) {
+    self.validateCall(req, res, 'rw').then(function (resolved) {
       // Update the data in the search index (a side effect is that a new
       // index maybe created.).
       var instance = new Search(req.body.index, req.body.type, req.body.id);
@@ -95,7 +97,7 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
    * Remove content from the search index.
    */
   app.delete('/api', this.expressJwt({"secret": options.secret}), function (req, res) {
-    self.validateCall(req, res).then(function (resolved) {
+    self.validateCall(req, res, 'rw').then(function (resolved) {
       var instance = new Search(req.body.index, req.body.type, req.body.id);
 
       // Handle completed
@@ -159,7 +161,7 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
    * Search request to the search engine.
    */
   app.post('/api/search', this.expressJwt({"secret": options.secret}), function (req, res) {
-    self.validateCall(req, res).then(function (resolved) {
+    self.validateCall(req, res, 'r').then(function (resolved) {
       var instance = new Search(req.body.index, req.body.type);
 
       // Handle completed query.
@@ -186,11 +188,13 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
  *   The request from the express.
  * @param res
  *   The response to express.
+ * @param perm
+ *   The permission required: "rw" or "r".
  *
  * @returns {*}
  *   Promise that either will resolve if valid else reject.
  */
-API.prototype.validateCall = function validateCall(req, res) {
+API.prototype.validateCall = function validateCall(req, res, perm) {
   "use strict";
 
   var deferred = Q.defer();
@@ -203,14 +207,21 @@ API.prototype.validateCall = function validateCall(req, res) {
         if (info) {
           var indexes = info.indexes;
 
-          // Check that the index is in the API keys configuration.
-          if (indexes.indexOf(req.body.index) !== -1) {
-            deferred.resolve(true);
+          // Check required access.
+          if (perm != info.access) {
+            res.status(401).send('Access denied.');
+            deferred.reject(false);
           }
           else {
-            // Index not found, access denied.
-            res.status(401).send('Access denied index not allowed.');
-            deferred.reject(false);
+            // Check that the index is in the API keys configuration.
+            if (indexes.indexOf(req.body.index) !== -1) {
+              deferred.resolve(true);
+            }
+            else {
+              // Index not found, access denied.
+              res.status(401).send('Access denied index not allowed.');
+              deferred.reject(false);
+            }
           }
         }
         else {
