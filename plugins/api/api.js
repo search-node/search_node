@@ -118,6 +118,59 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
   });
 
   /**
+   * Flush content from the search index.
+   */
+  app.delete('/api/:index/flush', this.expressJwt({"secret": options.secret}), function (req, res) {
+    // Check that the index is allowed based on the API key for the currently logged in user.
+    self.apikeys.get(req.user.apikey).then(
+      function (info) {
+        if (info) {
+          var indexes = info.indexes;
+
+          // Check required access.
+          if (info.access != 'rw') {
+            res.status(401).send('Access denied.');
+          }
+          else {
+            // Check that the index is in the API keys configuration.
+            var index = req.params.index
+            if (indexes.indexOf(index) !== -1) {;
+              var instance = new Search(index, '', '');
+
+              // Send response back when search engine have removed the index.
+              instance.once('removed', function (status) {
+                if (status) {
+                  // Listen to the created index event.
+                  instance.once('indexCreated', function (data) {
+                    res.status(200).send('The index "' + index + '" have been flushed.');
+                  });
+                  instance.addIndex(index);
+                }
+                else {
+                  res.status(500).send('The index "' + index + '" could not be flushed.');
+                }
+              });
+
+              // Request to remove the index.
+              instance.removeIndex(index);
+            }
+            else {
+              // Index not found, access denied.
+              res.status(401).send('Access denied index not allowed.');
+            }
+          }
+        }
+        else {
+          res.status(404).send('API key was not found.');
+        }
+      },
+      function (error) {
+        res.status(500).send(error.message);
+      }
+    );
+  });
+
+  /**
    * List indexes for the currently logged in user.
    */
   app.get('/api/indexes', this.expressJwt({"secret": options.secret}), function (req, res) {
