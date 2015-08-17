@@ -263,7 +263,7 @@ module.exports = function (options, imports, register) {
     this.index = index;
     this.type = type;
     this.id = id;
-    
+
     // Connection to Elasticsearch.
     this.es = global_es;
 
@@ -422,6 +422,37 @@ module.exports = function (options, imports, register) {
       }
     );
   };
+
+  /**
+   * Preform count query against the search engine.
+   *
+   * @param data
+   *   The data that should be queried base on.
+   */
+  Search.prototype.count = function count(data) {
+    var self = this;
+
+    // Log request to the debugger.
+    self.logger.info('Search: Count query request in: ' + self.index + ' with type: ' + self.type);
+
+    // Add the sort search query.
+    var search_query = {
+      "searchType": 'count',
+      "type": self.type,
+      "index": self.index,
+      "body": data
+    };
+
+    // Execute the search count query.
+    self.es.search(search_query).then(function (resp) {
+      // Emit counts (aggregations).
+      self.emit('counts', resp.aggregations);
+    },
+    function (error) {
+      console.log(error);
+      self.emit('error', { message: error.message });
+    });
+  }
 
   /**
    * Get indexes available on the server.
