@@ -397,10 +397,16 @@ module.exports = function (options, imports, register) {
           // Execute the search.
         self.es.search(search_query).then(function (resp) {
           var hits = [];
+          var aggregations = [];
           if (resp.hits.total > 0) {
             // We got hits, return only _source.
             for (var hit in resp.hits.hits) {
               hits.push(resp.hits.hits[hit]._source);
+            }
+
+            // Get aggregations.
+            if (resp.hasOwnProperty('aggregations')) {
+              aggregations = resp.aggregations;
             }
 
             // Log number of hits found.
@@ -410,7 +416,8 @@ module.exports = function (options, imports, register) {
           // Emit hits.
           self.emit('hits', {
             'hits': resp.hits.total,
-            'results': hits
+            'results': hits,
+            'aggs': aggregations
           });
         },
         function (error) {
