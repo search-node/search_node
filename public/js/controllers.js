@@ -355,10 +355,6 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
                 $scope.message = data;
                 $scope.messageClass = 'alert-success';
 
-                /**
-                 * @TODO: Reload the index at the server.
-                 */
-
                 // Reload indexes.
                 loadIndexes();
 
@@ -408,6 +404,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
               "country": "DK",
               "language": "da",
               "default_analyzer": "string_index",
+              "default_indexer": "analysed",
               "sort": false
             });
           };

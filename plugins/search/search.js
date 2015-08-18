@@ -52,8 +52,15 @@ module.exports = function (options, imports, register) {
         }
       };
 
+      if (map.hasOwnProperty('default_indexer')) {
+        field["field_" + map.field].mapping.index = map.default_indexer;
+      }
+
       // Add field default analyzer (eg. ngram string indexer).
       if (map.hasOwnProperty('default_analyzer')) {
+        field["field_" + map.field].mapping.analyzer = map.default_analyzer;
+      }
+      else {
         field["field_" + map.field].mapping.analyzer = 'string_index';
       }
 
@@ -456,7 +463,6 @@ module.exports = function (options, imports, register) {
       self.emit('counts', resp.aggregations);
     },
     function (error) {
-      console.log(error);
       self.emit('error', { message: error.message });
     });
   }

@@ -84,21 +84,27 @@
           <input type="text" class="form-control" id="field-language-{{ $index }}" placeholder="Language code" data-ng-model="mapping.fields[$index].language">
         </div>
       </div>
+
       <div class="form-group">
-        <label class="control-label col-xs-2" for="field-default_analyzer-{{ $index }}">Default analyzer</label>
+        <label class="control-label col-xs-2" for="field-default_indexer-{{ $index }}">Default indexer</label>
 
         <div class="col-xs-10">
-          <input type="text" class="form-control" id="field-language-{{ $index }}" placeholder="Default analyzer" data-ng-model="mapping.fields[$index].default_analyzer">
+          <select class="form-control" id="field-default_indexer-{{ $index }}" data-ng-model="mapping.fields[$index].default_indexer">
+            <option value="analyzed">Analyzed</option>
+            <option value="not_analyzed">Not analyzed</option>
+          </select>
         </div>
       </div>
-      <div class="form-group">
-        <label class="control-label col-xs-2" for="field-sort-{{ $index }}">Sortable</label>
 
-        <div class="col-xs-10">
-          <label class="radio-inline"><input type="radio" name="field-sort-{{ $index }}" data-ng-model="mapping.fields[$index].sort" data-ng-checked="mapping.fields[$index].sort == 'true'" data-ng-value="true">True</label>
-          <label class="radio-inline"><input type="radio" name="field-sort-{{ $index }}" data-ng-model="mapping.fields[$index].sort" data-ng-checked="mapping.fields[$index].sort == 'false'" data-ng-value="false">False</label>
+      <span data-ng-hide="mapping.fields[$index].default_indexer === 'not_analyzed'">
+        <div class="form-group">
+          <label class="control-label col-xs-2" for="field-default_analyzer-{{ $index }}">Default analyzer</label>
+
+          <div class="col-xs-10">
+            <input type="text" class="form-control" id="field-default_analyzer-{{ $index }}" placeholder="Default analyzer" data-ng-model="mapping.fields[$index].default_analyzer">
+          </div>
         </div>
-      </div>
+      </span>
     </span>
 
     <!-- Remove field  -->
