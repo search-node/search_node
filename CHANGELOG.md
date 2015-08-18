@@ -8,3 +8,4 @@
 * Added count query to socket client.
 * Fixed default analyzer.
 * Added support for default indexer
+* Fixed document update by using "index" API

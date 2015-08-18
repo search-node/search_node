@@ -48,10 +48,18 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
       // index maybe created.). The id may not be given and is hence undefined.
       var instance = new Search(req.body.index, req.body.type, req.body.id);
 
+      // New document created.
       instance.on('created', function (data) {
         self.logger.debug('Content added: status ' + data.status + ' : ' + data.index);
 
         res.status(201).send('Content have been added.');
+      });
+
+      // Updated event (if document exists it's updated).
+      instance.on('updated', function (data) {
+        self.logger.debug('Content updated: status ' + data.status + ' : ' + data.index);
+
+        res.status(data.status).send('Content have been updated.');
       });
 
       instance.on('error', function (data) {

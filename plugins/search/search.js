@@ -221,7 +221,7 @@ module.exports = function (options, imports, register) {
    *   The documents unique id.
    */
   function addContent(self, index, type, body, id) {
-    self.es.create({
+    self.es.index({
       "index": index,
       "type": type,
       "id": id,
@@ -230,6 +230,10 @@ module.exports = function (options, imports, register) {
       if (status === 201) {
         // Status "201" is created.
         self.emit('created', { 'status': status, 'index': index });
+      }
+      else if (status === 200) {
+        // Status "200" is updated.
+        self.emit('updated', { 'status': status, 'index': index })
       }
       else {
         self.emit('error', { 'status': status, 'res' : response});
@@ -321,24 +325,8 @@ module.exports = function (options, imports, register) {
   Search.prototype.update = function update(doc) {
     var self = this;
 
-    // Log request to the debugger.
-    self.logger.debug('Search: Update request for: ' + self.index + ' with type: ' + self.type);
-
-    self.es.update({
-      "index": self.index,
-      "type": self.type,
-      "id": self.id,
-      "body": {
-        "doc": doc
-      }
-    }, function (err, response, status) {
-      if (status === 200) {
-        self.emit('updated', { 'status': status, 'index': self.index });
-      }
-      else {
-        self.emit('error', { 'status': status, 'res' : response});
-      }
-    });
+    // Simply call the add function as it will update the document.
+    self.add(doc);
   };
 
   /**
