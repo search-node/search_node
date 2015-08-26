@@ -56,7 +56,7 @@ ApiKeys.prototype.save = function save() {
 
   // Check that api-keys have been load first.
   if (this.keys !== null) {
-    jf.writeFile(this.file, this.keys, function (error) {
+    jf.writeFile(this.file, this.keys, {spaces: 2}, function (error) {
       if (error) {
         deferred.reject(new Error(error));
       }
