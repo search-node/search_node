@@ -236,6 +236,13 @@ module.exports = function (options, imports, register) {
         self.emit('updated', { 'status': status, 'index': index })
       }
       else {
+        if (status === undefined) {
+          status = 500;
+          response = {
+            "message": err
+          };
+        }
+
         self.emit('error', { 'status': status, 'res' : response});
       }
     });

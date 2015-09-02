@@ -66,7 +66,12 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
         self.logger.error('Error in add content: status ' + data.status + ' : ' +  require('util').inspect(data.res, true, 10));
 
         // Send error back to client.
-        res.status(data.status).send('Content have not been added.');
+        if (data.hasOwnProperty('message')) {
+          res.status(data.status).send(data.message);
+        }
+        else {
+          res.status(data.status).send('Content have not been added.');
+        }
       });
 
       // Add the content.
