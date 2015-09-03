@@ -34,7 +34,6 @@ module.exports = function (options, imports, register) {
       // Disable analyse and indexing this field.
       field["field_" + map.field] = {
         "match": map.field,
-        "match_pattern": 'regex',
         "match_mapping_type": map.type,
         "mapping": {
           "type": map.type,
@@ -45,7 +44,6 @@ module.exports = function (options, imports, register) {
     else {
       field["field_" + map.field] = {
         "match": map.field,
-        "match_pattern": 'regex',
         "match_mapping_type": map.type,
         "mapping": {
           "type": map.type
@@ -396,7 +394,7 @@ module.exports = function (options, imports, register) {
          * @TODO: Validate the search JSON request for safety reasons.
          */
 
-          // Execute the search.
+        // Execute the search.
         self.es.search(search_query).then(function (resp) {
           var hits = [];
           var aggregations = [];

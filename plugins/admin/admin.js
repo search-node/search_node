@@ -240,6 +240,10 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
         res.status(500).send('The index "' + index + '" have not been activated.');
       });
 
+      search.once('error', function(error) {
+        res.status(error.status).send(error.message);
+      });
+
       search.addIndex(index);
     }
     else {

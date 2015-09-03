@@ -25,7 +25,11 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
     $http({method: method, url: uri}).
       success(function(data, status, headers, config) {
         if (status !== 200) {
-          deferred.reject(status);
+          deferred.reject(deferred.reject({
+            'status': status,
+            'message': 'Error happend at search backend with status (' + status + ').'
+          }));
+          return;
         }
 
         // Resolve promise an return data.
@@ -60,7 +64,11 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
     $http({ "method": method, "url": uri, "data": data }).
       success(function(data, status, headers, config) {
         if (status !== 200) {
-          deferred.reject(status);
+          deferred.reject(deferred.reject({
+            'status': status,
+            'message': 'Error happend at search backend with status (' + status + ').'
+          }));
+          return;
         }
         // Resolve promise.
         deferred.resolve(data);
