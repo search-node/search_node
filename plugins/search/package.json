@@ -5,7 +5,7 @@
   "main": "search.js",
   "private": true,
   "dependencies": {
-    "elasticsearch": "5.0.x",
+    "elasticsearch": "8.1.x",
     "rename-keys": "^1.1.2"
   },
   "plugin": {
