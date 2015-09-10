@@ -3,13 +3,11 @@
 The guide assumes that you have an installed linux based server with the following packages installed and at least the versions given.
 
  * nginx 1.4.x
- * redis 2.8.x
  * node 0.10.x
- * elastic search 1.5.x
  * supervisor 3.x
  * Valid SSL certificates for you domain.
 
-The document also assumes that you are logged in as the user _deploy_, if this is not the case, you need to change this (e.g. the supervisor run script).
+The document also assumes that you are logged in as the user _deploy_, if this is not the case, you need to change things (e.g. the supervisor run script etc.).
 
 # Conventions
 This document uses __[]__ square brackets around the different variables in the configuration templates that needs to be exchanged with the actual values from other parts of the configuration (e.g. API keys).
@@ -32,9 +30,6 @@ Things in boxes are commands that should be executed or configuration thats need
 
 # Installation
 
-If you already have a running middleware and search node on the server you can skip the steps and just add the needed api-keys in both and add mappings in the search node.
-You can use the UI or edit the JSON files directly.
-
 __Note:__ To install the newest version (development version that's not aways stable), you should checkout the development branches in the all the cloned repositories instead of the latest version tag.
 
 ## Search node
@@ -45,7 +40,7 @@ Start by cloning the git repository for the search node and checkout the latest 
 
 <pre>
 cd /home/www
-git clone git@github.com:aroskanalen/search_node.git
+git clone git@github.com:search-node/search_node.git
 cd search_node
 git checkout [v1.x.x]
 </pre>
@@ -60,7 +55,7 @@ cd /home/www/search_node/
 
 ### Configuration
 
-We need to configure nginx to sit in front of the search node so it is accessible through normal web-ports and also proxy web-socket connections. So we add the upstream connection configuration in the nodejs configuration file used by the middleware.
+We need to configure nginx to sit in front of the search node so it is accessible through normal web-ports and also proxy web-socket connections. So we add the upstream connection configuration in a nodejs configuration file for nginx.
 
 <pre>
 sudo nano -w /etc/nginx/sites-available/nodejs
@@ -77,14 +72,14 @@ upstream nodejs_search {
 To access the search node UI and allow communication with the search node a virtual host configuration is needed. You need to change the _[server name]_ with the actual name of the server.
 
 <pre>
-sudo nano -w /etc/nginx/sites-available/search_[server name]_aroskanalen_dk
+sudo nano -w /etc/nginx/sites-available/search_[server name]
 </pre>
 
 <pre>
 server {
   listen 80;
 
-  server_name search-[server name].aroskanalen.dk;
+  server_name search-[server name];
   rewrite ^ https://$server_name$request_uri? permanent;
 
   access_log /var/log/nginx/search_access.log;
@@ -96,7 +91,7 @@ server {
 server {
   listen 443;
 
-  server_name search-[server name].aroskanalen.dk;
+  server_name search-[server name];
 
   access_log /var/log/nginx/search_access.log;
   error_log /var/log/nginx/search_error.log;
@@ -138,7 +133,8 @@ Enable the configuration by adding a symbolic links for the search node. The nod
 
 <pre>
 cd /etc/nginx/sites-enabled/
-sudo ln -s ../sites-available/search_[server name]_aroskanalen_dk
+sudo ln -s ../sites-available/nodejs
+sudo ln -s ../sites-available/search_[server name]
 sudo service nginx restart
 </pre>
 
@@ -250,3 +246,30 @@ When you have update the mappings file go back into the UI and select the indexe
 ### UI
 
 @TODO: How to use the UI to add more configuration.
+
+# Elasticsearch
+Search node used elasticsearch 1.5.x as its search engine and it needs to be installed as well.
+
+First install java that is used to run elasticsearch.
+<pre>
+sudo apt-get install openjdk-7-jre -y > /dev/null 2>&1
+</pre>
+
+Download and install the engine.
+<pre>
+sudo -i
+cd /root
+wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.5.1.deb
+dpkg -i elasticsearch-1.5.1.deb
+update-rc.d elasticsearch defaults 95 10
+</pre>
+
+To enable ICU support (unicode) please install this plugin.
+<pre>
+sudo /usr/share/elasticsearch/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.5.0 > /dev/null 2>&1
+</pre>
+
+For debuggin elasticsearch this small administration interface can come handy, but its optional.
+<pre>
+/usr/share/elasticsearch/bin/plugin -install mobz/elasticsearch-head > /dev/null 2>&1
+</pre>
