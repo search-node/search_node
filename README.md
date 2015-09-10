@@ -4,7 +4,6 @@ The guide assumes that you have an installed linux based server with the followi
 
  * nginx 1.4.x
  * node 0.10.x
- * elastic search 1.5.x
  * supervisor 3.x
  * Valid SSL certificates for you domain.
 
@@ -247,3 +246,30 @@ When you have update the mappings file go back into the UI and select the indexe
 ### UI
 
 @TODO: How to use the UI to add more configuration.
+
+# Elasticsearch
+Search node used elasticsearch 1.5.x as its search engine and it needs to be installed as well.
+
+First install java that is used to run elasticsearch.
+<pre>
+sudo apt-get install openjdk-7-jre -y > /dev/null 2>&1
+</pre>
+
+Download and install the engine.
+<pre>
+sudo -i
+cd /root
+wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.5.1.deb
+dpkg -i elasticsearch-1.5.1.deb
+update-rc.d elasticsearch defaults 95 10
+</pre>
+
+To enable ICU support (unicode) please install this plugin.
+<pre>
+sudo /usr/share/elasticsearch/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.5.0 > /dev/null 2>&1
+</pre>
+
+For debuggin elasticsearch this small administration interface can come handy, but its optional.
+<pre>
+/usr/share/elasticsearch/bin/plugin -install mobz/elasticsearch-head > /dev/null 2>&1
+</pre>
