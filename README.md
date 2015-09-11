@@ -259,8 +259,8 @@ Download and install the engine.
 <pre>
 sudo -i
 cd /root
-wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.5.1.deb
-dpkg -i elasticsearch-1.5.1.deb
+wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.1.deb
+dpkg -i elasticsearch-1.7.1.deb
 update-rc.d elasticsearch defaults 95 10
 </pre>
 
