@@ -266,10 +266,10 @@ update-rc.d elasticsearch defaults 95 10
 
 To enable ICU support (unicode) please install this plugin.
 <pre>
-sudo /usr/share/elasticsearch/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.5.0 > /dev/null 2>&1
+sudo /usr/share/elasticsearch/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.5.0
 </pre>
 
 For debuggin elasticsearch this small administration interface can come handy, but its optional.
 <pre>
-/usr/share/elasticsearch/bin/plugin -install mobz/elasticsearch-head > /dev/null 2>&1
+/usr/share/elasticsearch/bin/plugin -install mobz/elasticsearch-head
 </pre>
