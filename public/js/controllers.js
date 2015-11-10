@@ -604,7 +604,8 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
           "language": "da",
           "default_analyzer": "string_index",
           "sort": false,
-          "indexable": true
+          "indexable": true,
+          "raw": false
         });
       };
 
