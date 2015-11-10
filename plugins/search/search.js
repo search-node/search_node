@@ -82,6 +82,16 @@ module.exports = function (options, imports, register) {
           }
         };
       }
+
+      // Add raw field to use as filtering/facets.
+      if (map.hasOwnProperty('raw') && map.raw) {
+        field["field_" + map.field].mapping.fields = {
+          "raw": {
+            "type":  map.type,
+            "index": "not_analyzed"
+          }
+        };
+      }
     }
 
     // Add the new field to templates.
