@@ -9,3 +9,4 @@
 * Fixed default analyzer.
 * Added support for default indexer
 * Fixed document update by using "index" API
+* Added support for multi-field .raw
