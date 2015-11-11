@@ -5,8 +5,8 @@
   "main": "mappings.js",
   "private": true,
   "dependencies": {
-    "jsonfile": "^2.0.0",
-    "q": "^1.1.2"
+    "jsonfile": "^2.1.1",
+    "q": "^1.4.1"
   },
   "plugin": {
     "provides": [

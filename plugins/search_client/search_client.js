@@ -53,9 +53,42 @@ module.exports = function (options, imports, register) {
       // Send the query.
       instance.query(data);
     });
+
+    /**
+     * Handle search message.
+     */
+    socket.on('count', function(data) {
+
+      // @TODO: Check that index and type exists in the data.
+      // Create new search instance.
+      var instance = new imports.search(data.index, data.type);
+
+      // Handle completed query.
+      instance.once('counts', function (counts) {
+        // Send data back.
+        socket.emit('counts', counts);
+      });
+
+      // Handle errors in the search.
+      instance.once('error', function (data) {
+        // Log error.
+        logger.error('Search error: ' + data.message);
+
+        // Send error to client.
+        socket.emit('searchError', data);
+      });
+
+      // Remove customer ID and type.
+      // @todo: finder better way to get customer id, store it in socket
+      // connection.
+      delete data.index;
+      delete data.type;
+
+      // Send the count query.
+      instance.count(data);
+    });
   });
 
   // This plugin extends the socket plugin and do not provide new services.
   register(null, null);
 };
-

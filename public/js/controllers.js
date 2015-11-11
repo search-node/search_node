@@ -355,10 +355,6 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
                 $scope.message = data;
                 $scope.messageClass = 'alert-success';
 
-                /**
-                 * @TODO: Reload the index at the server.
-                 */
-
                 // Reload indexes.
                 loadIndexes();
 
@@ -408,6 +404,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
               "country": "DK",
               "language": "da",
               "default_analyzer": "string_index",
+              "default_indexer": "analysed",
               "sort": false
             });
           };
@@ -484,6 +481,75 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
         scope: scope
       });
     };
+
+    /**
+     * Copy index mappings.
+     */
+     $scope.copy = function copy(index) {
+       var scope = $scope.$new(true);
+
+       scope.title = 'Copy mappings configuration';
+       scope.message = 'This will copy the indexes configuration to a new index (but NOT the indexes content).';
+       scope.okText = 'Copy';
+
+       // Update index name.
+       var newIndex = '';
+       var name = ''
+       scope.$watch("name", function(newValue, oldValue) {
+         if (newValue.length > 0) {
+           newIndex = CryptoJS.MD5(newValue + Math.random()).toString();
+         }
+         else {
+           newIndex = '';
+         }
+       });
+
+       // Comfiramtion callback.
+       scope.confirmed = function confirmed() {
+         // Load index.
+         dataService.fetch('get', '/api/admin/mapping/' + index).then(
+           function (data) {
+             // Copy mapping information.
+             var mapping = angular.copy(data);
+             mapping.name = scope.name;
+
+             // Save it at the server.
+             dataService.send('post', '/api/admin/mapping/' + newIndex, mapping).then(
+               function (data) {
+                 $scope.message = data;
+                 $scope.messageClass = 'alert-success';
+
+                 // Reload indexes.
+                 loadIndexes();
+
+                 // Close overlay.
+                 overlay.close();
+               },
+               function (reason) {
+                 $scope.message = reason.message;
+                 $scope.messageClass = 'alert-danger';
+
+                 // Close overlay.
+                 overlay.close();
+               }
+             );
+           },
+           function (reason) {
+             $scope.message = reason.message;
+             $scope.messageClass = 'alert-danger';
+
+             // Close overlay.
+             overlay.close();
+           }
+         );
+       };
+
+       // Open the overlay.
+       var overlay = ngOverlay.open({
+         template: "views/copyConfirm.html",
+         scope: scope
+       });
+     };
 
     /**
      * Delete index callback.
@@ -607,7 +673,8 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
           "language": "da",
           "default_analyzer": "string_index",
           "sort": false,
-          "indexable": true
+          "indexable": true,
+          "raw": false
         });
       };
 

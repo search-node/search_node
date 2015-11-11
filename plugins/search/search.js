@@ -34,7 +34,6 @@ module.exports = function (options, imports, register) {
       // Disable analyse and indexing this field.
       field["field_" + map.field] = {
         "match": map.field,
-        "match_pattern": 'regex',
         "match_mapping_type": map.type,
         "mapping": {
           "type": map.type,
@@ -45,15 +44,21 @@ module.exports = function (options, imports, register) {
     else {
       field["field_" + map.field] = {
         "match": map.field,
-        "match_pattern": 'regex',
         "match_mapping_type": map.type,
         "mapping": {
           "type": map.type
         }
       };
 
+      if (map.hasOwnProperty('default_indexer') && map.default_indexer !== '') {
+        field["field_" + map.field].mapping.index = map.default_indexer;
+      }
+
       // Add field default analyzer (eg. ngram string indexer).
-      if (map.hasOwnProperty('default_analyzer')) {
+      if (map.hasOwnProperty('default_analyzer') && map.default_analyzer !== '') {
+        field["field_" + map.field].mapping.analyzer = map.default_analyzer;
+      }
+      else {
         field["field_" + map.field].mapping.analyzer = 'string_index';
       }
 
@@ -74,6 +79,16 @@ module.exports = function (options, imports, register) {
           "sort": {
             "type":  map.type,
             "analyzer": analyzer
+          }
+        };
+      }
+
+      // Add raw field to use as filtering/facets.
+      if (map.hasOwnProperty('raw') && map.raw) {
+        field["field_" + map.field].mapping.fields = {
+          "raw": {
+            "type":  map.type,
+            "index": "not_analyzed"
           }
         };
       }
@@ -214,7 +229,7 @@ module.exports = function (options, imports, register) {
    *   The documents unique id.
    */
   function addContent(self, index, type, body, id) {
-    self.es.create({
+    self.es.index({
       "index": index,
       "type": type,
       "id": id,
@@ -224,7 +239,18 @@ module.exports = function (options, imports, register) {
         // Status "201" is created.
         self.emit('created', { 'status': status, 'index': index });
       }
+      else if (status === 200) {
+        // Status "200" is updated.
+        self.emit('updated', { 'status': status, 'index': index })
+      }
       else {
+        if (status === undefined) {
+          status = 500;
+          response = {
+            "message": err
+          };
+        }
+
         self.emit('error', { 'status': status, 'res' : response});
       }
     });
@@ -263,7 +289,7 @@ module.exports = function (options, imports, register) {
     this.index = index;
     this.type = type;
     this.id = id;
-    
+
     // Connection to Elasticsearch.
     this.es = global_es;
 
@@ -314,24 +340,8 @@ module.exports = function (options, imports, register) {
   Search.prototype.update = function update(doc) {
     var self = this;
 
-    // Log request to the debugger.
-    self.logger.debug('Search: Update request for: ' + self.index + ' with type: ' + self.type);
-
-    self.es.update({
-      "index": self.index,
-      "type": self.type,
-      "id": self.id,
-      "body": {
-        "doc": doc
-      }
-    }, function (err, response, status) {
-      if (status === 200) {
-        self.emit('updated', { 'status': status, 'index': self.index });
-      }
-      else {
-        self.emit('error', { 'status': status, 'res' : response});
-      }
-    });
+    // Simply call the add function as it will update the document.
+    self.add(doc);
   };
 
   /**
@@ -394,13 +404,19 @@ module.exports = function (options, imports, register) {
          * @TODO: Validate the search JSON request for safety reasons.
          */
 
-          // Execute the search.
+        // Execute the search.
         self.es.search(search_query).then(function (resp) {
           var hits = [];
+          var aggregations = [];
           if (resp.hits.total > 0) {
             // We got hits, return only _source.
             for (var hit in resp.hits.hits) {
               hits.push(resp.hits.hits[hit]._source);
+            }
+
+            // Get aggregations.
+            if (resp.hasOwnProperty('aggregations')) {
+              aggregations = resp.aggregations;
             }
 
             // Log number of hits found.
@@ -410,7 +426,8 @@ module.exports = function (options, imports, register) {
           // Emit hits.
           self.emit('hits', {
             'hits': resp.hits.total,
-            'results': hits
+            'results': hits,
+            'aggs': aggregations
           });
         },
         function (error) {
@@ -422,6 +439,36 @@ module.exports = function (options, imports, register) {
       }
     );
   };
+
+  /**
+   * Preform count query against the search engine.
+   *
+   * @param data
+   *   The data that should be queried base on.
+   */
+  Search.prototype.count = function count(data) {
+    var self = this;
+
+    // Log request to the debugger.
+    self.logger.info('Search: Count query request in: ' + self.index + ' with type: ' + self.type);
+
+    // Add the sort search query.
+    var search_query = {
+      "searchType": 'count',
+      "type": self.type,
+      "index": self.index,
+      "body": data
+    };
+
+    // Execute the search count query.
+    self.es.search(search_query).then(function (resp) {
+      // Emit counts (aggregations).
+      self.emit('counts', resp.aggregations);
+    },
+    function (error) {
+      self.emit('error', { message: error.message });
+    });
+  }
 
   /**
    * Get indexes available on the server.

@@ -4,6 +4,9 @@
   "version": "0.0.1",
   "main": "admin.js",
   "private": true,
+  "dependencies": {
+    "express-jwt": "^3.0.1"
+  },
   "plugin": {
     "consumes": [
       "app",

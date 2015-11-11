@@ -16,7 +16,7 @@ var configs = require(__dirname + '/config.json');
 var config = [
   {
     "packagePath": "./plugins/logger",
-    "filename": configs.log.file,
+    "filename": path.join(__dirname, configs.log.file),
     "debug": configs.log.debug
   },
   {
@@ -38,7 +38,8 @@ var config = [
     "admin": configs.admin
   },
   {
-    "packagePath": "./plugins/admin"
+    "packagePath": "./plugins/admin",
+    "secret": configs.secret
   },
   {
     "packagePath": "./plugins/socket",
@@ -49,15 +50,12 @@ var config = [
     "hosts": configs.search.hosts
   },
   {
-    "packagePath": "./plugins/api"
+    "packagePath": "./plugins/api",
+    "secret": configs.secret
   },
   {
     "packagePath": "./plugins/search_client"
   },
-  {
-    "packagePath": "./plugins/sentry",
-    "url": configs.sentryUrl
-  }
 ];
 
 // User the configuration to start the application.
