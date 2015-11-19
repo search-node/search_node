@@ -92,7 +92,7 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
       instance.on('updated', function (data) {
         self.logger.debug('Content updated: status ' + data.status + ' : ' + data.index);
 
-        res.send('Content have been updated.');
+        res.status(200).send('Content have been updated.');
       });
 
       // On error event.
@@ -116,11 +116,12 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
       // Handle completed
       instance.once('removed', function (data) {
         // Send back the id of the element that have been removed.
-        res.send(data.id);
+        res.status(200).send({ "id": data.id });
       });
 
       // Handle errors in the request.
       instance.once('error', function (data) {
+        console.log('ERROR');
         self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
         res.status(500).send(data.status);
       });
