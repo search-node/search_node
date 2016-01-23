@@ -1,5 +1,18 @@
 # Change log for the search node
 
+## 2.1.3
+
+* Fixed sort error to now use multi field .sort in the index, which is not analyzed.
+
+## 2.1.2
+
+* Re-addded sortable fields in admin UI.
+
+## v2.1.1
+
+* Added support for raw fields to create better facets.
+* Added Copy mappings in admin UI.
+
 ## v2.1.0
 
 * Node module have been updated - run update.sh
