@@ -388,7 +388,7 @@ module.exports = function (options, imports, register) {
             if (data.sort.hasOwnProperty(map.fields[i].field)) {
               // Rename the property by adding .sort to switch sorting to using the fully
               // indexed string for the field.
-              rename(data.sort, addSort);
+              data.sort = rename(data.sort, addSort);
             }
           }
         }
