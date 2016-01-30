@@ -123,7 +123,7 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
       instance.once('error', function (data) {
         console.log('ERROR');
         self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
-        res.status(500).send(data.status);
+        res.status(500).send({ "status": data.status });
       });
 
       // Send the request.
