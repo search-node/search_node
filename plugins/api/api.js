@@ -141,14 +141,16 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
         if (info) {
           var indexes = info.indexes;
 
-          // Check required access.
-          if (info.access != 'rw') {
+          // Check required access, that the permission asked for is a part of the apikey access.
+          // If indexOf('rw') returns -1, the rw is not a part of the apikeys access.
+          if (info.access.indexOf('rw') === -1) {
             res.status(401).send('Access denied.');
           }
           else {
             // Check that the index is in the API keys configuration.
-            var index = req.params.index
-            if (indexes.indexOf(index) !== -1) {;
+            var index = req.params.index;
+            // Check that index exists in indexes, if indexOf(index) returns -1, index is not in indexes.
+            if (indexes.indexOf(index) !== -1) {
               var instance = new Search(index, '', '');
 
               // Send response back when search engine have removed the index.
@@ -156,7 +158,7 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
                 if (status) {
                   // Listen to the created index event.
                   instance.once('indexCreated', function (data) {
-                    res.status(200).send('The index "' + index + '" have been flushed.');
+                    res.status(200).send('The index "' + index + '" has been flushed.');
                   });
                   instance.addIndex(index);
                 }
@@ -274,8 +276,9 @@ API.prototype.validateCall = function validateCall(req, res, perm) {
         if (info) {
           var indexes = info.indexes;
 
-          // Check required access.
-          if (perm != info.access) {
+          // Check required access, that the permission asked for is a part of the apikey access.
+          // If indexOf(perm) returns -1, the perm is not a part of the apikeys access.
+          if (info.access.indexOf(perm) === -1) {
             res.status(401).send('Access denied.');
             deferred.reject(false);
           }
