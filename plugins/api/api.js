@@ -149,6 +149,7 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
           else {
             // Check that the index is in the API keys configuration.
             var index = req.params.index;
+            // Check that index exists in indexes, if indexOf(index) returns -1, index is not in indexes.
             if (indexes.indexOf(index) !== -1) {
               var instance = new Search(index, '', '');
 
