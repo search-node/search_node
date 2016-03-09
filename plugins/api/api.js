@@ -141,7 +141,7 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
         if (info) {
           var indexes = info.indexes;
 
-          // Check required access.
+          // Check required access, that the permission asked for is a part of the apikey access.
           // If indexOf('rw') returns -1, the rw is not a part of the apikeys access.
           if (info.access.indexOf('rw') === -1) {
             res.status(401).send('Access denied.');
