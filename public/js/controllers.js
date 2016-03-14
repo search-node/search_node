@@ -504,7 +504,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
 
        // Update index name.
        var newIndex = '';
-       var name = ''
+       var name = '';
        scope.$watch("name", function(newValue, oldValue) {
          if (newValue.length > 0) {
            newIndex = CryptoJS.MD5(newValue + Math.random()).toString();

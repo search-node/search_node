@@ -6,6 +6,6 @@ npm install
 # Install plugin dependencies.
 for folder in plugins/*; do
   if [ -d $folder ]; then
-    cd $folder; npm install; cd ../..;
+    cd $folder; npm install --production; cd ../..;
   fi
 done

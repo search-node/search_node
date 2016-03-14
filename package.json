@@ -5,5 +5,10 @@
   "private": true,
   "dependencies": {
     "architect" : "0.1.11"
+  },
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "should": "^8.2.2",
+    "supertest": "^1.2.0"
   }
 }
