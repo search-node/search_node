@@ -407,8 +407,16 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
               "default_indexer": "analysed",
               "sort": false,
               "indexable": true,
-              "raw": false
+              "raw": false,
+              "geopoint": false
             });
+          };
+
+          scope.geoPointClicked = function geoPointClicked(index) {
+            if (scope.mapping.fields[index].geopoint == true) {
+              scope.mapping.fields[index].indexable = false;
+              scope.mapping.fields[index].type = 'geo_point';
+            }
           };
 
           /**
@@ -676,7 +684,8 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
           "default_analyzer": "string_index",
           "sort": false,
           "indexable": true,
-          "raw": false
+          "raw": false,
+          "geopoint": false
         });
       };
 

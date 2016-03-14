@@ -30,7 +30,16 @@ module.exports = function (options, imports, register) {
     var field = {};
 
     // Check if field should be indexed/searchable.
-    if (map.hasOwnProperty('indexable') && map.indexable === false) {
+    if (map.hasOwnProperty('geopoint') && map.geopoint === true) {
+      field["field_" + map.field] = {
+        "match": map.field,
+        "mapping": {
+          "type": map.type,
+          "lat_lon": true
+        }
+      };
+    }
+    else if (map.hasOwnProperty('indexable') && map.indexable === false) {
       // Disable analyse and indexing this field.
       field["field_" + map.field] = {
         "match": map.field,

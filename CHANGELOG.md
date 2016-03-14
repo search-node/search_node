@@ -1,5 +1,9 @@
 # Change log for the search node
 
+## Development
+
+* Support for geo-point in mapping configuration.
+
 ## 2.1.3
 
 * Fixed sort error to now use multi field .sort in the index, which is not analyzed.

@@ -52,14 +52,17 @@
         <input type="text" class="form-control" id="field-name-{{ $index }}" placeholder="Field name" data-ng-model="mapping.fields[$index].field">
       </div>
     </div>
-    <div class="form-group">
-      <label class="control-label col-xs-2" for="field-indexable-{{ $index }}">Indexable</label>
 
-      <div class="col-xs-10">
-        <label class="radio-inline"><input type="radio" name="field-indexable-{{ $index }}" data-ng-model="mapping.fields[$index].indexable" data-ng-checked="mapping.fields[$index].indexable === true" data-ng-value="true">True</label>
-        <label class="radio-inline"><input type="radio" name="field-indexable-{{ $index }}" data-ng-model="mapping.fields[$index].indexable" data-ng-checked="mapping.fields[$index].indexable === false" data-ng-value="false">False</label>
+    <span data-ng-hide="mapping.fields[$index].geopoint === true">
+      <div class="form-group">
+        <label class="control-label col-xs-2" for="field-indexable-{{ $index }}">Indexable</label>
+
+        <div class="col-xs-10">
+          <label class="radio-inline"><input type="radio" name="field-indexable-{{ $index }}" data-ng-model="mapping.fields[$index].indexable" data-ng-checked="mapping.fields[$index].indexable === true" data-ng-value="true">True</label>
+          <label class="radio-inline"><input type="radio" name="field-indexable-{{ $index }}" data-ng-model="mapping.fields[$index].indexable" data-ng-checked="mapping.fields[$index].indexable === false" data-ng-value="false">False</label>
+        </div>
       </div>
-    </div>
+    </span>
 
     <div class="form-group">
       <label class="control-label col-xs-2" for="field-type-{{ $index }}">Type</label>
@@ -125,6 +128,16 @@
         </div>
       </div>
     </span>
+
+    <div class="form-group">
+      <label class="control-label col-xs-2" for="field-geo-point-{{ $index }}">Geographic location</label>
+
+      <div class="col-xs-10">
+        <label class="radio-inline"><input type="radio" name="field-geo-point-{{ $index }}" data-ng-model="mapping.fields[$index].geopoint" data-ng-checked="mapping.fields[$index].geopoint === true" data-ng-value="true" data-ng-click="geoPointClicked($index)">True</label>
+        <label class="radio-inline"><input type="radio" name="field-geo-point-{{ $index }}" data-ng-model="mapping.fields[$index].geopoint" data-ng-checked="mapping.fields[$index].geopoint === false" data-ng-value="false" data-ng-click="geoPointClicked($index)">False</label>
+        &nbsp;&nbsp;<span class="label label-default">Single latitude-longitude point.</span>
+      </div>
+    </div>
 
     <!-- Remove field  -->
     <button type="button" class="btn btn-danger btn-xs" data-ng-click="removeField($index)">
