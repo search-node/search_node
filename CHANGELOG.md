@@ -3,6 +3,10 @@
 ## Development
 
 * Support for geo-point in mapping configuration.
+* Added create new index API call.
+* Added remove index API call.
+* Change error message to be JSON.
+* Fixed error in addIndex where "Mappings already exists." is always returned.
 
 ## 2.1.3
 
