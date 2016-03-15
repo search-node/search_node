@@ -427,7 +427,7 @@ API.prototype.validateCall = function validateCall(req, res, perm, required) {
     );
   }
   else {
-    res.status(500).json({ 'error': 'Missing parameters in the request, please see the log for more information' });
+    res.status(500).json({ 'error': 'Missing parameters in the request.' });
 
     deferred.reject(false);
   }
@@ -451,7 +451,7 @@ API.prototype.validateRequired = function validateRequired(req, required) {
     var len = required.length;
     for (var i = 0; i < len; i++) {
       var field = required[i];
-      if (!req.body.hasOwnProperty(field) || req.body[field] !== undefined) {
+      if (!req.body.hasOwnProperty(field) || req.body[field] === undefined) {
         return false;
       }
     }
