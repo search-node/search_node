@@ -24,7 +24,6 @@ module.exports = function (options, imports, register) {
      * Handle search message.
      */
     socket.on('search', function(data) {
-
       // @TODO: Check that index and type exists in the data.
       // Create new search instance.
       var instance = new imports.search(data.index, data.type);

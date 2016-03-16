@@ -153,6 +153,12 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
           }
         });
 
+        // Handle errors in remove index.
+        instance.once('error', function (data) {
+          self.logger.error('Error in remove index: ' + data.id + ' status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
+          res.status(500).json({ 'error': data.status });
+        });
+
         // Request to remove the index.
         instance.removeIndex(index);
       },
@@ -176,11 +182,11 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
       });
 
       instance.once('indexNotCreated', function (error) {
-        res.status(200).json({ 'error': error });
+        res.status(500).json({ 'error': error });
       });
 
       instance.once('error', function (status, response) {
-        res.status(200).json({ 'error': status, 'res': response });
+        res.status(500).json({ 'error': status, 'res': response });
       });
 
       instance.addIndex(index);
@@ -283,6 +289,12 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
           else {
             res.status(500).json({ 'error': 'The index "' + index + '" could not be removed.' });
           }
+        });
+
+        // Handle errors in remove index.
+        instance.once('error', function (data) {
+          self.logger.error('Error in remove index: ' + data.id + ' status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
+          res.status(500).json({ 'error': data.status });
         });
 
         // Request to remove the index.

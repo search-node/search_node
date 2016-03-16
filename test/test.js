@@ -67,7 +67,7 @@ describe('API basic test', function() {
 /**
  * Data index API tests.
  */
-describe('Index API (Partly)', function() {
+describe('Index API', function() {
   var mapping = {
     "name": "Test",
     "fields": [
@@ -90,6 +90,7 @@ describe('Index API (Partly)', function() {
         "default_analyzer": "string_index",
         "default_indexer": "analyzed",
         "sort": false,
+        "raw": false,
         "field": "content",
         "indexable": true
       },
@@ -100,7 +101,8 @@ describe('Index API (Partly)', function() {
         "default_analyzer": "string_index",
         "default_indexer": "not_analyzed",
         "sort": false,
-        "field": "level",
+        "raw": true,
+        "field": "field_level",
         "indexable": true
       },
       {
@@ -121,6 +123,26 @@ describe('Index API (Partly)', function() {
     ],
     "tag": "private"
   };
+
+  var content = [{
+    "content": "<p>Brevitas dignissim nimis pecus qui tation turpis validus. Commodo consequat damnum duis eligo eum neo patria. Abigo enim facilisi neque roto valetudo. Accumsan decet nisl pala refero tego. Augue dignissim hendrerit nostrud.</p>",
+    "field_level": [ "First", "Last" ],
+    "title":"Ad Dolor Laoreet Letalis Pecus",
+    "created": "1458044708",
+    "location": {
+      "lat": "56.344961",
+      "lon": "9.667969"
+    }
+  }, {
+    "content": "<p>Quae vero auctorem tractata ab fiducia dicuntur.</p>",
+    "field_level": [ "First" ],
+    "title":"Ad Dolor",
+    "created": "1458045708",
+    "location": {
+      "lat": "56.354961",
+      "lon": "9.687969"
+    }
+  }];
 
   it('Create new mapping', function (done) {
     server.post('/api/' + index + '/create')
@@ -165,24 +187,14 @@ describe('Index API (Partly)', function() {
       });
   });
 
-  it('Add content', function (done) {
-    var content = {
-      "body": "<p>Brevitas dignissim nimis pecus qui tation turpis validus. Commodo consequat damnum duis eligo eum neo patria. Abigo enim facilisi neque roto valetudo. Accumsan decet nisl pala refero tego. Augue dignissim hendrerit nostrud.</p>",
-      "level": [ "First", "Last" ],
-      "title":"Ad Dolor Laoreet Letalis Pecus",
-      "location": {
-        "lat": "56.344961",
-        "lon": "9.667969"
-      }
-    };
-
+  it('Add content (first)', function (done) {
     // post /api
     server.post('/api')
       .set('Authorization', 'Bearer ' + token)
       .send({
         "index": index,
         "type": "page",
-        "data": content
+        "data": content[0]
       })
       .expect('Content-Type', /json/)
       .end(function (err, res) {
@@ -194,10 +206,95 @@ describe('Index API (Partly)', function() {
       });
   });
 
-  it('Search (TODO)', function (done) {
-    // post /api/search
+  it('Add content (last)', function (done) {
+    // post /api
+    server.post('/api')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        "index": index,
+        "type": "page",
+        "data": content[1]
+      })
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
 
-    done();
+        // Check that the created index exists and is the only index.
+        res.status.should.equal(201);
+
+        done();
+      });
+  });
+
+  it('Search simple', function (done) {
+    var query = {
+      "query": {
+        "filtered": {
+          "query": {
+            "multi_match": {
+              "query": "ad dolor",
+              "fields": [
+                "title",
+                "content"
+              ],
+              "analyzer": "string_search"
+            }
+          },
+          "filter": {
+            "bool": {
+              "must": [
+                {
+                  "terms": {
+                    "execution": "and",
+                    "field_level": [
+                      "First"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "size": 14,
+      "from": 0,
+      "aggs": {
+        "Level": {
+          "terms": {
+            "field": "field_level.raw",
+            "size": 0
+          }
+        }
+      }
+    };
+
+    // Allow this test to run for more than 2 seconds.
+    this.timeout(5000);
+
+    // Content added in laste test have to be indexed, so just wait 1 second
+    // before searching.
+    setTimeout(function () {
+      server.post('/api/search')
+        .set('Authorization', 'Bearer ' + token)
+        .send({
+          "index": index,
+          "type": "page",
+          "query": query
+        })
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          // Only one result should be returned.
+          res.body.hits.should.equal(2);
+
+          // Test aggs.
+          res.body.aggs.Level.buckets[0].doc_count.should.equal(2);
+          res.body.aggs.Level.buckets[1].doc_count.should.equal(1);
+
+          // Check HTTP status.
+          res.status.should.equal(200);
+
+          done();
+        });
+    }, 1000);
   });
 
   it('Update content (TODO)', function (done) {
