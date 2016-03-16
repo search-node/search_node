@@ -544,7 +544,11 @@ module.exports = function (options, imports, register) {
       "index": index
     }, function (err, response, status) {
       if (err) {
-        self.emit('error', { 'id' : data.id, 'status': status, 'res' : response});
+        self.emit('error', {
+          'id' : index,
+          'status': status,
+          'res' : response
+        });
       }
       else {
         // Emit removed status.

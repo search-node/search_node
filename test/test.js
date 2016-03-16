@@ -84,6 +84,26 @@ describe('Index API (Partly)', function() {
         "default_indexer": "analyzed"
       },
       {
+        "type": "string",
+        "country": "DK",
+        "language": "da",
+        "default_analyzer": "string_index",
+        "default_indexer": "analyzed",
+        "sort": false,
+        "field": "content",
+        "indexable": true
+      },
+      {
+        "type": "string",
+        "country": "DK",
+        "language": "da",
+        "default_analyzer": "string_index",
+        "default_indexer": "not_analyzed",
+        "sort": false,
+        "field": "level",
+        "indexable": true
+      },
+      {
         "type": "geo_point",
         "country": "DK",
         "language": "da",
@@ -144,6 +164,56 @@ describe('Index API (Partly)', function() {
         done();
       });
   });
+
+  it('Add content', function (done) {
+    var content = {
+      "body": "<p>Brevitas dignissim nimis pecus qui tation turpis validus. Commodo consequat damnum duis eligo eum neo patria. Abigo enim facilisi neque roto valetudo. Accumsan decet nisl pala refero tego. Augue dignissim hendrerit nostrud.</p>",
+      "level": [ "First", "Last" ],
+      "title":"Ad Dolor Laoreet Letalis Pecus",
+      "location": {
+        "lat": "56.344961",
+        "lon": "9.667969"
+      }
+    };
+
+    // post /api
+    server.post('/api')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        "index": index,
+        "type": "page",
+        "data": content
+      })
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+
+        // Check that the created index exists and is the only index.
+        res.status.should.equal(201);
+
+        done();
+      });
+  });
+
+  it('Search (TODO)', function (done) {
+    // post /api/search
+
+    done();
+  });
+
+  it('Update content (TODO)', function (done) {
+    // put /api
+
+    // Search
+
+    done();
+  });
+
+  it('Remove content (TODO)', function (done) {
+    // delete /api
+
+    done();
+  });
+
 
 });
 
