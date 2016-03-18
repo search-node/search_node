@@ -10,56 +10,56 @@ var path = require('path');
 var architect = require("architect");
 
 // Load config file.
-var configs = require(__dirname + '/config.json');
+var config = require(__dirname + '/config.json');
 
 // Configure the plugins.
-var config = [
+var plugins = [
   {
     "packagePath": "./plugins/logger",
-    "filename": path.join(__dirname, configs.log.file),
-    "debug": configs.log.debug
+    "filename": path.join(__dirname, config.log.file),
+    "debug": config.log.debug
   },
   {
     "packagePath": "./plugins/server",
-    "port": configs.port,
+    "port": config.port,
     "path": path.join(__dirname, 'public')
   },
 	{
 		"packagePath": "./plugins/apikeys",
-		"file": __dirname + '/' + configs.apikeys
+		"file": __dirname + '/' + config.apikeys
 	},
   {
     "packagePath": "./plugins/mappings",
-    "file": __dirname + '/' + configs.search.mappings
+    "file": __dirname + '/' + config.search.mappings
   },
   {
     "packagePath": "./plugins/auth",
-    "secret": configs.secret,
-    "admin": configs.admin
+    "secret": config.secret,
+    "admin": config.admin
   },
   {
     "packagePath": "./plugins/admin",
-    "secret": configs.secret
+    "secret": config.secret
   },
   {
     "packagePath": "./plugins/socket",
-    "secret": configs.secret
+    "secret": config.secret
   },
   {
     "packagePath": "./plugins/search",
-    "hosts": configs.search.hosts
+    "hosts": config.search.hosts
   },
   {
     "packagePath": "./plugins/api",
-    "secret": configs.secret
+    "secret": config.secret
   },
   {
     "packagePath": "./plugins/search_client"
-  },
+  }
 ];
 
 // User the configuration to start the application.
-config = architect.resolveConfig(config, __dirname);
+config = architect.resolveConfig(plugins, __dirname);
 architect.createApp(config, function (err, app) {
   if (err) {
     throw err;

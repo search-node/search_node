@@ -9,7 +9,7 @@ for folder in plugins/*; do
     cd $folder
     npm-check-updates -u
     rm -rf node_modules
-    npm install
+    npm install --production
     cd ../..
   fi
 done

@@ -17,10 +17,10 @@ module.exports = function (options, imports, register) {
   var app = imports.app;
 
   // Get connected to the logger.
-  var logger = imports.logger;
+  var secret = options.secret;
 
   // We are going to protect /api routes with JWT
-  app.use('/api', expressJwt({"secret": options.secret}));
+  app.use('/api', expressJwt({ "secret": secret }));
 
   /**
    * Authentication for API access.
@@ -48,7 +48,7 @@ module.exports = function (options, imports, register) {
             }
 
             // API key accepted, so send back token.
-            var token = jwt.sign(profile, options.secret, { "expiresInMinutes": expire});
+            var token = jwt.sign(profile, secret, { "expiresInMinutes": expire});
             res.json({'token': token});
           }
           else {
@@ -76,7 +76,7 @@ module.exports = function (options, imports, register) {
         };
 
         // Generate token for access.
-        var token = jwt.sign(profile, options.secret, {expiresInMinutes: 60 * 5});
+        var token = jwt.sign(profile, secret, {expiresInMinutes: 60 * 5});
         res.json({
           'token': token
         });

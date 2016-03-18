@@ -100,8 +100,11 @@ function addAndSaveMapping(self, deferred, index, info) {
         deferred.reject(error);
       });
   }
+  else if (index === undefined) {
+    deferred.reject(new Error('Index not defined in addAndSaveMapping().'));
+  }
   else {
-    deferred.reject(new Error('Mappings allready exists.'));
+    deferred.reject(new Error('Mappings already exists.'));
   }
 }
 
@@ -126,7 +129,7 @@ Mappings.prototype.add = function add(index, info) {
   // Check that mappings are loaded.
   if (this.mappings === null) {
     // Load mappings.
-    this.load().then(function(status) {
+    this.load().then(function (status) {
 			// Add and save the mappings to disk.
 			addAndSaveMapping(self, deferred, index, info);
     },

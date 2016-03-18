@@ -30,7 +30,16 @@ module.exports = function (options, imports, register) {
     var field = {};
 
     // Check if field should be indexed/searchable.
-    if (map.hasOwnProperty('indexable') && map.indexable === false) {
+    if (map.hasOwnProperty('geopoint') && map.geopoint === true) {
+      field["field_" + map.field] = {
+        "match": map.field,
+        "mapping": {
+          "type": map.type,
+          "lat_lon": true
+        }
+      };
+    }
+    else if (map.hasOwnProperty('indexable') && map.indexable === false) {
       // Disable analyse and indexing this field.
       field["field_" + map.field] = {
         "match": map.field,
@@ -468,7 +477,7 @@ module.exports = function (options, imports, register) {
     function (error) {
       self.emit('error', { message: error.message });
     });
-  }
+  };
 
   /**
    * Get indexes available on the server.
@@ -531,17 +540,21 @@ module.exports = function (options, imports, register) {
   Search.prototype.removeIndex = function removeIndex(index) {
     var self = this;
 
-    self.es.indices.delete({
-      "index": index
-    }, function (err, response, status) {
-      if (err) {
-        self.emit('error', { 'id' : data.id, 'status': status, 'res' : response});
+    self.es.indices.delete({ "index": index },
+      function (err, response, status) {
+        if (err) {
+          self.emit('error', {
+            'id' : index,
+            'status': status,
+            'res' : response
+          });
+        }
+        else {
+          // Emit removed status.
+          self.emit('removed', index);
+        }
       }
-      else {
-        // Emit removed status.
-        self.emit('removed', index);
-      }
-    });
+    );
   };
 
   // Register the plugin with the system.
