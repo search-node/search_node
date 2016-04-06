@@ -23,13 +23,20 @@ module.exports = function (options, imports, register) {
     /**
      * Handle search message.
      */
-    socket.on('search', function(data) {
+    socket.on('search', function(query) {
       // @TODO: Check that index and type exists in the data.
       // Create new search instance.
-      var instance = new imports.search(data.index, data.type);
+      var instance = new imports.search(query.index, query.type);
 
       // Handle completed query.
       instance.once('hits', function (hits) {
+
+        // Add uuid to hits if the current instance has one.
+        var uuid = instance.getUuid();
+        if (uuid != undefined) {
+          hits.uuid = uuid;
+        }
+
         // Send data back.
         socket.emit('result', hits);
       });
@@ -39,6 +46,12 @@ module.exports = function (options, imports, register) {
         // Log error.
         logger.error('Search error: ' + data.message);
 
+        // Add uuid to error if the current instance has one.
+        var uuid = instance.getUuid();
+        if (uuid != undefined) {
+          data.uuid = uuid;
+        }
+
         // Send error to client.
         socket.emit('searchError', data);
       });
@@ -46,11 +59,19 @@ module.exports = function (options, imports, register) {
       // Remove customer ID and type.
       // @todo: finder better way to get customer id, store it in socket
       // connection.
-      delete data.index;
-      delete data.type;
+      delete query.index;
+      delete query.type;
+
+      // Set uuid for the search instance.
+      if (query.hasOwnProperty('uuid')) {
+        instance.setUuid(query.uuid);
+
+        // Remove it form the query to ensure search works.
+        delete query.uuid;
+      }
 
       // Send the query.
-      instance.query(data);
+      instance.query(query);
     });
 
     /**

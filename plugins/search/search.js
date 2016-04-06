@@ -15,9 +15,6 @@ var rename = require('rename-keys');
 module.exports = function (options, imports, register) {
   "use strict";
 
-  // Re-use the connection to search.
-  var global_es = elasticsearch.Client(options.hosts);
-
   /**
    * Build field mappings for a single field in the index.
    *
@@ -300,7 +297,8 @@ module.exports = function (options, imports, register) {
     this.id = id;
 
     // Connection to Elasticsearch.
-    this.es = global_es;
+    var config = JSON.parse(JSON.stringify(options.hosts));
+    this.es = elasticsearch.Client(config);
 
     // Set logger for the object (other plugin).
     this.logger = imports.logger;
@@ -311,6 +309,26 @@ module.exports = function (options, imports, register) {
 
   // Extend the object with event emitter.
   util.inherits(Search, eventEmitter);
+
+  /**
+   * Set unique id for this search object.
+   *
+   * @param uuid
+   *   The id
+   */
+  Search.prototype.setUuid = function setUuid(uuid) {
+    this.uuid = uuid;
+  };
+
+  /**
+   * Get the unique id for this search object.
+   *
+   * @returns {*}
+   *   The id if set else "undefined".
+   */
+  Search.prototype.getUuid = function getUuid() {
+    return this.hasOwnProperty('uuid') ? this.uuid : undefined;
+  };
 
   /**
    * Add content to the search backend.
