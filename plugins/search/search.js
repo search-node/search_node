@@ -439,6 +439,7 @@ module.exports = function (options, imports, register) {
             // We got hits, return only _source.
             for (var hit in resp.hits.hits) {
               var result = resp.hits.hits[hit]._source;
+              result._id = resp.hits.hits[hit]._id;
               result._score = resp.hits.hits[hit]._score;
               hits.push(result);
             }
