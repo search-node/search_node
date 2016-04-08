@@ -152,6 +152,7 @@ app.controller('ApiKeysController', ['$scope', '$window', '$location', 'ngOverla
         "key": '',
         "name": '',
         "expire": 300,
+        "access": 'rw',
         "indexes": []
       };
 
