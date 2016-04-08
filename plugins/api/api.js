@@ -121,7 +121,6 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
 
       // Handle errors in the request.
       instance.once('error', function (data) {
-        console.log('ERROR');
         self.logger.error('Error in add content with id: ' + data.id + ' status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
         res.status(500).json({ "status": data.status });
       });

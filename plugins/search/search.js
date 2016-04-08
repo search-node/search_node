@@ -438,7 +438,9 @@ module.exports = function (options, imports, register) {
           if (resp.hits.total > 0) {
             // We got hits, return only _source.
             for (var hit in resp.hits.hits) {
-              hits.push(resp.hits.hits[hit]._source);
+              var result = resp.hits.hits[hit]._source;
+              result._score = resp.hits.hits[hit]._score;
+              hits.push(result);
             }
 
             // Get aggregations.
