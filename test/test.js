@@ -16,6 +16,7 @@ var auth = {
 var token;
 
 var index = 'e374e212db3409573917dd6e968c83ba';
+var ids = [];
 
 /**
  * API authentication tests.
@@ -294,6 +295,11 @@ describe('Index API', function() {
           // Check HTTP status.
           res.status.should.equal(200);
 
+          // Save id's for later delete tests.
+          for (var i in res.body.results) {
+            ids.push(res.body.results[i]._id);
+          }
+
           done();
         });
     }, 1000);
@@ -307,10 +313,24 @@ describe('Index API', function() {
     done();
   });
 
-  it('Remove content (TODO)', function (done) {
+  it('Remove content', function (done) {
     // delete /api
+    server.delete('/api')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        "index": index,
+        "type": "page",
+        "id": ids[0]
+      })
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
 
-    done();
+        res.status.should.equal(200);
+
+        res.body.id.should.equal(ids[0]);
+
+        done();
+      });
   });
 
 
