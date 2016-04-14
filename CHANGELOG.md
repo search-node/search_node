@@ -2,6 +2,10 @@
 
 ## Development
 
+* Auto-complete ngram analyser and filter.
+
+## 2.1.4
+
 * Support for geo-point in mapping configuration.
 * Added create new index API call.
 * Added remove index API call.

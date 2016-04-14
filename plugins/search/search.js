@@ -155,6 +155,14 @@ module.exports = function (options, imports, register) {
             "language_sort": {
               "tokenizer": "keyword",
               "filter": [ "search_language" ]
+            },
+            "autocomplete": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": [
+                "lowercase",
+                "autocomplete_filter"
+              ]
             }
           },
           "tokenizer" : {
@@ -170,9 +178,14 @@ module.exports = function (options, imports, register) {
               "type": "nGram"
             },
             "search_language": {
-              "type":     "icu_collation",
+              "type": "icu_collation",
               "language": "en",
               "country":  "UK"
+            },
+            "autocomplete_filter": {
+              "type": "edge_ngram",
+              "min_gram": 1,
+              "max_gram": 20
             }
           }
         }
@@ -183,7 +196,7 @@ module.exports = function (options, imports, register) {
     if (map.hasOwnProperty('fields')) {
       addDefaultMapping(body);
 
-      // Loop over sorts and add theme.
+      // Loop over field and add them.
       for (var i in map.fields) {
         buildIndexMapping(map.fields[i], body);
       }
