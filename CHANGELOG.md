@@ -2,7 +2,7 @@
 
 ## Development
 
-* Auto-complete ngram analyser and filter.
+* Added analyzer_startswith analyzer (can be used to create auto-complete)
 
 ## 2.1.4
 

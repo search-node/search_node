@@ -156,13 +156,9 @@ module.exports = function (options, imports, register) {
               "tokenizer": "keyword",
               "filter": [ "search_language" ]
             },
-            "autocomplete": {
-              "type": "custom",
-              "tokenizer": "standard",
-              "filter": [
-                "lowercase",
-                "autocomplete_filter"
-              ]
+            "analyzer_startswith": {
+                "tokenizer": "keyword",
+                "filter": "lowercase"
             }
           },
           "tokenizer" : {
@@ -181,11 +177,6 @@ module.exports = function (options, imports, register) {
               "type": "icu_collation",
               "language": "en",
               "country":  "UK"
-            },
-            "autocomplete_filter": {
-              "type": "edge_ngram",
-              "min_gram": 1,
-              "max_gram": 20
             }
           }
         }
