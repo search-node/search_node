@@ -393,5 +393,168 @@ describe('Remove data and indexes', function() {
         done();
       });
   });
+});
 
+/**
+ * Auto-complete tests API.
+ */
+describe('Auto-complete search tests (analyzer_startswith)', function() {
+  var autoIndex = 'e374e212db34098459267dd6e968c83ba';
+  var mapping = {
+    "name": "Auto-complete test",
+    "fields": [
+      {
+        "type": "string",
+        "country": "DK",
+        "language": "da",
+        "default_analyzer": "analyzer_startswith",
+        "sort": false,
+        "indexable": true,
+        "raw": false,
+        "geopoint": false,
+        "field": "title",
+        "default_indexer": "analyzed"
+      }
+    ],
+    "dates": [],
+    "tag": "private"
+  };
+
+  var content = [{
+    "title":"Ad Dolor Laoreet Letalis Pecus"
+  }, {
+    "title":"Ad Dolor"
+  }, {
+    "title":"Dolor test"
+  }, {
+    "title":"Test"
+  }];
+
+  var query = {
+    "index": autoIndex,
+    "query": {
+      "match_phrase_prefix": {
+        "title": {
+          "query": "Ad Do"
+        }
+      }
+    },
+    "size": 2
+  };
+
+  it('Create new mapping', function (done) {
+    server.post('/api/' + autoIndex + '/create')
+      .set('Authorization', 'Bearer ' + token)
+      .send(mapping)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+        res.status.should.equal(200);
+
+        done();
+      });
+  });
+
+  it('Activate new index', function (done) {
+    server.get('/api/' + autoIndex + '/activate')
+      .set('Authorization', 'Bearer ' + token)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+
+        res.status.should.equal(200);
+
+        done();
+      });
+  });
+
+  it('Add content (0)', function (done) {
+    // post /api
+    server.post('/api')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        "index": autoIndex,
+        "type": "page",
+        "data": content[0]
+      })
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+
+        // Check that the created index exists and is the only index.
+        res.status.should.equal(201);
+
+        done();
+      });
+  });
+
+  it('Add content (1)', function (done) {
+    // post /api
+    server.post('/api')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        "index": autoIndex,
+        "type": "page",
+        "data": content[1]
+      })
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+
+        // Check that the created index exists and is the only index.
+        res.status.should.equal(201);
+
+        done();
+      });
+  });
+
+  it('Add content (2)', function (done) {
+    // post /api
+    server.post('/api')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        "index": autoIndex,
+        "type": "page",
+        "data": content[2]
+      })
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+
+        // Check that the created index exists and is the only index.
+        res.status.should.equal(201);
+
+        done();
+      });
+  });
+
+  it('Add content (3)', function (done) {
+    // post /api
+    server.post('/api')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        "index": autoIndex,
+        "type": "page",
+        "data": content[3]
+      })
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+
+        // Check that the created index exists and is the only index.
+        res.status.should.equal(201);
+
+        done();
+      });
+  });
+
+  it('Search index (TODO)', function (done) {
+    done();
+  });
+
+  it('Remove index', function (done) {
+    server.delete('/api/' + autoIndex + '/remove')
+      .set('Authorization', 'Bearer ' + token)
+      .expect('Content-Type', /json/)
+      .end(function (err, res) {
+
+        res.status.should.equal(200);
+
+        done();
+      });
+  });
 });
