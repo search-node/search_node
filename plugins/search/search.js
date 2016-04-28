@@ -149,7 +149,7 @@ module.exports = function (options, imports, register) {
         "analysis": {
           "analyzer": {
             "string_search" : {
-              "tokenizer" : "standard",
+              "tokenizer" : "whitespace",
               "filter" : ["lowercase", "stemmer_language"]
             },
             "string_index": {
