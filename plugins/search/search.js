@@ -68,6 +68,14 @@ module.exports = function (options, imports, register) {
         field["field_" + map.field].mapping.analyzer = 'string_index';
       }
 
+      // Set filter language.
+      if (map.hasOwnProperty('language') && map.hasOwnProperty('country')) {
+        // @TODO: more language support (https://www.elastic.co/guide/en/elasticsearch/reference/1.7/analysis-stemmer-tokenfilter.html).
+        if (map.language === 'da') {
+          body.settings.analysis.filter.stemmer_language.name = 'danish';
+        }
+      }
+
       var analyzer = 'ducet_sort';
       // If language and country is defined, create new filter
       if (map.hasOwnProperty('language') && map.hasOwnProperty('country')) {
