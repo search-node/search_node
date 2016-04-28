@@ -141,8 +141,8 @@ module.exports = function (options, imports, register) {
         "analysis": {
           "analyzer": {
             "string_search" : {
-              "tokenizer" : "whitespace",
-              "filter" : ["lowercase"]
+              "tokenizer" : "standard",
+              "filter" : ["lowercase", "stemmer_language"]
             },
             "string_index": {
               "tokenizer": "alpha_nummeric_only",
@@ -157,8 +157,8 @@ module.exports = function (options, imports, register) {
               "filter": [ "search_language" ]
             },
             "analyzer_startswith": {
-                "tokenizer": "keyword",
-                "filter": "lowercase"
+              "tokenizer": "keyword",
+              "filter": "lowercase"
             }
           },
           "tokenizer" : {
@@ -172,6 +172,14 @@ module.exports = function (options, imports, register) {
               "max_gram": 20,
               "min_gram": 1,
               "type": "nGram"
+            },
+            "stemmer_language": {
+              "type" : "stemmer",
+              "name" : "english"
+            },
+            "no_stop": {
+              "type":       "stop",
+              "stopwords":  "_none_"
             },
             "search_language": {
               "type": "icu_collation",
