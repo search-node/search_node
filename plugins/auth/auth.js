@@ -27,7 +27,7 @@ module.exports = function (options, imports, register) {
    */
   app.post('/authenticate', function (req, res, next) {
     if (!req.body.hasOwnProperty('apikey')) {
-      res.status(404).send('API key not found in the request.');
+      res.status(404).json({ 'message': 'API key not found in the request.' });
     }
     else {
       // Load keys.
@@ -49,14 +49,14 @@ module.exports = function (options, imports, register) {
 
             // API key accepted, so send back token.
             var token = jwt.sign(profile, secret, { "expiresInMinutes": expire});
-            res.json({'token': token});
+            res.status(200).json({'token': token});
           }
           else {
-            res.status(401).send('API key could not be validated.');
+            res.status(401).json({ 'message': 'API key could not be validated.' });
           }
         },
         function (error) {
-          res.status(500).send(error.message);
+          res.status(500).json({ 'error': error.message });
         }
       );
     }
@@ -67,7 +67,7 @@ module.exports = function (options, imports, register) {
    */
   app.post('/login', function (req, res, next) {
     if (!req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')) {
-      res.status(404).send('Credentials not found in the request.');
+      res.status(404).json({ 'message': 'Credentials not found in the request.' });
     }
     else {
       if (req.body.username == options.admin.username && req.body.password == options.admin.password) {
@@ -77,12 +77,10 @@ module.exports = function (options, imports, register) {
 
         // Generate token for access.
         var token = jwt.sign(profile, secret, {expiresInMinutes: 60 * 5});
-        res.json({
-          'token': token
-        });
+        res.status(200).json({ 'token': token });
       }
       else {
-        res.status(401).send('Credentials could not be validated.');
+        res.status(401).json({ 'message': 'Credentials could not be validated.' });
       }
     }
   });

@@ -15,9 +15,6 @@ var rename = require('rename-keys');
 module.exports = function (options, imports, register) {
   "use strict";
 
-  // Re-use the connection to search.
-  var global_es = elasticsearch.Client(options.hosts);
-
   /**
    * Build field mappings for a single field in the index.
    *
@@ -69,6 +66,14 @@ module.exports = function (options, imports, register) {
       }
       else {
         field["field_" + map.field].mapping.analyzer = 'string_index';
+      }
+
+      // Set filter language.
+      if (map.hasOwnProperty('language') && map.hasOwnProperty('country')) {
+        // @TODO: more language support (https://www.elastic.co/guide/en/elasticsearch/reference/1.7/analysis-stemmer-tokenfilter.html).
+        if (map.language === 'da') {
+          body.settings.analysis.filter.stemmer_language.name = 'danish';
+        }
       }
 
       var analyzer = 'ducet_sort';
@@ -145,7 +150,7 @@ module.exports = function (options, imports, register) {
           "analyzer": {
             "string_search" : {
               "tokenizer" : "whitespace",
-              "filter" : ["lowercase"]
+              "filter" : ["lowercase", "stemmer_language"]
             },
             "string_index": {
               "tokenizer": "alpha_nummeric_only",
@@ -158,6 +163,10 @@ module.exports = function (options, imports, register) {
             "language_sort": {
               "tokenizer": "keyword",
               "filter": [ "search_language" ]
+            },
+            "analyzer_startswith": {
+              "tokenizer": "keyword",
+              "filter": "lowercase"
             }
           },
           "tokenizer" : {
@@ -172,8 +181,16 @@ module.exports = function (options, imports, register) {
               "min_gram": 1,
               "type": "nGram"
             },
+            "stemmer_language": {
+              "type" : "stemmer",
+              "name" : "english"
+            },
+            "no_stop": {
+              "type":       "stop",
+              "stopwords":  "_none_"
+            },
             "search_language": {
-              "type":     "icu_collation",
+              "type": "icu_collation",
               "language": "en",
               "country":  "UK"
             }
@@ -186,7 +203,7 @@ module.exports = function (options, imports, register) {
     if (map.hasOwnProperty('fields')) {
       addDefaultMapping(body);
 
-      // Loop over sorts and add theme.
+      // Loop over field and add them.
       for (var i in map.fields) {
         buildIndexMapping(map.fields[i], body);
       }
@@ -300,7 +317,8 @@ module.exports = function (options, imports, register) {
     this.id = id;
 
     // Connection to Elasticsearch.
-    this.es = global_es;
+    var config = JSON.parse(JSON.stringify(options.hosts));
+    this.es = elasticsearch.Client(config);
 
     // Set logger for the object (other plugin).
     this.logger = imports.logger;
@@ -311,6 +329,26 @@ module.exports = function (options, imports, register) {
 
   // Extend the object with event emitter.
   util.inherits(Search, eventEmitter);
+
+  /**
+   * Set unique id for this search object.
+   *
+   * @param uuid
+   *   The id
+   */
+  Search.prototype.setUuid = function setUuid(uuid) {
+    this.uuid = uuid;
+  };
+
+  /**
+   * Get the unique id for this search object.
+   *
+   * @returns {*}
+   *   The id if set else "undefined".
+   */
+  Search.prototype.getUuid = function getUuid() {
+    return this.hasOwnProperty('uuid') ? this.uuid : undefined;
+  };
 
   /**
    * Add content to the search backend.
@@ -420,7 +458,10 @@ module.exports = function (options, imports, register) {
           if (resp.hits.total > 0) {
             // We got hits, return only _source.
             for (var hit in resp.hits.hits) {
-              hits.push(resp.hits.hits[hit]._source);
+              var result = resp.hits.hits[hit]._source;
+              result._id = resp.hits.hits[hit]._id;
+              result._score = resp.hits.hits[hit]._score;
+              hits.push(result);
             }
 
             // Get aggregations.

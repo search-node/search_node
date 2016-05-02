@@ -2,6 +2,10 @@
 
 ## Development
 
+* Added analyzer_startswith analyzer (can be used to create auto-complete)
+
+## 2.1.4
+
 * Support for geo-point in mapping configuration.
 * Added create new index API call.
 * Added remove index API call.

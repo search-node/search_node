@@ -66,7 +66,7 @@ app.factory('dataService', ['$http', '$q', function($http, $q) {
         if (status !== 200) {
           deferred.reject(deferred.reject({
             'status': status,
-            'message': 'Error happend at search backend with status (' + status + ').'
+            'message': data + ' Error code (' + status + ').'
           }));
           return;
         }
