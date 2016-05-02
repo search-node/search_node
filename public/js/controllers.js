@@ -601,7 +601,7 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
     /**
      * Add index callback.
      */
-    $scope.add = function add(index) {
+    $scope.addMapping = function addMapping(index) {
       var scope = $scope.$new(true);
 
       // Add mapping information.
@@ -715,6 +715,78 @@ app.controller('IndexesController', ['$scope', '$window', '$location', '$timeout
       // Open the overlay.
       var overlay = ngOverlay.open({
         template: "views/indexAdd.html",
+        scope: scope
+      });
+    };
+
+    /**
+     * Import index/mapping callback.
+     */
+    $scope.importMapping = function importMapping() {
+      var scope = $scope.$new(true);
+
+      /**
+       * Save index callback.
+       */
+      scope.save = function save() {
+        var mappings = JSON.parse(scope.json);
+
+        for (var index in mappings) {
+          dataService.send('post', '/api/admin/mapping/' + index, mappings[index]).then(
+            function (data) {
+              $scope.message = data;
+              $scope.messageClass = 'alert-success';
+
+              // Reload indexes.
+              loadIndexes();
+
+              // Close overlay.
+              overlay.close();
+            },
+            function (reason) {
+              $scope.message = reason.message;
+              $scope.messageClass = 'alert-danger';
+
+              // Close overlay.
+              overlay.close();
+            }
+          );
+        }
+      };
+
+      // Open the overlay.
+      var overlay = ngOverlay.open({
+        template: "views/indexImport.html",
+        scope: scope
+      });
+    };
+
+    /**
+     * Export index/mapping callback.
+     */
+    $scope.exportMapping = function exportMapping(index) {
+      var scope = $scope.$new(true);
+
+      dataService.fetch('get', '/api/admin/mapping/' + index).then(
+        function (data) {
+          // Copy mapping information.
+          var mapping = {};
+          mapping[index] = angular.copy(data);
+          scope.json = JSON.stringify(mapping, null, 2);
+        },
+        function (reason) {
+          $scope.message = reason.message;
+          $scope.messageClass = 'alert-danger';
+
+          // Close overlay.
+          overlay.close();
+        }
+      );
+
+
+      // Open the overlay.
+      var overlay = ngOverlay.open({
+        template: "views/indexExport.html",
         scope: scope
       });
     };

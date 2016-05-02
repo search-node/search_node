@@ -58,6 +58,12 @@
         <button type="button" class="btn btn-danger btn-xs" data-ng-click="deactivate(index.index)">
           <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Deactivate
         </button>
+
+        <!-- Remove index -->
+        <button type="button" class="btn btn-default btn-xs" data-ng-click="exportMapping(index.index)">
+          <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export
+        </button>
+
       </td>
     </tr>
   	</table>
@@ -96,13 +102,21 @@
         <button type="button" class="btn btn-danger btn-xs" data-ng-click="removeMapping(index)">
           <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
         </button>
+
+        <!-- Remove index -->
+        <button type="button" class="btn btn-default btn-xs" data-ng-click="exportMapping(index)">
+          <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export
+        </button>
       </td>
     </tr>
     </table>
   </div>
 
   <!-- Add new mapping -->
-  <button type="button" class="btn btn-info" data-ng-click="add()">
+  <button type="button" class="btn btn-info" data-ng-click="addMapping()">
     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add mapping
+  </button>
+  <button type="button" class="btn btn-warning" data-ng-click="importMapping()">
+    <span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import mapping(s)
   </button>
 </div>
