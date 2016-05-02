@@ -2,6 +2,9 @@
 
 ## Development
 
+## 2.1.5
+
+* UI support for import/export mappings in JSON
 * Added analyzer_startswith analyzer (can be used to create auto-complete)
 
 ## 2.1.4
