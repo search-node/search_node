@@ -122,7 +122,7 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
       // Handle errors in the request.
       instance.once('error', function (data) {
         self.logger.error('Error in removing content with id: ' + data.id + ' status ' + data.status + ' : ' + require('util').inspect(data.res, true, 10));
-        res.status(500).json({ "status": data.status });
+        res.status(data.status).json({ "status": data.message });
       });
 
       // Send the request.
