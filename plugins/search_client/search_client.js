@@ -24,21 +24,28 @@ module.exports = function (options, imports, register) {
      * Handle search message.
      */
     socket.on('search', function(query) {
+      var uuid = query.hasOwnProperty('uuid') ? query.uuid : undefined;
+      var callbacks = query.callbacks;
+
+      // Send search message to monitor.io if enabled.
+      if (options.monitor) {
+        socket.monitor('search', JSON.stringify(query));
+      }
+
       // @TODO: Check that index and type exists in the data.
       // Create new search instance.
       var instance = new imports.search(query.index, query.type);
 
       // Handle completed query.
       instance.once('hits', function (hits) {
-
         // Add uuid to hits if the current instance has one.
-        var uuid = instance.getUuid();
+
         if (uuid != undefined) {
           hits.uuid = uuid;
         }
 
         // Send data back.
-        socket.emit('result', hits);
+        socket.emit(callbacks.hits, hits);
       });
 
       // Handle errors in the search.
@@ -47,28 +54,19 @@ module.exports = function (options, imports, register) {
         logger.error('Search error: ' + data.message);
 
         // Add uuid to error if the current instance has one.
-        var uuid = instance.getUuid();
         if (uuid != undefined) {
           data.uuid = uuid;
         }
 
         // Send error to client.
-        socket.emit('searchError', data);
+        socket.emit(callbacks.error, data);
       });
 
-      // Remove customer ID and type.
-      // @todo: finder better way to get customer id, store it in socket
-      // connection.
+      // Remove book-keeping variables from the search query.
       delete query.index;
       delete query.type;
-
-      // Set uuid for the search instance.
-      if (query.hasOwnProperty('uuid')) {
-        instance.setUuid(query.uuid);
-
-        // Remove it form the query to ensure search works.
-        delete query.uuid;
-      }
+      delete query.uuid;
+      delete query.callbacks;
 
       // Send the query.
       instance.query(query);

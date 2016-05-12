@@ -166,7 +166,7 @@ module.exports = function (options, imports, register) {
             },
             "analyzer_startswith": {
               "tokenizer": "keyword",
-              "filter": "lowercase"
+              "filter": [ "lowercase", "no_stop" ]
             }
           },
           "tokenizer" : {
@@ -329,26 +329,6 @@ module.exports = function (options, imports, register) {
 
   // Extend the object with event emitter.
   util.inherits(Search, eventEmitter);
-
-  /**
-   * Set unique id for this search object.
-   *
-   * @param uuid
-   *   The id
-   */
-  Search.prototype.setUuid = function setUuid(uuid) {
-    this.uuid = uuid;
-  };
-
-  /**
-   * Get the unique id for this search object.
-   *
-   * @returns {*}
-   *   The id if set else "undefined".
-   */
-  Search.prototype.getUuid = function getUuid() {
-    return this.hasOwnProperty('uuid') ? this.uuid : undefined;
-  };
 
   /**
    * Add content to the search backend.
