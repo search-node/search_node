@@ -43,7 +43,8 @@ var plugins = [
   },
   {
     "packagePath": "./plugins/socket",
-    "secret": config.secret
+    "secret": config.secret,
+    "monitor": config.hasOwnProperty('monitor') ? config.monitor : false
   },
   {
     "packagePath": "./plugins/search",
@@ -54,7 +55,8 @@ var plugins = [
     "secret": config.secret
   },
   {
-    "packagePath": "./plugins/search_client"
+    "packagePath": "./plugins/search_client",
+    "monitor": config.hasOwnProperty('monitor') ? config.monitor : false
   }
 ];
 
