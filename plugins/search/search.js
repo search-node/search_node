@@ -149,7 +149,7 @@ module.exports = function (options, imports, register) {
         "analysis": {
           "analyzer": {
             "string_search" : {
-              "tokenizer" : "whitespace",
+              "tokenizer" : "standard",
               "filter" : ["lowercase", "stemmer_language"]
             },
             "string_index": {
@@ -177,9 +177,10 @@ module.exports = function (options, imports, register) {
           },
           "filter": {
             "ngram": {
-              "max_gram": 20,
+              "type": "nGram",
               "min_gram": 1,
-              "type": "nGram"
+              "max_gram": 20,
+              "token_chars": [ "letter", "digit" ]
             },
             "stemmer_language": {
               "type" : "stemmer",
@@ -441,6 +442,12 @@ module.exports = function (options, imports, register) {
               var result = resp.hits.hits[hit]._source;
               result._id = resp.hits.hits[hit]._id;
               result._score = resp.hits.hits[hit]._score;
+
+              // Include highlight information is available.
+              if (resp.hits.hits[hit].hasOwnProperty('highlight')) {
+                result._highlight = resp.hits.hits[hit].highlight;
+              }
+
               hits.push(result);
             }
 
