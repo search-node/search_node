@@ -2,6 +2,10 @@
 
 ## Development
 
+## 2.1.7
+
+* Highlight search results support.
+
 ## 2.1.6
 
 * Added analyzer_startswith analyzer (can be used to create auto-complete).
