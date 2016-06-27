@@ -153,7 +153,7 @@ module.exports = function (options, imports, register) {
               "filter" : ["lowercase", "stemmer_language"]
             },
             "string_index": {
-              "tokenizer": "alpha_nummeric_only",
+              "tokenizer": "standard",
               "filter": [ "lowercase", "ngram" ]
             },
             "ducet_sort": {
