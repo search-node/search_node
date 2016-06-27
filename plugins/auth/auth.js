@@ -42,13 +42,13 @@ module.exports = function (options, imports, register) {
             };
 
             // Default expire.
-            var expire = 300;
+            var expire = 300 * 60;
             if (info.hasOwnProperty('expire')) {
               expire = info.expire;
             }
 
             // API key accepted, so send back token.
-            var token = jwt.sign(profile, secret, { "expiresInMinutes": expire});
+            var token = jwt.sign(profile, secret, { "expiresIn": expire});
             res.status(200).json({'token': token});
           }
           else {
