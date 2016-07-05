@@ -5,8 +5,8 @@
   "main": "auth.js",
   "private": true,
   "dependencies": {
-    "express-jwt": "^3.0.1",
-    "jsonwebtoken": "^5.0.2"
+    "express-jwt": "^3.4.0",
+    "jsonwebtoken": "^7.0.1"
   },
   "plugin": {
     "provides": [
