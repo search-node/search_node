@@ -1,42 +1,65 @@
 {
   "analyzer": {
     "string_search" : {
+      "x_description": "String search",
+      "x_type": "indexer",
+      "x_locked": true,
       "tokenizer" : "standard",
       "filter" : ["lowercase", "stemmer_language"]
     },
     "string_index": {
+      "x_description": "String indexer",
+      "x_type": "search",
+      "x_locked": true,
       "tokenizer": "standard",
       "filter": [ "lowercase", "ngram" ]
     },
     "ducet_sort": {
+      "x_description": "Language sort (ICU)",
+      "x_type": "?",
+      "x_locked": true,
       "tokenizer": "keyword",
       "filter": [ "icu_collation" ]
     },
     "language_sort": {
+      "x_description": "Language sort",
+      "x_type": "search",
+      "x_locked": true,
       "tokenizer": "keyword",
       "filter": [ "search_language" ]
     },
     "analyzer_startswith": {
+      "x_description": "Starts with (no stop words)",
+      "x_type": "?",
+      "x_locked": false,
       "tokenizer": "keyword",
       "filter": [ "lowercase", "no_stop" ]
     }
   },
   "filter": {
     "ngram": {
+      "x_description": "Ngram (1-20)",
+      "x_locked": true,
       "type": "nGram",
       "min_gram": 1,
       "max_gram": 20,
       "token_chars": [ "letter", "digit" ]
     },
-    "stemmer_language": {
+    "stemmer_en_language": {
+      "x_description": "Stemmer (english)",
+      "x_locked": true,
       "type" : "stemmer",
       "name" : "english"
     },
     "no_stop": {
+      "x_description": "No stop words",
+      "x_locked": true,
       "type":       "stop",
       "stopwords":  "_none_"
     },
-    "search_language": {
+    "filter_en_language": {
+      "x_description": "Language filter (english)",
+      "x_locked": true,
       "type": "icu_collation",
       "language": "en",
       "country":  "UK"
@@ -44,6 +67,8 @@
   },
   "tokenizer": {
     "alpha_nummeric_only": {
+      "x_description": "Alpha nummeric only",
+      "x_locked": true,
       "pattern": "[^\\p{L}\\d]+",
       "type": "pattern"
     }
