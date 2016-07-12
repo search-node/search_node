@@ -48,6 +48,10 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
         templateUrl: 'views/indexes.html',
         controller: 'IndexesController'
       })
+      .when('/analysis', {
+        templateUrl: 'views/analysis.html',
+        controller: 'AnalysisController'
+      })
       .when('/apikeys', {
         templateUrl: 'views/apikeys.html',
         controller: 'ApiKeysController'

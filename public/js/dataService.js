@@ -6,7 +6,7 @@
 /**
  * Data service service.
  */
-app.factory('dataService', ['$http', '$q', function($http, $q) {
+angular.module('SearchNodeApp').factory('dataService', ['$http', '$q', function($http, $q) {
   "use strict";
 
   /**

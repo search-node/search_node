@@ -1,0 +1,55 @@
+<!-- Navigation bar -->
+<ng-include src="'views/navigation.html'"></ng-include>
+
+<!-- Header -->
+<div class="page-header">
+  <h1>Analysis <small>settings</small></h1>
+</div>
+
+<!-- messages -->
+<div data-ng-show="message" class="alert {{ messageClass }}" role="alert">{{ message }}</div>
+
+<!--
+  -- Analysers
+  -->
+<div class="jumbotron">
+  <h3>Analysers</h3>
+	<div class="panel panel-default">
+
+	</div>
+
+  <!-- Add new key -->
+  <button type="button" class="btn btn-info" data-ng-click="addAnalysers()">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
+  </button>
+</div>
+
+<!--
+  -- Filters
+  -->
+<div class="jumbotron">
+  <h3>Filters</h3>
+  <div class="panel panel-default">
+
+  </div>
+
+  <!-- Add new key -->
+  <button type="button" class="btn btn-info" data-ng-click="addFilter()">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
+  </button>
+</div>
+
+<!--
+  -- Tokenizer
+  -->
+<div class="jumbotron">
+  <h3>Tokenizer</h3>
+  <div class="panel panel-default">
+
+  </div>
+
+  <!-- Add new key -->
+  <button type="button" class="btn btn-info" data-ng-click="addTokenizer()">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
+  </button>
+</div>
