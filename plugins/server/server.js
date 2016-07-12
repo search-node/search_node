@@ -32,7 +32,7 @@ module.exports = function (options, imports, register) {
 
   // Set express app configuration.
   app.set('port', options.port || 3000);
-  app.use(favicon(__dirname + '../../../public/favicon.ico'));
+  app.use(favicon(__dirname + '/../../public/favicon.ico'));
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
 

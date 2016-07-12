@@ -48,7 +48,7 @@ module.exports = function (options, imports, register) {
             }
 
             // API key accepted, so send back token.
-            var token = jwt.sign(profile, secret, { "expiresIn": expire});
+            var token = jwt.sign(profile, secret, { "expiresIn": expire });
             res.status(200).json({'token': token});
           }
           else {
@@ -76,7 +76,8 @@ module.exports = function (options, imports, register) {
         };
 
         // Generate token for access.
-        var token = jwt.sign(profile, secret, {expiresInMinutes: 60 * 5});
+        var expire = 3600;
+        var token = jwt.sign(profile, secret, { "expiresIn": expire });
         res.status(200).json({ 'token': token });
       }
       else {
