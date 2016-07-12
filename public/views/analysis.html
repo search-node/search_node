@@ -4,6 +4,7 @@
 <!-- Header -->
 <div class="page-header">
   <h1>Analysis <small>settings</small></h1>
+  <p><small>test</small>test</p>
 </div>
 
 <!-- messages -->
@@ -13,14 +14,41 @@
   -- Analysers
   -->
 <div class="jumbotron">
-  <h3>Analysers</h3>
 	<div class="panel panel-default">
+    <div class="panel-heading">
+      <h4>Analysers</h4>
+    </div>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+      </tr>
+      </thead>
+      <tr data-ng-repeat="(key, data) in analysis.analyzer">
+        <td>{{ $index + 1 }}</td>
+        <td>{{ key }}</td>
+        <td>
+          <!-- Edit index -->
+          <button type="button" class="btn btn-success btn-xs" data-ng-click="editAnalyzer(key)">
+            <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Edit
+          </button>
 
-	</div>
+          <!-- Remove index -->
+          <button type="button" class="btn btn-danger btn-xs" data-ng-click="removeAnalyzer(key)">
+            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Remove
+          </button>
+        </td>
+      </tr>
+    </table>
+  </div>
 
   <!-- Add new key -->
-  <button type="button" class="btn btn-info" data-ng-click="addAnalysers()">
+  <button type="button" class="btn btn-info" data-ng-click="addAnalyzer()">
     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
+  </button>
+  <button type="button" class="btn btn-warning" data-ng-click="importAnalyzer()">
+    <span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import
   </button>
 </div>
 
@@ -28,14 +56,41 @@
   -- Filters
   -->
 <div class="jumbotron">
-  <h3>Filters</h3>
   <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4>Filters</h4>
+    </div>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+      </tr>
+      </thead>
+      <tr data-ng-repeat="(key, data) in analysis.filter">
+        <td>{{ $index + 1 }}</td>
+        <td>{{ key }}</td>
+        <td>
+          <!-- Edit index -->
+          <button type="button" class="btn btn-success btn-xs" data-ng-click="editFilter(key)">
+            <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Edit
+          </button>
 
+          <!-- Remove index -->
+          <button type="button" class="btn btn-danger btn-xs" data-ng-click="removeFilter(key)">
+            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Remove
+          </button>
+        </td>
+      </tr>
+    </table>
   </div>
 
   <!-- Add new key -->
   <button type="button" class="btn btn-info" data-ng-click="addFilter()">
     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
+  </button>
+  <button type="button" class="btn btn-warning" data-ng-click="importFilter()">
+    <span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import
   </button>
 </div>
 
@@ -43,13 +98,40 @@
   -- Tokenizer
   -->
 <div class="jumbotron">
-  <h3>Tokenizer</h3>
   <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4>Tokenizer</h4>
+    </div>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+      </tr>
+      </thead>
+      <tr data-ng-repeat="(key, data) in analysis.tokenizer">
+        <td>{{ $index + 1 }}</td>
+        <td>{{ key }}</td>
+        <td>
+          <!-- Edit index -->
+          <button type="button" class="btn btn-success btn-xs" data-ng-click="editTokenizer(key)">
+            <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Edit
+          </button>
 
+          <!-- Remove index -->
+          <button type="button" class="btn btn-danger btn-xs" data-ng-click="removeTokenizer(key)">
+            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Remove
+          </button>
+        </td>
+      </tr>
+    </table>
   </div>
 
   <!-- Add new key -->
   <button type="button" class="btn btn-info" data-ng-click="addTokenizer()">
     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
+  </button>
+  <button type="button" class="btn btn-warning" data-ng-click="importTokenizer()">
+    <span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import
   </button>
 </div>

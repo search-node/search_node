@@ -28,7 +28,7 @@
     	<td>{{ $index + 1 }}</td>
     	<td>{{ info.name }}</td>
     	<td>{{ key }}</td>
-      <td>{{ info.access }}</td>
+      <td data-ng-class="{ 'text-danger': info.access == 'rw' }">{{ info.access }}</td>
       <td>{{ info.expire }}</td>
       <td>{{ info.indexes.length }}</td>
       <td>

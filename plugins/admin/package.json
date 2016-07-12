@@ -13,7 +13,8 @@
       "logger",
       "search",
       "apikeys",
-      "mappings"
+      "mappings",
+      "analysis"
     ]
   }
 }

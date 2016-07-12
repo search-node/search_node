@@ -1,0 +1,19 @@
+{
+  "name": "Analysis",
+  "description": "Handles load, update and delete of analysis settings",
+  "version": "0.0.1",
+  "main": "analysis.js",
+  "private": true,
+  "dependencies": {
+    "jsonfile": "^2.3.1",
+    "q": "^1.4.1"
+  },
+  "plugin": {
+    "provides": [
+      "analysis"
+    ],
+    "consumes": [
+      "logger"
+    ]
+  }
+}

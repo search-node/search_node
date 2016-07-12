@@ -29,6 +29,10 @@ var plugins = [
 		"file": __dirname + '/' + config.apikeys
 	},
   {
+    "packagePath": "./plugins/analysis",
+    "file": __dirname + '/' + config.analysis
+  },
+  {
     "packagePath": "./plugins/mappings",
     "file": __dirname + '/' + config.search.mappings
   },

@@ -1,0 +1,51 @@
+{
+  "analyzer": {
+    "string_search" : {
+      "tokenizer" : "standard",
+      "filter" : ["lowercase", "stemmer_language"]
+    },
+    "string_index": {
+      "tokenizer": "standard",
+      "filter": [ "lowercase", "ngram" ]
+    },
+    "ducet_sort": {
+      "tokenizer": "keyword",
+      "filter": [ "icu_collation" ]
+    },
+    "language_sort": {
+      "tokenizer": "keyword",
+      "filter": [ "search_language" ]
+    },
+    "analyzer_startswith": {
+      "tokenizer": "keyword",
+      "filter": [ "lowercase", "no_stop" ]
+    }
+  },
+  "filter": {
+    "ngram": {
+      "type": "nGram",
+      "min_gram": 1,
+      "max_gram": 20,
+      "token_chars": [ "letter", "digit" ]
+    },
+    "stemmer_language": {
+      "type" : "stemmer",
+      "name" : "english"
+    },
+    "no_stop": {
+      "type":       "stop",
+      "stopwords":  "_none_"
+    },
+    "search_language": {
+      "type": "icu_collation",
+      "language": "en",
+      "country":  "UK"
+    }
+  },
+  "tokenizer": {
+    "alpha_nummeric_only": {
+      "pattern": "[^\\p{L}\\d]+",
+      "type": "pattern"
+    }
+  }
+}

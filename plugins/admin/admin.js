@@ -14,7 +14,7 @@
  *
  * @constructor
  */
-var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
+var Admin = function Admin(options, app, logger, search, apikeys, mappings, analysis) {
   "use strict";
 
   var self = this;
@@ -149,6 +149,27 @@ var Admin = function Admin(options, app, logger, search, apikeys, mappings) {
       res.status(401).send('You do not have the right role.');
     }
   });
+
+
+  /**
+   * Get analysis's.
+   */
+  app.get('/api/admin/analysis', this.expressJwt({"secret": options.secret}), function (req, res) {
+    if (self.validateCall(req)) {
+      analysis.load().then(
+        function (analysis) {
+          res.json(analysis);
+        }, function (error) {
+          res.status(500).send(error.message);
+        }
+      );
+    }
+    else {
+      res.status(401).send('You do not have the right role.');
+    }
+  });
+
+
 
   /**
    * Get search indexes.
@@ -385,7 +406,7 @@ module.exports = function (options, imports, register) {
   var instance = new imports.search('', '');
 
   // Create the API routes using the API object.
-  var admin = new Admin(options, imports.app, imports.logger, instance, imports.apikeys, imports.mappings);
+  var admin = new Admin(options, imports.app, imports.logger, instance, imports.apikeys, imports.mappings, imports.analysis);
 
   // This plugin extends the server plugin and do not provide new services.
   register(null, null);

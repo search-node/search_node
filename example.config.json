@@ -14,5 +14,6 @@
     "mappings": "mappings.json"
   },
   "apikeys": "apikeys.json",
+  "analysis": "analysis.json",
   "sentryUrl": "https://xxx:xxx@app.getsentry.com/xxx"
 }

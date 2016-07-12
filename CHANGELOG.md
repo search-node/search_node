@@ -2,6 +2,8 @@
 
 ## Development
 
+* New Analysis page and json file.
+* Import/Export mappings
 * Added analyzer_startswith analyzer (can be used to create auto-complete).
 * Added option to use monitor.io to look into socket connections via telnet.
 * Added configurable callbacks/message in search socket messages (require new client).
