@@ -193,7 +193,7 @@ angular.module('SearchNodeApp').controller('IndexesController', ['$scope', '$win
 
           // Open the overlay.
           var overlay = ngOverlay.open({
-            template: "views/indexEdit.html",
+            template: "views/indexes/edit.html",
             scope: scope
           });
         },
@@ -306,7 +306,7 @@ angular.module('SearchNodeApp').controller('IndexesController', ['$scope', '$win
 
        // Open the overlay.
        var overlay = ngOverlay.open({
-         template: "views/copyConfirm.html",
+         template: "views/indexes/copy.html",
          scope: scope
        });
      };
@@ -463,7 +463,7 @@ angular.module('SearchNodeApp').controller('IndexesController', ['$scope', '$win
 
       // Open the overlay.
       var overlay = ngOverlay.open({
-        template: "views/indexAdd.html",
+        template: "views/indexes/add.html",
         scope: scope
       });
     };
@@ -505,7 +505,7 @@ angular.module('SearchNodeApp').controller('IndexesController', ['$scope', '$win
 
       // Open the overlay.
       var overlay = ngOverlay.open({
-        template: "views/indexImport.html",
+        template: "views/indexes/import.html",
         scope: scope
       });
     };
@@ -535,7 +535,7 @@ angular.module('SearchNodeApp').controller('IndexesController', ['$scope', '$win
 
       // Open the overlay.
       var overlay = ngOverlay.open({
-        template: "views/indexExport.html",
+        template: "views/indexes/export.html",
         scope: scope
       });
     };

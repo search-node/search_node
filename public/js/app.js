@@ -45,15 +45,15 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
         controller: 'LoginController'
       })
       .when('/indexes', {
-        templateUrl: 'views/indexes.html',
+        templateUrl: 'views/indexes/index.html',
         controller: 'IndexesController'
       })
       .when('/analysis', {
-        templateUrl: 'views/analysis.html',
+        templateUrl: 'views/analysis/index.html',
         controller: 'AnalysisController'
       })
       .when('/apikeys', {
-        templateUrl: 'views/apikeys.html',
+        templateUrl: 'views/apikeys/index.html',
         controller: 'ApiKeysController'
       })
       .when('/logout', {

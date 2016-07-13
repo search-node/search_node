@@ -131,7 +131,7 @@ angular.module('SearchNodeApp').controller('ApiKeysController', ['$scope', '$win
 
       // Open the overlay.
       var overlay = ngOverlay.open({
-        template: "views/keyAdd.html",
+        template: "views/apikeys/add.html",
         scope: scope
       });
     };
@@ -183,7 +183,7 @@ angular.module('SearchNodeApp').controller('ApiKeysController', ['$scope', '$win
 
           // Open the overlay.
           var overlay = ngOverlay.open({
-            template: "views/keyEdit.html",
+            template: "views/apikeys/edit.html",
             scope: scope
           });
         },
