@@ -68,27 +68,14 @@ module.exports = function (options, imports, register) {
         field["field_" + map.field].mapping.analyzer = 'string_index';
       }
 
-      // Set filter language.
-      if (map.hasOwnProperty('language') && map.hasOwnProperty('country')) {
-        // @TODO: more language support (https://www.elastic.co/guide/en/elasticsearch/reference/1.7/analysis-stemmer-tokenfilter.html).
-        if (map.language === 'da') {
-          body.settings.analysis.filter.stemmer_language.name = 'danish';
-        }
-      }
-
       var analyzer = 'ducet_sort';
       // If language and country is defined, create new filter
-      if (map.hasOwnProperty('language') && map.hasOwnProperty('country')) {
-        // Update language in filter.
-        body.settings.analysis.filter.search_language.language = map.language;
-        body.settings.analysis.filter.search_language.country = map.country;
-
-        // Change analyzer to use language sort.
-        analyzer = 'language_sort';
+      if (map.hasOwnProperty('sort_analyzer')) {
+        analyzer = map.sort_analyzer;
       }
 
       // Add sort field if required as an analyzer not filter as above.
-      if (map.hasOwnProperty('sort') && map.sort) {
+      if (map.hasOwnProperty('sort') && map.sort && map.hasOwnProperty('sort_analyzer')) {
         field["field_" + map.field].mapping.fields = {
           "sort": {
             "type":  map.type,
@@ -144,101 +131,55 @@ module.exports = function (options, imports, register) {
    *   The index to build.
    */
   function buildNewIndex(self, logger, map, index) {
-    var body = {
-      "settings": {
-        "analysis": {
-          "analyzer": {
-            "string_search" : {
-              "tokenizer" : "standard",
-              "filter" : ["lowercase", "stemmer_language"]
-            },
-            "string_index": {
-              "tokenizer": "standard",
-              "filter": [ "lowercase", "ngram" ]
-            },
-            "ducet_sort": {
-              "tokenizer": "keyword",
-              "filter": [ "icu_collation" ]
-            },
-            "language_sort": {
-              "tokenizer": "keyword",
-              "filter": [ "search_language" ]
-            },
-            "analyzer_startswith": {
-              "tokenizer": "keyword",
-              "filter": [ "lowercase", "no_stop" ]
-            }
-          },
-          "tokenizer" : {
-            "alpha_nummeric_only": {
-              "pattern": "[^\\p{L}\\d]+",
-              "type": "pattern"
-            }
-          },
-          "filter": {
-            "ngram": {
-              "type": "nGram",
-              "min_gram": 1,
-              "max_gram": 20,
-              "token_chars": [ "letter", "digit" ]
-            },
-            "stemmer_language": {
-              "type" : "stemmer",
-              "name" : "english"
-            },
-            "no_stop": {
-              "type":       "stop",
-              "stopwords":  "_none_"
-            },
-            "search_language": {
-              "type": "icu_collation",
-              "language": "en",
-              "country":  "UK"
-            }
+    // Load analysis settings.
+    imports.analysis.parse().then(
+      function (data) {
+        var body = { "settings": data };
+
+        // Setup dynamic mappings for language and sorting.
+        if (map.hasOwnProperty('fields')) {
+          addDefaultMapping(body);
+
+          // Loop over field and add them.
+          for (var i in map.fields) {
+            buildIndexMapping(map.fields[i], body);
           }
         }
-      }
-    };
 
-    // Setup dynamic mappings for language and sorting.
-    if (map.hasOwnProperty('fields')) {
-      addDefaultMapping(body);
+        // Setup mappings for dates.
+        if (map.hasOwnProperty('dates')) {
+          addDefaultMapping(body);
 
-      // Loop over field and add them.
-      for (var i in map.fields) {
-        buildIndexMapping(map.fields[i], body);
-      }
-    }
-
-    // Setup mappings for dates.
-    if (map.hasOwnProperty('dates')) {
-      addDefaultMapping(body);
-
-      // Add dates mappings.
-      body.mappings._default_.dynamic_templates.push({
-        "dates": {
-          "match": map.dates.join('|'),
-          "match_pattern": 'regex',
-          "mapping": {
-            "type": 'date'
-          }
+          // Add dates mappings.
+          body.mappings._default_.dynamic_templates.push({
+            "dates": {
+              "match": map.dates.join('|'),
+              "match_pattern": 'regex',
+              "mapping": {
+                "type": 'date'
+              }
+            }
+          });
         }
-      });
-    }
 
-    // Create the index.
-    self.es.indices.create({
-      "index": index,
-      "body": body
-    }, function (err, response, status) {
-      if (status === 200) {
-        logger.info('New index have been created: ' + index);
-        self.emit('indexCreated', index);
+        // Create the index.
+        self.es.indices.create({
+          "index": index,
+          "body": body
+        }, function (err, response, status) {
+          if (status === 200) {
+            logger.info('New index have been created: ' + index);
+            self.emit('indexCreated', index);
+          }
+          else {
+            self.emit('error', { 'status': status, 'res': response });
+          }
+        });
+      },
+      function (error) {
+        self.emit('error', { 'status': 500, 'res': error });
       }
-      else {
-        self.emit('error', { 'status': status, 'res': response });
-      }
-    });
+    );
   }
 
   /**

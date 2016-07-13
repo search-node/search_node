@@ -15,26 +15,36 @@ angular.module('SearchNodeApp').controller('IndexesController', ['$scope', '$win
      * Load indexes from the backend.
      */
     function loadIndexes() {
-      // Get search indexes.
-      dataService.fetch('get', '/api/admin/indexes').then(
-        function (data) {
-          $scope.activeIndexes = data;
-          // Get mappings configuration.
-          dataService.fetch('get', '/api/admin/mappings').then(
-            function (mappings) {
-              // Reset the scopes variables for mappings.
-              $scope.activeMappings = {};
-              $scope.inActiveMappings = {};
+      // Get analysis settings.
+      dataService.fetch('get', '/api/admin/analysis').then(
+        function (analysis) {
+          $scope.analysis = analysis;
+          // Get search indexes.
+          dataService.fetch('get', '/api/admin/indexes').then(
+            function (data) {
+              $scope.activeIndexes = data;
+              // Get mappings configuration.
+              dataService.fetch('get', '/api/admin/mappings').then(
+                function (mappings) {
+                  // Reset the scopes variables for mappings.
+                  $scope.activeMappings = {};
+                  $scope.inActiveMappings = {};
 
-              // Filter out active indexes.
-              for (var index in mappings) {
-                if (!$scope.activeIndexes.hasOwnProperty(index)) {
-                  $scope.inActiveMappings[index] = mappings[index];
+                  // Filter out active indexes.
+                  for (var index in mappings) {
+                    if (!$scope.activeIndexes.hasOwnProperty(index)) {
+                      $scope.inActiveMappings[index] = mappings[index];
+                    }
+                    else {
+                      $scope.activeMappings[index] = mappings[index];
+                    }
+                  }
+                },
+                function (reason) {
+                  $scope.message = reason.message;
+                  $scope.messageClass = 'alert-danger';
                 }
-                else {
-                  $scope.activeMappings[index] = mappings[index];
-                }
-              }
+              );
             },
             function (reason) {
               $scope.message = reason.message;
@@ -78,6 +88,13 @@ angular.module('SearchNodeApp').controller('IndexesController', ['$scope', '$win
 
           // Add mapping information.
           scope.mapping = data;
+
+          // Add analysis information
+          scope.analyzer = [];
+          for (var key in $scope.analysis.analyzer) {
+            console.log(key);
+            scope.analyzer.push(key);
+          }
 
           /**
            * Save index callback.

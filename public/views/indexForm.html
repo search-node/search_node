@@ -74,21 +74,6 @@
 
     <span data-ng-hide="mapping.fields[$index].indexable === false">
       <div class="form-group">
-        <label class="control-label col-xs-2" for="field-country-{{ $index }}">Country code</label>
-
-        <div class="col-xs-10">
-          <input type="text" class="form-control" id="field-country-{{ $index }}" placeholder="Country code" data-ng-model="mapping.fields[$index].country">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="control-label col-xs-2" for="field-language-{{ $index }}">Language</label>
-
-        <div class="col-xs-10">
-          <input type="text" class="form-control" id="field-language-{{ $index }}" placeholder="Language code" data-ng-model="mapping.fields[$index].language">
-        </div>
-      </div>
-
-      <div class="form-group">
         <label class="control-label col-xs-2" for="field-default_indexer-{{ $index }}">Default indexer</label>
 
         <div class="col-xs-10">
@@ -102,9 +87,23 @@
       <span data-ng-hide="mapping.fields[$index].default_indexer === 'not_analyzed'">
         <div class="form-group">
           <label class="control-label col-xs-2" for="field-default_analyzer-{{ $index }}">Default analyzer</label>
-
           <div class="col-xs-10">
-            <input type="text" class="form-control" id="field-default_analyzer-{{ $index }}" placeholder="Default analyzer" data-ng-model="mapping.fields[$index].default_analyzer">
+            <select class="form-control" id="field-default_analyzer-{{ $index }}"
+                    data-ng-model="mapping.fields[$index].default_analyzer"
+                    data-ng-options="item for item in analyzer">
+            </select>
+          </div>
+        </div>
+      </span>
+
+      <span data-ng-hide="mapping.fields[$index].sort === false">
+        <div class="form-group">
+          <label class="control-label col-xs-2" for="field-sort_analyzer-{{ $index }}">Sort analyzer</label>
+          <div class="col-xs-10">
+            <select class="form-control" id="field-sort_analyzer-{{ $index }}"
+                    data-ng-model="mapping.fields[$index].sort_analyzer"
+                    data-ng-options="item for item in analyzer">
+            </select>
           </div>
         </div>
       </span>

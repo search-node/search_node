@@ -2,6 +2,7 @@
 
 ## Development
 
+* Remove language and country selection (use analysis config instead) 
 * New Analysis page and json file.
 * Import/Export mappings
 * Added analyzer_startswith analyzer (can be used to create auto-complete).

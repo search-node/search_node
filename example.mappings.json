@@ -6,8 +6,6 @@
       {
         "field": "title",
         "type": "string",
-        "language": "da",
-        "country": "DK",
         "default_analyzer": "string_index",
         "sort": true,
         "indexable": true
@@ -15,8 +13,6 @@
       {
         "field": "name",
         "type": "string",
-        "language": "da",
-        "country": "DK",
         "default_analyzer": "string_index",
         "sort": true,
         "indexable": true
@@ -31,8 +27,6 @@
       {
         "field": "title",
         "type": "string",
-        "language": "da",
-        "country": "DK",
         "default_analyzer": "string_index",
         "sort": true,
         "indexable": true

@@ -11,7 +11,7 @@ var should = require("should");
 var server = supertest.agent("http://localhost:3010");
 
 var auth = {
-  "apikey": "7eb29c0fc44b5202cf240dfb9daeca48"
+  "apikey": "795359dd2c81fa41af67faa2f9adbd32"
 };
 var token;
 
@@ -76,8 +76,6 @@ describe('Index API', function() {
     "fields": [
       {
         "type": "string",
-        "country": "DK",
-        "language": "da",
         "default_analyzer": "string_index",
         "sort": true,
         "indexable": true,
@@ -88,8 +86,6 @@ describe('Index API', function() {
       },
       {
         "type": "string",
-        "country": "DK",
-        "language": "da",
         "default_analyzer": "string_index",
         "default_indexer": "analyzed",
         "sort": false,
@@ -99,8 +95,6 @@ describe('Index API', function() {
       },
       {
         "type": "string",
-        "country": "DK",
-        "language": "da",
         "default_analyzer": "string_index",
         "default_indexer": "not_analyzed",
         "sort": false,
@@ -110,8 +104,6 @@ describe('Index API', function() {
       },
       {
         "type": "geo_point",
-        "country": "DK",
-        "language": "da",
         "default_analyzer": "string_index",
         "default_indexer": "analysed",
         "sort": false,

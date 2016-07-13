@@ -14,7 +14,8 @@
     ],
     "consumes": [
       "logger",
-      "mappings"
+      "mappings",
+      "analysis"
     ]
   }
 }

@@ -73,144 +73,36 @@ Analysis.prototype.save = function save() {
 };
 
 /**
- * Adds a new API key and saves the file to disk.
+ * Parse the analysis file and remove meta-data.
  *
- * @param self
- *   Reference to the API keys object.
- * @param deferred
- *   Promise deferred object.
- * @param key
- *   The new API key.
- * @param info
- *   The API key information.
+ * @returns {*|promise}
  */
-function addAndSaveKey(self, deferred, key, info) {
-  "use strict";
+Analysis.prototype.parse = function parse() {
+  var self = this;
+  var deferred = Q.defer();
 
-}
+  self.load().then(
+    function (data) {
+      // Remove metadata from the analysis settings.
+      for (var i in data) {
+        // Type of analysis: analyzer, filter or tokenizer.
+        var types = data[i];
+        for (var key in types) {
+          for (var attribute in types[key]) {
+            if (attribute.indexOf('x_') === 0) {
+              delete data[i][key][attribute];
+            }
+          }
+        }
+      }
+      deferred.resolve(data);
+    },
+    function (error) {
+      deferred.reject(error);
+    }
+  );
 
-/**
- * Add new API key.
- *
- * @param key
- *   API key to add.
- * @param info
- *   API key information.
- *
- * @returns {*}
- *   Promise that either will resolve when the key is added or reject with an
- *   error.
- */
-Analysis.prototype.add = function add(key, info) {
-  "use strict";
-
-};
-
-/**
- * Updates an existing API key and saves the file to disk.
- *
- * @param self
- *   Reference to the API keys object.
- * @param deferred
- *   Promise deferred object.
- * @param key
- *   The API key to update.
- * @param info
- *   The API key information.
- */
-function updateAndSaveKey(self, deferred, key, info) {
-	"use strict";
-
-}
-
-/**
- * Update API key.
- *
- * @param key
- *   API key to update.
- * @param info
- *   API key information.
- *
- * @returns {*}
- *   Promise that either will resolve when the key have been updated or reject
- *   with an error.
- */
-Analysis.prototype.update = function update(key, info) {
-  "use strict";
-
-};
-
-/**
- * Remove an existing API key and saves the file to disk.
- *
- * @param self
- *   Reference to the API keys object.
- * @param deferred
- *   Promise deferred object.
- * @param key
- *   The API key to remove.
- */
-function removeAndSaveKey(self, deferred, key) {
-	"use strict";
-
-}
-
-/**
- * Update API key.
- *
- * @param key
- *   API key to add.
- *
- * @returns {*}
- *   Promise that either will resolve when the key have been removed or reject
- *   with an error.
- */
-Analysis.prototype.remove = function remove(key) {
-	"use strict";
-
-};
-
-/**
- * Gets analysis.
- *
- * @param key
- *   API key to check.
- *
- * @returns {*}
- *   Promise that either will resolve with the API keys info or false if it do
- *   not exists. If rejected it's do to api file errors.
- */
-Analysis.prototype.get = function get(key) {
-	"use strict";
-
-	var self = this;
-	var deferred = Q.defer();
-
-	// Check that API keys are loaded.
-	if (this.keys === null) {
-		// Load keys.
-		this.load().then(function(status) {
-				if (self.keys.hasOwnProperty(key)) {
-					deferred.resolve(self.keys[key]);
-				}
-				else {
-					deferred.resolve(false);
-				}
-			},
-			function (error) {
-				deferred.reject(error);
-			});
-	}
-	else {
-		if (self.keys.hasOwnProperty(key)) {
-			deferred.resolve(self.keys[key]);
-		}
-		else {
-			deferred.resolve(false);
-		}
-	}
-
-	return deferred.promise;
+  return deferred.promise;
 };
 
 /**
