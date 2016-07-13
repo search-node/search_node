@@ -7,6 +7,7 @@
         "field": "title",
         "type": "string",
         "default_analyzer": "string_index",
+        "sort_analyzer": "language_da_sort",
         "sort": true,
         "indexable": true
       },

@@ -1,11 +1,11 @@
 {
   "analyzer": {
     "string_search" : {
-      "x_description": "String search",
+      "x_description": "String search (danish)",
       "x_type": "indexer",
       "x_locked": true,
       "tokenizer" : "standard",
-      "filter" : ["lowercase", "stemmer_language"]
+      "filter" : ["lowercase", "stemmer_da_language"]
     },
     "string_index": {
       "x_description": "String indexer",
@@ -21,12 +21,12 @@
       "tokenizer": "keyword",
       "filter": [ "icu_collation" ]
     },
-    "language_sort": {
-      "x_description": "Language sort",
+    "language_da_sort": {
+      "x_description": "Language sort (danish)",
       "x_type": "search",
       "x_locked": true,
       "tokenizer": "keyword",
-      "filter": [ "search_language" ]
+      "filter": [ "da_language" ]
     },
     "analyzer_startswith": {
       "x_description": "Starts with (no stop words)",
@@ -45,11 +45,11 @@
       "max_gram": 20,
       "token_chars": [ "letter", "digit" ]
     },
-    "stemmer_en_language": {
-      "x_description": "Stemmer (english)",
+    "stemmer_da_language": {
+      "x_description": "Stemmer (danish)",
       "x_locked": true,
       "type" : "stemmer",
-      "name" : "english"
+      "name" : "danish"
     },
     "no_stop": {
       "x_description": "No stop words",
@@ -57,12 +57,12 @@
       "type":       "stop",
       "stopwords":  "_none_"
     },
-    "filter_en_language": {
-      "x_description": "Language filter (english)",
+    "da_language": {
+      "x_description": "Language filter (danish)",
       "x_locked": true,
       "type": "icu_collation",
-      "language": "en",
-      "country":  "UK"
+      "language": "da",
+      "country":  "DK"
     }
   },
   "tokenizer": {

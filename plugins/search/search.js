@@ -134,7 +134,7 @@ module.exports = function (options, imports, register) {
     // Load analysis settings.
     imports.analysis.parse().then(
       function (data) {
-        var body = { "settings": data };
+        var body = { "settings": { "analysis": data } };
 
         // Setup dynamic mappings for language and sorting.
         if (map.hasOwnProperty('fields')) {

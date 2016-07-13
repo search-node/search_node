@@ -82,7 +82,8 @@ describe('Index API', function() {
         "raw": false,
         "geopoint": false,
         "field": "Title",
-        "default_indexer": "analyzed"
+        "default_indexer": "analyzed",
+        "sort_analyzer": "language_da_sort"
       },
       {
         "type": "string",
