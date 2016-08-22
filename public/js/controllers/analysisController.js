@@ -20,6 +20,37 @@ angular.module('SearchNodeApp').controller('AnalysisController', ['$scope', '$wi
       );
     }
 
+    /**
+     * Add analyser callback.
+     */
+    $scope.addAnalyzer = function addAnalyzer() {
+      var scope = $scope.$new(true);
+
+      scope.save = function save() {
+        // dataService.send('post', '/api/admin/mapping/' + scope.index, scope.mapping).then(
+        //   function (data) {
+        //     $scope.message = data;
+        //     $scope.messageClass = 'alert-success';
+        //
+        //     // Reload data.
+        //     loadAnalysis();
+        //
+        //     // Close overlay.
+        //     overlay.close();
+        //   },
+        //   function (reason) {
+        //     $scope.message = reason.message;
+        //     $scope.messageClass = 'alert-danger';
+        //   }
+        // );
+      };
+
+      // Open the overlay.
+      var overlay = ngOverlay.open({
+        template: "views/analysis/analysers/add.html",
+        scope: scope
+      });
+    };
 
     // Get the controller up and running.
     loadAnalysis();
