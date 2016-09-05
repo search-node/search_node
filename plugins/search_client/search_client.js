@@ -20,6 +20,24 @@ module.exports = function (options, imports, register) {
     // Log that connection was made.
     logger.info('Client have made connection: ' + socket.id);
 
+    // Capture all "emit" to log them.
+    socket.emitOrg = socket.emit;
+    socket.emit = function emit(ev) {
+      var profile = socket.client.request.decoded_token;
+      var args = Array.prototype.slice.call(arguments);
+      logger.socket('Emit <-> ' + ev, args);
+      socket.emitOrg.apply(socket, args);
+    }
+
+    // Capture all "on" to log them.
+    socket.onOrg = socket.on;
+    socket.on = function on(ev) {
+      var profile = socket.client.request.decoded_token;
+      var args = Array.prototype.slice.call(arguments);
+      logger.socket('On <-> ' + ev, args);
+      socket.onOrg.apply(socket, args);
+    }
+
     /**
      * Handle search message.
      */

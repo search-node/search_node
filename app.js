@@ -16,8 +16,7 @@ var config = require(__dirname + '/config.json');
 var plugins = [
   {
     "packagePath": "./plugins/logger",
-    "filename": path.join(__dirname, config.log.file),
-    "debug": config.log.debug
+    "logs": config.logs
   },
   {
     "packagePath": "./plugins/server",

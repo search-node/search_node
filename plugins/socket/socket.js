@@ -78,6 +78,9 @@ SocketIO.prototype.emit = function emit(eventName, data, callback) {
 module.exports = function (options, imports, register) {
   "use strict";
 
+  // Get logger.
+  var logger = imports.logger;
+
   // Ensure that only one socket server exists.
   var socketIO = new SocketIO(imports.server, options.secret || undefined, options.monitor);
 
@@ -85,7 +88,7 @@ module.exports = function (options, imports, register) {
   register(null, {
     onDestruct: function (callback) {
       imports.server.close(callback);
-      imports.logger.debug('Express server stopped');
+      logger.debug('Express server stopped');
     },
     "socket": socketIO
   });

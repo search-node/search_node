@@ -5,9 +5,12 @@
   "main": "logger.js",
   "private": true,
   "dependencies": {
-    "log" : "1.4.x"
+    "winston": "^1.1.1",
+    "winston-logrotate": "^1.0.0"
   },
   "plugin": {
-    "provides": [ "logger" ]
+    "provides": [
+      "logger"
+    ]
   }
 }

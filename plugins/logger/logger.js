@@ -5,24 +5,121 @@
 
 // Node core modules.
 var fs = require('fs');
+var path = require('path');
 
 // NPM modules.
-var Log = require('log');
-
-// Holds the log object.
-var log;
+var winston = require('winston');
+var Rotate = require('winston-logrotate').Rotate;
 
 /**
  * Define the Base object (constructor).
  */
-var Logger = function Logger(filename, debug) {
+var Logger = function Logger(logs) {
   "use strict";
 
-  // If true debug messages are logged.
-  this.log_debug = debug;
+  var levels = winston.config.syslog.levels;
+  levels['socket'] = 8;
+  winston.setLevels(levels);
 
-  // Set logger.
-  log = new Log('debug', fs.createWriteStream(filename, {'flags': 'a'}));
+  if (logs.hasOwnProperty('info')) {
+    this.infoLog = new (winston.Logger)({
+      levels: levels,
+      transports: [
+        new Rotate({
+          file: path.join(__dirname, '../../' + logs.info),
+          level: 'info',
+          colorize: false,
+          timestamp: true,
+          json: false,
+          max: '100m',
+          keep: 5,
+          compress: false
+        })
+      ],
+      exitOnError: false
+    });
+  }
+
+  if (logs.hasOwnProperty('debug')) {
+    this.debugLog = new (winston.Logger)({
+      levels: levels,
+      transports: [
+        new Rotate({
+          file: path.join(__dirname, '../../' + logs.debug),
+          level: 'debug',
+          colorize: false,
+          timestamp: true,
+          json: false,
+          max: '100m',
+          keep: 5,
+          compress: false
+        })
+      ],
+      exitOnError: false
+    });
+  }
+
+  if (logs.hasOwnProperty('error')) {
+    this.errorLog = new (winston.Logger)({
+      levels: levels,
+      transports: [
+        new Rotate({
+          file: path.join(__dirname, '../../' + logs.error),
+          level: 'error',
+          colorize: false,
+          timestamp: true,
+          json: false,
+          max: '100m',
+          keep: 5,
+          compress: false
+        })
+      ],
+      exitOnError: false
+    });
+  }
+
+  if (logs.hasOwnProperty('socket')) {
+    this.socketLog = new (winston.Logger)({
+      levels: levels,
+      transports: [
+        new Rotate({
+          file: path.join(__dirname, '../../' + logs.socket),
+          level: 'socket',
+          colorize: false,
+          timestamp: true,
+          json: false,
+          max: '100m',
+          keep: 5,
+          compress: false
+        })
+      ],
+      exitOnError: false
+    });
+  }
+
+  if (logs.hasOwnProperty('exception')) {
+    this.excepLog = new (winston.Logger)({
+      levels: levels,
+      transports: [
+        new Rotate({
+          file: path.join(__dirname, '../../' + logs.exception),
+          level: 'exceptions-file',
+          colorize: false,
+          timestamp: true,
+          json: false,
+          max: '100m',
+          keep: 5,
+          compress: false
+        }),
+        new (winston.transports.Console)({
+          colorize: true,
+          level: 'exceptions-file',
+          timestamp: timeFormatFn
+        })
+      ],
+      exitOnError: true
+    });
+  }
 };
 
 /**
@@ -34,8 +131,8 @@ var Logger = function Logger(filename, debug) {
 Logger.prototype.error = function error(message) {
   "use strict";
 
-  if (log !== undefined) {
-    log.error(message);
+  if (this.errorLog !== undefined) {
+    this.errorLog.error(message);
   }
 };
 
@@ -48,8 +145,8 @@ Logger.prototype.error = function error(message) {
 Logger.prototype.info = function info(message) {
   "use strict";
 
-  if (log !== undefined) {
-    log.info(message);
+  if (this.infoLog !== undefined) {
+    this.infoLog.info(message);
   }
 };
 
@@ -62,8 +159,27 @@ Logger.prototype.info = function info(message) {
 Logger.prototype.debug = function debug(message) {
   "use strict";
 
-  if (log !== undefined && this.log_debug === true) {
-    log.debug(message);
+  if (this.debugLog !== undefined) {
+    this.debugLog.debug(message);
+  }
+};
+
+/**
+ * Log socket message.
+ *
+ * @param message
+ *   The message to send to the logger.
+ */
+Logger.prototype.socket = function socket(message, data) {
+  "use strict";
+
+  if (this.socketLog !== undefined) {
+    if (data !== undefined) {
+      this.socketLog.log('socket', message + ' <-:-> ', JSON.stringify(data));
+    }
+    else {
+      this.socketLog.log('socket', message);
+    }
   }
 };
 
@@ -73,8 +189,9 @@ Logger.prototype.debug = function debug(message) {
 module.exports = function (options, imports, register) {
   "use strict";
 
-  var logger = new Logger(options.filename, options.debug || false);
+  var logger = new Logger(options.logs);
 
+  // Register the plugin with the system.
   register(null, {
     "logger": logger
   });
