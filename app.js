@@ -47,7 +47,8 @@ var plugins = [
   },
   {
     "packagePath": "./plugins/search",
-    "hosts": config.search.hosts
+    "hosts": config.search.hosts,
+    "settings": config.hasOwnProperty('config.search.settings') ? config.search.settings : {}
   },
   {
     "packagePath": "./plugins/api",

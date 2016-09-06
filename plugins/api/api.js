@@ -311,8 +311,6 @@ var API = function (app, logger, Search, apikeys, mappings, options) {
   app.get('/api/indexes', this.expressJwt({"secret": options.secret}), function (req, res) {
     self.apikeys.get(req.user.apikey).then(
       function (info) {
-      console.log(info);
-
         if (info) {
           // Load mappings to get index names.
           self.mappings.load().then(
