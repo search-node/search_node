@@ -5,9 +5,12 @@
     "username": "admin",
     "password": "admin"
   },
-  "log": {
-    "file": "messages.log",
-    "debug": false
+  "logs": {
+    "all": "logs/messages.log",
+    "info": "logs/info.log",
+    "error": "logs/error.log",
+    "debug": "logs/debug.log",
+    "socket": "logs/socket.log"
   },
   "search": {
     "hosts": [ "192.168.50.32:9200" ],
