@@ -11,7 +11,7 @@ var should = require("should");
 var server = supertest.agent("http://localhost:3010");
 
 var auth = {
-  "apikey": "795359dd2c81fa41af67faa2f9adbd32"
+  "apikey": "7eb29c0fc44b5202cf240dfb9daeca48"
 };
 var token;
 
