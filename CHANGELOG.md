@@ -1,6 +1,8 @@
 # Change log for the search node
 
-## Development
+## 2.1.8
+
+* Fixed fav-icon path for node-6.x
 
 ## 2.1.7
 
