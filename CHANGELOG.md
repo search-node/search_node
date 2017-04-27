@@ -2,9 +2,20 @@
 
 ## Development
 
+## 2.1.7
+
+* Highlight search results support.
+
+## 2.1.6
+
 * Added analyzer_startswith analyzer (can be used to create auto-complete).
 * Added option to use monitor.io to look into socket connections via telnet.
 * Added configurable callbacks/message in search socket messages (require new client).
+
+## 2.1.5
+
+* UI support for import/export mappings in JSON
+* Added analyzer_startswith analyzer (can be used to create auto-complete)
 
 ## 2.1.4
 
