@@ -180,7 +180,7 @@ module.exports = function (options, imports, register) {
             "ngram": {
               "type": "nGram",
               "min_gram": 1,
-              "max_gram": 20,
+              "max_gram": 28,
               "token_chars": [ "letter", "digit" ]
             },
             "stemmer_language": {
