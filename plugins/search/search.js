@@ -10,6 +10,7 @@ var eventEmitter = require('events').EventEmitter;
 // Modules used to and by the search backend.
 var elasticsearch = require('elasticsearch');
 var rename = require('rename-keys');
+var merge = require('merge-light');
 
 // Register the plugin.
 module.exports = function (options, imports, register) {
@@ -179,7 +180,7 @@ module.exports = function (options, imports, register) {
             "ngram": {
               "type": "nGram",
               "min_gram": 1,
-              "max_gram": 20,
+              "max_gram": 28,
               "token_chars": [ "letter", "digit" ]
             },
             "stemmer_language": {
@@ -317,9 +318,12 @@ module.exports = function (options, imports, register) {
     this.type = type;
     this.id = id;
 
-    // Connection to Elasticsearch.
-    var config = JSON.parse(JSON.stringify(options.hosts));
-    this.es = elasticsearch.Client(config);
+    // Connection to Elasticsearch. For more informatino about the settings
+    // available see: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/configuration.html
+    var hosts = JSON.parse(JSON.stringify(options.hosts));
+    var settings = JSON.parse(JSON.stringify(options.settings));
+    var conf = merge(hosts, settings);
+    this.es = elasticsearch.Client(conf);
 
     // Set logger for the object (other plugin).
     this.logger = imports.logger;

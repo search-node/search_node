@@ -180,7 +180,7 @@ describe('Index API', function() {
         // Check that the created index exists and is the only index.
         res.body.should.have.length(1);
         res.body[0].should.have.properties({
-          'index': 'e374e212db3409573917dd6e968c83ba',
+          'index': index,
           'name': 'Test',
           'tag': 'private'
         });

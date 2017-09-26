@@ -6,6 +6,7 @@
   "private": true,
   "dependencies": {
     "elasticsearch": "8.1.x",
+    "merge-light": "0.0.2",
     "rename-keys": "^1.1.2"
   },
   "plugin": {
