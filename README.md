@@ -3,7 +3,7 @@
 The guide assumes that you have an installed linux based server with the following packages installed and at least the versions given.
 
  * nginx 1.4.x
- * node 0.10.x
+ * node 6.x
  * supervisor 3.x
  * Valid SSL certificates for you domain.
 
