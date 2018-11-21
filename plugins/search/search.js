@@ -320,7 +320,8 @@ module.exports = function (options, imports, register) {
 
     // Connection to Elasticsearch. For more informatino about the settings
     // available see: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/configuration.html
-    var hosts = JSON.parse(JSON.stringify(options.hosts));
+    // Pull in the explicit configuration of the ES host.
+    var hosts = {'hosts': JSON.parse(JSON.stringify(options.hosts))};
     var settings = JSON.parse(JSON.stringify(options.settings));
     var conf = merge(hosts, settings);
     this.es = elasticsearch.Client(conf);
