@@ -6,7 +6,7 @@
   "private": true,
   "dependencies": {
     "q": "^1.4.1",
-    "express-jwt": "^3.0.1"
+    "express-jwt": "^6.0.0"
   },
   "plugin": {
     "consumes": [
