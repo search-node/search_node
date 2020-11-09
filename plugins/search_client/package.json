@@ -4,9 +4,7 @@
   "version": "0.0.1",
   "main": "search_client.js",
   "private": true,
-  "dependencies": {
-
-  },
+  "dependencies": {},
   "plugin": {
     "consumes": [
       "logger",

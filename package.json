@@ -4,11 +4,15 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "architect": "0.1.11"
+    "architect": "0.1.11",
+    "nodemon": "^2.0.6"
   },
   "devDependencies": {
     "mocha": "^2.4.5",
     "should": "^8.2.2",
     "supertest": "^1.2.0"
+  },
+  "scripts": {
+    "dev": "./node_modules/.bin/nodemon app.js"
   }
 }

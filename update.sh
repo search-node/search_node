@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install main modules
-npm install
+npm install --production
 
 # Install plugin dependencies.
 for folder in plugins/*; do

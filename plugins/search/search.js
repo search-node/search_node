@@ -237,6 +237,7 @@ module.exports = function (options, imports, register) {
         self.emit('indexCreated', index);
       }
       else {
+        console.log(response);
         self.emit('error', { 'status': status, 'res': response });
       }
     });
@@ -318,11 +319,12 @@ module.exports = function (options, imports, register) {
     this.type = type;
     this.id = id;
 
-    // Connection to Elasticsearch. For more informatino about the settings
+    // Connection to Elasticsearch. For more information about the settings
     // available see: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/configuration.html
     var hosts = JSON.parse(JSON.stringify(options.hosts));
     var settings = JSON.parse(JSON.stringify(options.settings));
-    var conf = merge(hosts, settings);
+    var conf = merge({hosts: hosts}, settings);
+    console.log(conf);
     this.es = elasticsearch.Client(conf);
 
     // Set logger for the object (other plugin).
@@ -352,7 +354,7 @@ module.exports = function (options, imports, register) {
       "index": self.index
     }, function (err, response, status) {
       if (status === 404) {
-        self.logger.error('Search: Add request for unkown index: ' + self.index + ' with type: ' + self.type);
+        self.logger.error('Search: Add request for unknown index: ' + self.index + ' with type: ' + self.type);
       }
       else {
         // Index and mapping exists, so just add the document.
@@ -559,7 +561,8 @@ module.exports = function (options, imports, register) {
       function (map) {
         buildNewIndex(self, self.logger, map, index);
       },
-      function (error) {
+      function (error)
+      {
         // Send not created event.
         self.emit('indexNotCreated', error);
       }

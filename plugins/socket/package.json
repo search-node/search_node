@@ -11,7 +11,9 @@
     "monitor.io": "0.1.0"
   },
   "plugin": {
-    "provides": [ "socket" ],
+    "provides": [
+      "socket"
+    ],
     "consumes": [
       "logger",
       "server"

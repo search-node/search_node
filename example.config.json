@@ -13,9 +13,8 @@
     "socket": "logs/socket.log"
   },
   "search": {
-    "hosts": [ "localhost:9200" ],
+    "hosts": [ "elasticsearch:9200" ],
     "mappings": "mappings.json"
   },
-  "apikeys": "apikeys.json",
-  "sentryUrl": "https://xxx:xxx@app.getsentry.com/xxx"
+  "apikeys": "apikeys.json"
 }
