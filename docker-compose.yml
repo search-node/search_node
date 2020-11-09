@@ -1,0 +1,62 @@
+version: "3"
+
+networks:
+  frontend:
+    external: true
+  app:
+    driver: bridge
+    internal: false
+
+services:
+  nginx:
+    image: nginx:latest
+    networks:
+      - app
+      - frontend
+    depends_on:
+      - node
+    ports:
+       - '80'
+    volumes:
+      - ${PWD}/.docker/vhost.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./:/app:delegated
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=frontend"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_DOMAIN}`)"
+
+  node:
+    image: node:12
+    command: npm run dev
+    networks:
+      - app
+    ports:
+      - '3010'
+    volumes:
+      - .:/app:delegated
+    working_dir: /app
+
+  elasticsearch:
+    image: 'elasticsearch:1.7.1'
+    networks:
+      - app
+    environment:
+      - node.name=es01
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD="password"
+      - xpack.license.self_generated.type=trial
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.http.ssl.key=/usr/share/elasticsearch/data/es01/es01.key
+      - xpack.security.http.ssl.certificate_authorities=/usr/share/elasticsearch/data/ca/ca.crt
+      - xpack.security.http.ssl.certificate=/usr/share/elasticsearch/data/es01/es01.crt
+      - xpack.security.transport.ssl.enabled=false
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/data/ca/ca.crt
+      - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/data/es01/es01.crt
+      - xpack.security.transport.ssl.key=/usr/share/elasticsearch/data/es01/es01.key
+    volumes:
+      - ${PWD}/.docker/es:/usr/share/elasticsearch/data:rw
+    ports:
+      - '9200'
+      - '9300'
