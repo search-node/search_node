@@ -23,10 +23,10 @@ var plugins = [
     "port": config.port,
     "path": path.join(__dirname, 'public')
   },
-	{
-		"packagePath": "./plugins/apikeys",
-		"file": __dirname + '/' + config.apikeys
-	},
+  {
+      "packagePath": "./plugins/apikeys",
+      "file": __dirname + '/' + config.apikeys
+  },
   {
     "packagePath": "./plugins/mappings",
     "file": __dirname + '/' + config.search.mappings

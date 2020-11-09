@@ -8,3 +8,4 @@ ssl/ind*
 .DS_Store
 *.pid
 .idea
+.docker/es

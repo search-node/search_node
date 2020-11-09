@@ -38,8 +38,13 @@ services:
 
   elasticsearch:
     image: 'elasticsearch:1.7.1'
+    command:
+      - sh
+      - -c
+      - "plugin list | grep -q elasticsearch/elasticsearch-analysis-icu/2.5.0 || plugin -install elasticsearch/elasticsearch-analysis-icu/2.5.0; /docker-entrypoint.sh elasticsearch"
     networks:
       - app
+      - frontend
     environment:
       - node.name=es01
       - discovery.type=single-node

@@ -1,15 +1,13 @@
 #!/bin/bash
 
 # Install main modules
-npm install
+npm audit fix
 
 # Install plugin dependencies.
 for folder in plugins/*; do
   if [ -d $folder ]; then
     cd $folder
-    npm-check-updates -u
-    rm -rf node_modules
-    npm install --production
+    npm audit fix
     cd ../..
   fi
 done

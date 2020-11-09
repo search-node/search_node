@@ -13,6 +13,6 @@
     "supertest": "^1.2.0"
   },
   "scripts": {
-    "dev": "DEBUG=* ./node_modules/.bin/nodemon app.js"
+    "dev": "./node_modules/.bin/nodemon app.js"
   }
 }
